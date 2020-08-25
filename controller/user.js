@@ -1,6 +1,7 @@
 const User = require('../model/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Supplier = require('../model/supplier');
 //This function create new user and save it to the database
 exports.addUser = (req, res, next) => {
     User.find({contactNo : req.body.contactNo}).exec().then(user =>{
@@ -109,3 +110,25 @@ exports.logUser = (req, res, next)=>{
         });
     });
 };
+//Add supplier details to system
+exports.suppliers = (req,res,next)=>{
+    var supplier = new Supplier({
+        supervisorNo : req.body.supervisorNo,
+        supplierName : req.body.supplierName,
+        supplierContactNo : req.body.supplierContactNo,
+        consitementDetails : req.body.consitementDetails
+    });
+    supplier.save().exec()
+    .then(result =>{
+        console.log(result);
+        res.status.json({
+            message : 'Supplier Details added'
+        })
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(404).json({
+            error : err
+        });
+    });
+}

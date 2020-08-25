@@ -1,8 +1,16 @@
 const WorkDes = require('../model/workDetails');
 const User = require('../model/user')
+const date = require('date-and-time');
+//Add Work to System
 exports.addWorkDes = (req,res,next)=>{
     User.find({contactNo : req.body.contactNo}).exec().then(result=>{
-        var userId = result.user_id;
+        var userId = result[0].user_id;
+        var uiDate = req.body.date;
+        var temp = uiDate.split('/');
+        temp = temp.reverse();
+        var servDate = new Date();
+        servDate = date.format(servDate,temp.join('-'));
+        console.log('d',servDate.toString());
         workdets = new WorkDes({
             supervisorId : userId,
             supervisorContactNo : req.body.contactNo,
@@ -15,7 +23,7 @@ exports.addWorkDes = (req,res,next)=>{
             },
             workDescription : req.body.workDescription,
             cementAmount : req.body.cementAmount,
-            date : req.body.date
+            date : new Date(servDate.toString())
         });
         workdets.save()
         .then(result => {
@@ -30,6 +38,30 @@ exports.addWorkDes = (req,res,next)=>{
             res.status(201).json({
                 error : err
             });
+    });
+}).catch(err=>{
+    console.log(err);
+    res.status(404).json({
+        error : err
+    });
+});
+    }
+
+//Retrieve Work Deails based on particular date
+exports.getWorkByDate = (req,res,next)=>{
+    var date = req.params.date;
+    date = date.split('-');
+    date = date.reverse();
+    date = date.join('-');
+    console.log('param ',date)
+    WorkDes.find({date:date}).exec()
+    .then(result=>{
+        if(result.length == 0){
+            throw 'Not found Records'
+        }
+        else{
+        res.status(200).json(result);
+    }
     })
     .catch(err=>{
         console.log(err);
@@ -38,4 +70,3 @@ exports.addWorkDes = (req,res,next)=>{
         });
     });
 }
-    )}
