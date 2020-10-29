@@ -6,13 +6,12 @@ const mongoose = require("mongoose");
 const admin = require('./routes/admin');
 const supervises = require('./routes/workDetails');
 var db = mongoose.connection;
-console.log(process.env.JWT_KEY)
 mongoose.connect('mongodb://localhost:27017/ChintanDB',{
-    useNewUrlParser: true, useUnifiedTopology: true
+    useNewUrlParser: true, useUnifiedTopology: true,useFindAndModify: false
 });
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function(callback) {
-     console.log("Connection succeeded.");
+     console.log("Connection to the database eastablished.");
  });
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended:false}));

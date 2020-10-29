@@ -6,6 +6,12 @@ const checkAuth = require('../Authentication/check_auth');
 route.post('/SignUp',user.addUser);
 //Sign In route
 route.post('/SignIn',user.logUser);
+//Get Particular User Info
+route.get('/getUsr/:email',checkAuth,user.getUsr);
+//Get All Users list from system
+route.get('/getAllUsr',checkAuth,user.getAllUsr);
+//Edit User Details
+route.post('/editDetails/:email',checkAuth,user.editUsrInfo);
 //Supplier Route
 route.post('/supplier',checkAuth,user.suppliers);
 module.exports = route;

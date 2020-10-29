@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const Supplier = require('../model/supplier');
 //This function create new user and save it to the database
 exports.addUser = (req, res, next) => {
-    User.find({contactNo : req.body.contactNo}).exec().then(user =>{
+    User.find({email : req.body.email}).exec().then(user =>{
         if(user.length >=1){
             return res.status(409).json({
                 message : "User already exist"
@@ -39,6 +39,7 @@ exports.addUser = (req, res, next) => {
                             firstName: req.body.firstName,
                             lastName : req.body.lastName,
                             contactNo : req.body.contactNo,
+                            email : req.body.email,
                             password :hash 
                         });
                         user.save().then(result => {
@@ -69,7 +70,7 @@ exports.addUser = (req, res, next) => {
 
 //This function used for login use
 exports.logUser = (req, res, next)=>{
-    User.find({contactNo : req.body.contactNo}).exec()
+    User.find({email : req.body.email}).exec()
     .then(user =>{
         if(user.length <1){
             return res.status(401).json({
@@ -110,6 +111,51 @@ exports.logUser = (req, res, next)=>{
         });
     });
 };
+//Get User Info 
+exports.getUsr = (req,res,next)=>{
+    var email = req.params.email;
+    User.find({email:email}).select('-password').exec()
+    .then(doc=>{
+        console.log(doc);
+        res.status(200).json(doc);
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(404).json({
+            error : err
+        });
+    });
+}
+//Retrive All Users from system
+exports.getAllUsr = (req,res,next)=>{
+    User.find().select('-password').exec()
+    .then(doc=>{
+        console.log("Users Found");
+        res.status(200).json(doc);
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(404).json({
+            error : "Unable to find Users"
+        });
+    });
+};
+//Edit User Details
+exports.editUsrInfo = (req,res,next)=>{
+    var email = req.params.email;
+    User.findOneAndUpdate({email : email},req.body).select('-password').exec()
+    .then(doc=>{
+        res.status(200).json({
+            message : 'Info Updated'
+        });
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(404).json({
+            error : "User Not Found"
+        })
+    });
+}
 //Add supplier details to system
 exports.suppliers = (req,res,next)=>{
     var supplier = new Supplier({

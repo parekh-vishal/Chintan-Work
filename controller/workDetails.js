@@ -49,10 +49,11 @@ exports.addWorkDes = (req,res,next)=>{
 
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = (req,res,next)=>{
+    var saperator = '-'
     var date = req.params.date;
-    date = date.split('-');
+    date = date.split(saperator);
     date = date.reverse();
-    date = date.join('-');
+    date = date.join(saperator);
     console.log('param ',date)
     WorkDes.find({date:date}).exec()
     .then(result=>{
