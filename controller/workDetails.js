@@ -10,7 +10,7 @@ exports.addWorkDes = (req,res,next)=>{
         temp = temp.reverse();
         var servDate = new Date();
         servDate = date.format(servDate,temp.join('-'));
-        console.log('d',servDate.toString());
+        //console.log('d',servDate.toString());
         workdets = new WorkDes({
             supervisorId : userId,
             supervisorContactNo : req.body.contactNo,
@@ -47,6 +47,27 @@ exports.addWorkDes = (req,res,next)=>{
 });
     }
 
+//Edit Work Details by Supervisor on specific date. Date could not be changed.
+exports.updateWorkdetails = (req,res,next)=>{
+    var saperator = '-'
+    var date = req.params.date;
+    date = date.split(saperator);
+    date = date.reverse();
+    date = date.join(saperator);
+    console.log(date);
+    WorkDes.findOneAndUpdate({date:date},req.body).exec()
+    .then(doc=>{
+        res.status(200).json({
+            message : "Work Details Updated."
+        });
+    })
+    .catch(err=>{
+        //console.log(err);
+        res.status(404).json({
+            error : err
+        });
+    });
+};
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = (req,res,next)=>{
     var saperator = '-'

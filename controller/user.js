@@ -156,6 +156,47 @@ exports.editUsrInfo = (req,res,next)=>{
         })
     });
 }
+//E-mail Verification with System
+exports.mailVerification = (req,res,next)=>{
+    var mail = req.body.e-mail;
+    User.find({email:mail}).select('-password').exec()
+    .then(doc=>{
+        res.status(200).json({
+            message : "Mail Verified"
+        })
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(404).json({
+            error : "No User with this E-mail Not Found in System"
+        })
+    });
+};
+//Password Reset
+exports.passReset = (req,res,next)=>{
+    var mail = req.body.email;
+    bcrypt.hash(req.body.password,10,(err,hash)=>{
+        if(err){
+            return res.status(500).json({
+                error : err
+            });
+        }
+        else{
+            User.findOneAndUpdate({email:mail},{password:hash}).exec()
+            .then(doc=>{
+                res.status(200).json({
+                    message : "Password Successfully Changed"
+                })
+            })
+            .catch(err=>{
+                console.log(err);
+                res.status(404).json({
+                    error : err
+                });
+            });
+        }
+    });
+};
 //Add supplier details to system
 exports.suppliers = (req,res,next)=>{
     var supplier = new Supplier({
