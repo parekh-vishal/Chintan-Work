@@ -58,7 +58,12 @@ export const post = (
       return res;
     })
     .catch(err => {
-      throw new Error();
+      if (err.response) {
+        alert("ERROR\n\n"+err.response.data.message);
+      } else {
+        alert("ERROR\n\n Error while processing data");
+      }      
+      throw new Error(err);
     });
 };
 

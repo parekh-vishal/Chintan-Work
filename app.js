@@ -2,6 +2,7 @@ const express=require("express");
 const app=express();
 const morgan =require('morgan');
 const path = require('path');
+const cors = require('cors');
 const bodyParser=require("body-parser");
 const mongoose = require("mongoose");
 const admin = require('./routes/admin');
@@ -15,6 +16,7 @@ db.once("open", function(callback) {
      console.log("Connection to the database eastablished.");
  });
 app.use(morgan('dev'));
+app.use(cors())
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, './views/build')));

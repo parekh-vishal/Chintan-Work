@@ -5,15 +5,17 @@ import * as React from "react";
 import { Button, Col, Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import axios from 'axios';
 
 import { Formik } from 'formik';
 import * as DefaultActionCreator from "../../ActionCreators/_DefaultActionCreator";
 // import { IAppState } from "../../Reducers/rootReducer";
+import {post} from '../../Utils/WebRequestUtil';
 import "./signup.scss"
 
 export interface IProps {
   dispatch: Dispatch<any>;
+  history: any;
+  location: any;
 }
 
 interface signupStates {
@@ -50,15 +52,19 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
     this.props.dispatch(DefaultActionCreator.action());
   }
 
-  onSubmit = (values: any) => {
+  onSubmit = async (values: any) => {
     // e.preventDefault();
     const { firstName, lastName, email, contactNo, password } = values;
     console.log(firstName, lastName, email, contactNo, password);
 
-    axios.post('http://localhost:3000/admin/SignUp', { firstName, lastName, email, contactNo, password })
-      .then((result) => {
-        console.log(result);
-    });
+    const submitdata = await post({url: 'admin/SignUp', body: { firstName, lastName, email, contactNo, password } })
+
+    alert(submitdata.data.message);
+    this.navigateToLoginPage();
+  }
+
+  navigateToLoginPage = () => {
+    this.props.history.push('/login');
   }
 
   public render() {
@@ -124,6 +130,7 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
                   <Form.Label column lg={2}>Email address</Form.Label>
                   <Col>
                     <Form.Control type="email" placeholder="Enter email" onChange={handleChange} onBlur={handleBlur} value={values.email}/>
+                    <Form.Text className="text-danger">{errors.email}</Form.Text>
                   </Col>
                 </Form.Row>
               </Form.Group>
@@ -145,7 +152,7 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
                   </Col>
                 </Form.Row>
               </Form.Group>
-              <Button variant="secondary">
+              <Button variant="secondary" onClick={this.navigateToLoginPage}>
                 Cancel
               </Button>{' '}
               <Button variant="primary" type="submit">
