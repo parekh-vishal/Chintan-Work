@@ -84,7 +84,6 @@ exports.logUser = (req, res, next)=>{
                 });
             }
             if(result){
-                console.log(process.env.JWT_KEY);
                const token = jwt.sign({
                     contactNo : user[0].contactNo,
                     userId : user[0]._id
@@ -94,6 +93,7 @@ exports.logUser = (req, res, next)=>{
                     expiresIn : "1h"
                 }
                 );
+                req.session.isLoggedin = true;
                 return res.status(200).json({
                     message : 'Login Successful',
                     token : token
@@ -110,6 +110,35 @@ exports.logUser = (req, res, next)=>{
             error : err
         });
     });
+};
+//LogOut feature
+exports.logoutUser = (req,res,next)=>{
+    /*req.session.destroy((err)=>{
+        if(err){
+            console.log(err);
+            res.status(400).json({
+                error : 'Log Out Error'
+            })
+        }
+        res.status(200).json({
+            message : "User Logged Out"
+        })
+    });*/
+    const token = req.headers.authorization.split(" ")[1] || req.body.token;
+    const decode = jwt.verify(token,process.env.JWT_KEY);
+    const newtoken = jwt.sign({
+        contactNo : '',
+        userId : ''
+    }, 
+    process.env.JWT_KEY,
+    {
+        expiresIn : "1h"
+    }
+    );
+    res.status(200).json({
+        token : newtoken,
+        message : "Logged Out"
+    })
 };
 //Get User Info 
 exports.getUsr = (req,res,next)=>{
