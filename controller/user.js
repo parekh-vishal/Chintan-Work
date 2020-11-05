@@ -77,6 +77,7 @@ exports.logUser = (req, res, next)=>{
                 message : 'Login Failed'
             });
            }
+           let email = user[0].email;
         bcrypt.compare(req.body.password,user[0].password, (err,result)=>{
             if(err){
                 return res.status(401).json({
@@ -94,9 +95,11 @@ exports.logUser = (req, res, next)=>{
                 }
                 );
                 req.session.isLoggedin = true;
+                process.env.USERSESSION = "true";
                 return res.status(200).json({
                     message : 'Login Successful',
-                    token : token
+                    token : token,
+                    email : email
                 });
             } 
             res.status(401).json({
@@ -124,19 +127,8 @@ exports.logoutUser = (req,res,next)=>{
             message : "User Logged Out"
         })
     });*/
-    const token = req.headers.authorization.split(" ")[1] || req.body.token;
-    const decode = jwt.verify(token,process.env.JWT_KEY);
-    const newtoken = jwt.sign({
-        contactNo : '',
-        userId : ''
-    }, 
-    process.env.JWT_KEY,
-    {
-        expiresIn : "1h"
-    }
-    );
+    process.env.USERSESSION = "false"
     res.status(200).json({
-        token : newtoken,
         message : "Logged Out"
     })
 };

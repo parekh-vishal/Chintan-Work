@@ -1,6 +1,7 @@
 {
     "env" : {
         "JWT_KEY" : "Secret",
-        "MONGO_SERVER" : "mongodb://localhost:27017/ChintanDB"
+        "MONGO_SERVER" : "mongodb://localhost:27017/ChintanDB",
+        "USERSESSION" : "false"
     }
 }
