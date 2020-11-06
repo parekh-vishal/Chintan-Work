@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const Token = require('../model/token');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Supplier = require('../model/supplier');
@@ -70,45 +71,54 @@ exports.addUser = (req, res, next) => {
 
 //This function used for login use
 exports.logUser = (req, res, next)=>{
-    User.find({email : req.body.email}).exec()
+    User.findOne({email : req.body.email}).exec()
     .then(user =>{
-        if(user.length <1){
+        if(!user){
             return res.status(401).json({
-                message : 'Login Failed'
+                message : 'User Not Found'
             });
            }
-           let email = user[0].email;
-        bcrypt.compare(req.body.password,user[0].password, (err,result)=>{
-            if(err){
-                return res.status(401).json({
-                    message : 'Login Failed'
-                });
+        bcrypt.compare(req.body.password,user.password)
+        .then(doMatch=>{
+           const token = jwt.sign({
+                contactNo : user.contactNo,
+                userId : user._id
+            }, 
+            process.env.JWT_KEY,
+            {
+                expiresIn : "1h"
             }
-            if(result){
-               const token = jwt.sign({
-                    contactNo : user[0].contactNo,
-                    userId : user[0]._id
-                }, 
-                process.env.JWT_KEY,
-                {
-                    expiresIn : "1h"
+            );
+            var email = user.email;
+            let addTkn = new Token({
+                mail : email,
+                token:token
+            });
+            addTkn.save().then(doc=>{
+                if(doMatch){
+                    res.status(200).json({
+                        message : 'Login Successful',
+                        token : token,
+                        email : email
+                    });
                 }
-                );
-                req.session.isLoggedin = true;
-                process.env.USERSESSION = "true";
-                return res.status(200).json({
-                    message : 'Login Successful',
-                    token : token,
-                    email : email
+                 else{
+                    res.status(401).json({
+                    message : 'Invalid Password'
                 });
-            } 
+                }
+            }).catch(err=>{
+                console.log(err);
+            });
+        }).catch(err=>{
+            console.log(err);
             res.status(401).json({
                 message : 'Login Failed'
             });
-        });
+        })
     })
     .catch(err=>{
-        console.log(err);
+        console.log("error",err);
         res.status(500).json({
             error : err
         });
@@ -116,7 +126,7 @@ exports.logUser = (req, res, next)=>{
 };
 //LogOut feature
 exports.logoutUser = (req,res,next)=>{
-    /*req.session.destroy((err)=>{
+   /* req.session.destroy((err)=>{
         if(err){
             console.log(err);
             res.status(400).json({
@@ -127,10 +137,31 @@ exports.logoutUser = (req,res,next)=>{
             message : "User Logged Out"
         })
     });*/
-    process.env.USERSESSION = "false"
-    res.status(200).json({
-        message : "Logged Out"
-    })
+   const tkn = req.headers.authorization.split(" ")[1] || req.body.token;
+   Token.findOne({token : tkn})
+   .then(doc=>{
+    console.log(doc);
+       if(doc.token!=null){
+            Token.remove({token : tkn}).exec()
+            .then(result=>{
+                res.status(200).json({
+                    message : 'Logged Out'
+                });
+            })
+            .catch(err=>{
+                console.log(err);
+                res.status(400).json({
+                    message : 'error in logged out'
+                });
+            });
+       }
+   })
+   .catch(err=>{
+       console.log(err);
+       res.status(404).json({
+           error : "Token not found"
+       })
+   }); 
 };
 //Get User Info 
 exports.getUsr = (req,res,next)=>{
