@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const Token = require('../model/token');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Supplier = require('../model/supplier');
@@ -70,37 +71,45 @@ exports.addUser = (req, res, next) => {
 
 //This function used for login use
 exports.logUser = (req, res, next)=>{
-    User.find({email : req.body.email}).exec()
+    User.findOne({email : req.body.email}).exec()
     .then(user =>{
         if(!user){
             return res.status(401).json({
                 message : 'User Not Found'
             });
            }
-        bcrypt.compare(req.body.password,user[0].password)
+        bcrypt.compare(req.body.password,user.password)
         .then(doMatch=>{
-           /* const token = jwt.sign({
-                contactNo : user[0].contactNo,
-                userId : user[0]._id
+           const token = jwt.sign({
+                contactNo : user.contactNo,
+                userId : user._id
             }, 
             process.env.JWT_KEY,
             {
                 expiresIn : "1h"
             }
-            );*/
-            let email = user[0].email;
-            if(doMatch){
-                req.session.isLoggedin = true;
-                req.session.user = user;
-                return req.session.save(err=>{
-                res.status(200).json({
-                    message : 'Login Successful',
-                   // token : token,
-                    email : email
-                });
+            );
+            var email = user.email;
+            let addTkn = new Token({
+                mail : email,
+                token:token
             });
-            }
-            //process.env.USERSESSION = "true";
+            addTkn.save().then(doc=>{
+                if(doMatch){
+                    res.status(200).json({
+                        message : 'Login Successful',
+                        token : token,
+                        email : email
+                    });
+                }
+                 else{
+                    res.status(401).json({
+                    message : 'Invalid Password'
+                });
+                }
+            }).catch(err=>{
+                console.log(err);
+            });
         }).catch(err=>{
             console.log(err);
             res.status(401).json({
@@ -117,7 +126,7 @@ exports.logUser = (req, res, next)=>{
 };
 //LogOut feature
 exports.logoutUser = (req,res,next)=>{
-    req.session.destroy((err)=>{
+   /* req.session.destroy((err)=>{
         if(err){
             console.log(err);
             res.status(400).json({
@@ -127,11 +136,32 @@ exports.logoutUser = (req,res,next)=>{
         res.status(200).json({
             message : "User Logged Out"
         })
-    });
-   /* process.env.USERSESSION = "false"
-    res.status(200).json({
-        message : "Logged Out"
-    })*/
+    });*/
+   const tkn = req.headers.authorization.split(" ")[1] || req.body.token;
+   Token.findOne({token : tkn})
+   .then(doc=>{
+    console.log(doc);
+       if(doc.token!=null){
+            Token.remove({token : tkn}).exec()
+            .then(result=>{
+                res.status(200).json({
+                    message : 'Logged Out'
+                });
+            })
+            .catch(err=>{
+                console.log(err);
+                res.status(400).json({
+                    message : 'error in logged out'
+                });
+            });
+       }
+   })
+   .catch(err=>{
+       console.log(err);
+       res.status(404).json({
+           error : "Token not found"
+       })
+   }); 
 };
 //Get User Info 
 exports.getUsr = (req,res,next)=>{
