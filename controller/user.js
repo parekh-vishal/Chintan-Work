@@ -72,43 +72,44 @@ exports.addUser = (req, res, next) => {
 exports.logUser = (req, res, next)=>{
     User.find({email : req.body.email}).exec()
     .then(user =>{
-        if(user.length <1){
+        if(!user){
             return res.status(401).json({
-                message : 'Login Failed'
+                message : 'User Not Found'
             });
            }
-           let email = user[0].email;
-        bcrypt.compare(req.body.password,user[0].password, (err,result)=>{
-            if(err){
-                return res.status(401).json({
-                    message : 'Login Failed'
-                });
+        bcrypt.compare(req.body.password,user[0].password)
+        .then(doMatch=>{
+           /* const token = jwt.sign({
+                contactNo : user[0].contactNo,
+                userId : user[0]._id
+            }, 
+            process.env.JWT_KEY,
+            {
+                expiresIn : "1h"
             }
-            if(result){
-               const token = jwt.sign({
-                    contactNo : user[0].contactNo,
-                    userId : user[0]._id
-                }, 
-                process.env.JWT_KEY,
-                {
-                    expiresIn : "1h"
-                }
-                );
+            );*/
+            let email = user[0].email;
+            if(doMatch){
                 req.session.isLoggedin = true;
-                process.env.USERSESSION = "true";
-                return res.status(200).json({
+                req.session.user = user;
+                return req.session.save(err=>{
+                res.status(200).json({
                     message : 'Login Successful',
-                    token : token,
+                   // token : token,
                     email : email
                 });
-            } 
+            });
+            }
+            //process.env.USERSESSION = "true";
+        }).catch(err=>{
+            console.log(err);
             res.status(401).json({
                 message : 'Login Failed'
             });
-        });
+        })
     })
     .catch(err=>{
-        console.log(err);
+        console.log("error",err);
         res.status(500).json({
             error : err
         });
@@ -116,7 +117,7 @@ exports.logUser = (req, res, next)=>{
 };
 //LogOut feature
 exports.logoutUser = (req,res,next)=>{
-    /*req.session.destroy((err)=>{
+    req.session.destroy((err)=>{
         if(err){
             console.log(err);
             res.status(400).json({
@@ -126,11 +127,11 @@ exports.logoutUser = (req,res,next)=>{
         res.status(200).json({
             message : "User Logged Out"
         })
-    });*/
-    process.env.USERSESSION = "false"
+    });
+   /* process.env.USERSESSION = "false"
     res.status(200).json({
         message : "Logged Out"
-    })
+    })*/
 };
 //Get User Info 
 exports.getUsr = (req,res,next)=>{
