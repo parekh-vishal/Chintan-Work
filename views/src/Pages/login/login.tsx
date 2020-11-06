@@ -40,12 +40,15 @@ class LoginPage extends React.PureComponent<IProps, {}> {
 
     const submitdata = await post({ url: 'admin/SignIn', body: { email, password } })
 
-    alert(submitdata.data.message);
-    this.navigateToSignupPage();
+    submitdata.data.message && this.navigateToDashboadPage();
   }
 
   navigateToSignupPage = () => {
     this.props.history.push('/login');
+  }
+
+  navigateToDashboadPage = () => {
+    this.props.history.push('/');
   }
 
   public render() {
