@@ -5,7 +5,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 
-import { HeaderComponent } from "../../Components";
+import HeaderComponent from "../../Components/header/header";
 
 // import { IAppState } from "../../Reducers/rootReducer";
 

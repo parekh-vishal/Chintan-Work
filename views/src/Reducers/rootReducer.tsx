@@ -1,13 +1,13 @@
 import { combineReducers } from "redux";
 
-// import * as defaultReducer from "./defaultReducer";
+import {userReducer} from "./userReducer";
 
 // export interface IAppState {
 //   default: defaultReducer.IState;
 // }
 
 const reducers = combineReducers<any>({
-  // default: defaultReducer.reducer
+  user: userReducer
 });
 
 export default reducers;

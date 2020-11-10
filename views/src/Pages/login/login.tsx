@@ -5,32 +5,28 @@ import { Formik } from "formik";
 import * as React from "react";
 import { Container, Row, Col, Navbar, Nav, Form, Button } from "react-bootstrap";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
 
 import * as DefaultActionCreator from "../../ActionCreators/_DefaultActionCreator";
+import { setUser } from "../../Actions";
 import { post } from "../../Utils/WebRequestUtil";
 // import { IAppState } from "../../Reducers/rootReducer";
-
-export interface IProps {
-  dispatch: Dispatch<any>;
-  history: any;
-}
 
 // interface IState {}
 
 const mapStateToProps = (state: any) => {
+  console.log(state)
   return {
     actionResult: state.default
   };
 };
 
-class LoginPage extends React.PureComponent<IProps, {}> {
-  public constructor(props: IProps) {
+class LoginPage extends React.PureComponent<any, {}> {
+  public constructor(props: any) {
     super(props);
   }
 
   public componentDidMount() {
-    this.props.dispatch(DefaultActionCreator.action());
+    this.props.DefaultActionCreator();
   }
 
   onSubmit = async (values: any) => {
@@ -39,12 +35,8 @@ class LoginPage extends React.PureComponent<IProps, {}> {
     console.log(firstName, lastName, email, contactNo, password);
 
     const submitdata = await post({ url: 'admin/SignIn', body: { email, password } })
-
+    this.props.setUser(submitdata.data);
     submitdata.data.message && this.navigateToDashboadPage();
-  }
-
-  navigateToSignupPage = () => {
-    this.props.history.push('/login');
   }
 
   navigateToDashboadPage = () => {
@@ -140,4 +132,9 @@ class LoginPage extends React.PureComponent<IProps, {}> {
   }
 }
 
-export default connect(mapStateToProps)(LoginPage);
+const mapDispatchToProps ={
+  DefaultActionCreator:DefaultActionCreator.action,
+  setUser: setUser
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginPage);
