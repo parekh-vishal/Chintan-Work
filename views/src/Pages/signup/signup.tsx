@@ -5,8 +5,9 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 
 import { Formik } from 'formik';
-import { post } from '../../utils/WebRequestUtil';
 import "./signup.scss"
+import { signUp } from "../../services";
+import { SignUpTypes } from "../../typings";
 
 export interface IProps {
   dispatch: Dispatch<any>;
@@ -54,11 +55,10 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
     this.props.history.push('/');
   }
 
-  onSubmit = async (values: any) => {
+  onSubmit = async (values: SignUpTypes) => {
     const { firstName, lastName, email, contactNo, password } = values;
-    console.log(firstName, lastName, email, contactNo, password);
 
-    const submitdata = await post({ url: 'admin/SignUp', body: { firstName, lastName, email, contactNo, password } })
+    const submitdata = await signUp({firstName, lastName, email, contactNo, password})
 
     alert(submitdata.data.message);
     this.navigateToLoginPage();

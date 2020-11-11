@@ -36,12 +36,10 @@ app.use(express.static(path.join(__dirname, './views/build')));
         store:store})
             );*/
 app.get('/', (req,res) => {
-    console.log('ss')
     res.sendFile(path.join(__dirname, './views/build/index.html'));
 });
 
 app.get('/signup', (req,res) => {
-    console.log('ss')
     res.sendFile(path.join(__dirname, './views/build/index.html'));
 });
 

@@ -5,7 +5,8 @@ import { Container, Row, Col, Navbar, Nav, Form, Button } from "react-bootstrap"
 import { connect } from "react-redux";
 
 import { setUser } from "../../reducers/actions";
-import { post } from "../../utils/WebRequestUtil";
+import { login } from "../../services";
+import { LoginTypes } from "../../typings";
 
 
 const mapStateToProps = (state: any) => {
@@ -26,10 +27,10 @@ class LoginPage extends React.PureComponent<any, {}> {
     }
   }
 
-  onSubmit = async (values: any) => {
+  onSubmit = async (values: LoginTypes) => {
     const { email, password } = values;
 
-    const submitdata = await post({ url: 'admin/SignIn', body: { email, password } })
+    const submitdata = await login({ email, password });
     this.props.setUser(submitdata.data);
     submitdata.data.message && this.navigateToDashboadPage();
   }

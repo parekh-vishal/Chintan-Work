@@ -4,6 +4,7 @@ import { Dispatch } from "redux";
 import { setUser } from "../../reducers/actions";
 
 import {HeaderComponent} from "../../components";
+import { getUserDetails } from "../../services";
 
 
 export interface IProps {
@@ -25,9 +26,12 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
     super(props);
   }
 
-  componentDidMount() {
+  componentDidMount =  async() => {
     if(this.props.user.USER && !this.props.user.USER.token){
       this.navigateToLoginPage();
+    }else{
+      const users = await getUserDetails(this.props.user.USER);
+      console.log(users)
     }
   }
 
