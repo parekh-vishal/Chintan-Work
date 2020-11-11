@@ -30,6 +30,7 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
 
   logoutHandler = () => {
     this.props.setUser("");
+    
   }
 
   public render() {
