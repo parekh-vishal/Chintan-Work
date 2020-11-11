@@ -1,23 +1,15 @@
 import * as React from "react";
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { connect } from "react-redux";
-import { setUser } from "../../Actions";
-
-const mapStateToProps = (state: any) => {
-  return {
-    user: state.user
-  };
-};
 
 
 
-class HeaderComponent extends React.PureComponent<any, {}> {
+export class HeaderComponent extends React.PureComponent<any, {}> {
   public constructor(props: any) {
     super(props);
   }
 
   logout = () => {
-    this.props.setUser({});
+    this.props.logoutHandler();
   }
 
   public render() {
@@ -37,9 +29,3 @@ class HeaderComponent extends React.PureComponent<any, {}> {
   </Navbar>;
   }
 }
-
-const mapDispatchToProps ={
-  setUser: setUser
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(HeaderComponent)

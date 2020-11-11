@@ -4,13 +4,15 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import { setUser } from "../../Actions";
 
-import HeaderComponent from "../../Components/header/header";
+import {HeaderComponent} from "../../Components";
 
 // import { IAppState } from "../../Reducers/rootReducer";
 
 export interface IProps {
   dispatch: Dispatch<any>;
+  setUser: any;
 }
 
 // interface IState {}
@@ -26,13 +28,21 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
     super(props);
   }
 
+  logoutHandler = () => {
+    this.props.setUser("");
+  }
+
   public render() {
     return <div>
     <div>
-      <HeaderComponent />
+      <HeaderComponent logoutHandler={this.logoutHandler}/>
     </div>
   </div>;
   }
 }
 
-export default connect(mapStateToProps)(DashboardPage);
+const mapDispatchToProps ={
+  setUser: setUser
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardPage);
