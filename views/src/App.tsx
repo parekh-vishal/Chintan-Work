@@ -4,9 +4,10 @@ import "./App.scss";
 import { Route, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 
-import DashboardPage from "./Pages/Dashboard/Dashboard";
-import LoginPage from "./Pages/login/login";
-import SignupPage from "./Pages/signup/signup";
+import DashboardPage from "./pages/dashboard/dashboard";
+
+import LoginPage from "./pages/login/login";
+import SignupPage from "./pages/signup/signup";
 
 const mapStateToProps = (state: any) => {
   return {

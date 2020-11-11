@@ -2,7 +2,7 @@
 * Author: @nayunhwan (github.com/nayunhwan)
 * Email: nayunhwan.dev@gmail.com
 */
-import { ServerEndPoint } from "../Configs/Server";
+import { ServerEndPoint } from "../configs/Server";
 
 import axios from "axios";
 

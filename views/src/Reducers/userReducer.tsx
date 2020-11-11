@@ -1,4 +1,4 @@
-import {USER_ACTIONS} from "../Actions";
+import {USER_ACTIONS} from "./actions";
 
 const initial_state = {
 }

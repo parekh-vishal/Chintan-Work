@@ -1,22 +1,17 @@
-// This Page is Skeleton of React Structure for Web Development
-// If you want to make other page, Copy and Refactor this page.
 
 import { Formik } from "formik";
 import * as React from "react";
 import { Container, Row, Col, Navbar, Nav, Form, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 
-import * as DefaultActionCreator from "../../ActionCreators/_DefaultActionCreator";
-import { setUser } from "../../Actions";
-import { post } from "../../Utils/WebRequestUtil";
-// import { IAppState } from "../../Reducers/rootReducer";
+import { setUser } from "../../reducers/actions";
+import { post } from "../../utils/WebRequestUtil";
 
-// interface IState {}
 
 const mapStateToProps = (state: any) => {
-  console.log(state)
   return {
-    actionResult: state.default
+    actionResult: state.default,
+    user: state.user
   };
 };
 
@@ -25,14 +20,14 @@ class LoginPage extends React.PureComponent<any, {}> {
     super(props);
   }
 
-  public componentDidMount() {
-    this.props.DefaultActionCreator();
+  componentDidMount() {
+    if(this.props.user.USER && this.props.user.USER.token){
+      this.navigateToDashboadPage();
+    }
   }
 
   onSubmit = async (values: any) => {
-    // e.preventDefault();
-    const { firstName, lastName, email, contactNo, password } = values;
-    console.log(firstName, lastName, email, contactNo, password);
+    const { email, password } = values;
 
     const submitdata = await post({ url: 'admin/SignIn', body: { email, password } })
     this.props.setUser(submitdata.data);
@@ -133,7 +128,6 @@ class LoginPage extends React.PureComponent<any, {}> {
 }
 
 const mapDispatchToProps ={
-  DefaultActionCreator:DefaultActionCreator.action,
   setUser: setUser
 }
 

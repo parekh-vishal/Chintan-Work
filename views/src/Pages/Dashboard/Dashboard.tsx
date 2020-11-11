@@ -1,25 +1,22 @@
-// This Page is Skeleton of React Structure for Web Development
-// If you want to make other page, Copy and Refactor this page.
-
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { setUser } from "../../Actions";
+import { setUser } from "../../reducers/actions";
 
-import {HeaderComponent} from "../../Components";
+import {HeaderComponent} from "../../components";
 
-// import { IAppState } from "../../Reducers/rootReducer";
 
 export interface IProps {
   dispatch: Dispatch<any>;
   setUser: any;
+  user: any;
+  history: any;
 }
-
-// interface IState {}
 
 const mapStateToProps = (state: any) => {
   return {
-    actionResult: state.default
+    actionResult: state.default,
+    user: state.user
   };
 };
 
@@ -28,9 +25,18 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
     super(props);
   }
 
+  componentDidMount() {
+    if(this.props.user.USER && !this.props.user.USER.token){
+      this.navigateToLoginPage();
+    }
+  }
+
   logoutHandler = () => {
-    this.props.setUser("");
-    
+    this.props.setUser("");    
+  }
+
+  navigateToLoginPage = () => {
+    this.props.history.push('/login');
   }
 
   public render() {

@@ -13,7 +13,7 @@ import storage from 'redux-persist/lib/storage'
 
 import "./index.scss";
 import registerServiceWorker from "./registerServiceWorker";
-import RootReducer from "./Reducers/rootReducer";
+import RootReducer from "./reducers/rootReducer";
 
 const loggerMiddleware = createLogger();
 

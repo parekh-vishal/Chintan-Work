@@ -1,5 +1,3 @@
-// This Page is Skeleton of React Structure for Web Development
-// If you want to make other page, Copy and Refactor this page.
 
 import * as React from "react";
 import { Button, Col, Container, Form, Nav, Navbar, Row } from "react-bootstrap";
@@ -7,15 +5,14 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 
 import { Formik } from 'formik';
-import * as DefaultActionCreator from "../../ActionCreators/_DefaultActionCreator";
-// import { IAppState } from "../../Reducers/rootReducer";
-import { post } from '../../Utils/WebRequestUtil';
+import { post } from '../../utils/WebRequestUtil';
 import "./signup.scss"
 
 export interface IProps {
   dispatch: Dispatch<any>;
   history: any;
   location: any;
+  user: any;
 }
 
 interface signupStates {
@@ -26,11 +23,10 @@ interface signupStates {
   password: string;
 }
 
-// interface IState {}
-
 const mapStateToProps = (state: any) => {
   return {
-    actionResult: state.default
+    actionResult: state.default,
+    user: state.user
   };
 };
 
@@ -49,11 +45,16 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
 
 
   public componentDidMount() {
-    this.props.dispatch(DefaultActionCreator.action());
+    if(this.props.user.USER && this.props.user.USER.token){
+      this.navigateToDashboadPage();
+    }
+  }
+
+  navigateToDashboadPage = () => {
+    this.props.history.push('/');
   }
 
   onSubmit = async (values: any) => {
-    // e.preventDefault();
     const { firstName, lastName, email, contactNo, password } = values;
     console.log(firstName, lastName, email, contactNo, password);
 
@@ -68,7 +69,6 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
   }
 
   public render() {
-    //const { firstName, lastName, email, contactNo, password } = this.state;
 
     return <Container fluid >
       <Row>
