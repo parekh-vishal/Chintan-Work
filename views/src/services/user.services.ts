@@ -9,7 +9,7 @@ export const signUp = (signupParam: SignUpTypes) => {
     return post({ url: 'admin/SignUp', body: signupParam })
 };
 
-export const getUserDetails = ({email}: any) => {
-    return get({ url: `admin/getUsr/${email}`})
+export const getUserDetails = ({email, token}: any) => {
+    return get({ url: `admin/getUsr/${email}`, headers: {Authorization: `Bearer ${token}`}})
 };
   

@@ -27,7 +27,7 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
   }
 
   componentDidMount =  async() => {
-    if(this.props.user.USER && !this.props.user.USER.token){
+    if(!this.props.user.USER || !this.props.user.USER.token){
       this.navigateToLoginPage();
     }else{
       const users = await getUserDetails(this.props.user.USER);
