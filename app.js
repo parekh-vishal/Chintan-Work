@@ -13,7 +13,8 @@ const mongoose = require("mongoose");
         collection : 'sessions',
     }
 );*/
-const admin = require('./routes/admin');
+const user = require('./routes/user');
+const authentication = require('./routes/authentication');
 const supervises = require('./routes/workDetails');
 var db = mongoose.connection;
 mongoose.connect(process.env.MONGO_SERVER,{
@@ -44,8 +45,8 @@ app.get('/signup', (req,res) => {
 });
 
 
-
-app.use('/admin',admin);
+app.use('/authenticate',authentication);
+app.use('/user',user);
 app.use('/supervisor',supervises);
 app.use((req,res,next)=>{
     res.header("Acess-Control-Allow-Origin",'*');
