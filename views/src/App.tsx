@@ -19,9 +19,10 @@ class App extends React.PureComponent {
   public render() {
     return (
       <div>
-        <Route exact={true} path="/" component={DashboardPage} />
+        <Route exact={true} path="/dashboard" component={DashboardPage} />
         <Route exact={true} path="/login" component={LoginPage} />
         <Route exact={true} path="/signup" component={SignupPage} />
+        <Route path="*" component={LoginPage} />
       </div>
     );
   }

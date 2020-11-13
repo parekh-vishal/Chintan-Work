@@ -36,7 +36,7 @@ class LoginPage extends React.PureComponent<any, {}> {
   }
 
   navigateToDashboadPage = () => {
-    this.props.history.push('/');
+    this.props.history.push('/dashboard');
   }
 
   public render() {
