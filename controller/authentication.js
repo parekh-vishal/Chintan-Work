@@ -90,6 +90,10 @@ exports.logUser = (req, res, next)=>{
             }
             );
             var email = user.email;
+            var _user = user.toObject();
+            delete _user.password;
+            delete _user.__v;
+            delete _user._id;
             let addTkn = new Token({
                 mail : email,
                 token:token
@@ -99,7 +103,7 @@ exports.logUser = (req, res, next)=>{
                     res.status(200).json({
                         message : 'Login Successful',
                         token : token,
-                        email : email
+                        ..._user
                     });
                 }
                  else{

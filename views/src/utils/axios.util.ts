@@ -9,9 +9,9 @@ export interface IRequestParams {
 }
 
 axios.interceptors.request.use( req => {
-    const user = store.getState().user;    
-    if(req.headers && user && user.USER.token){
-      req.headers = {...req.headers ,Authorization: `Bearer ${user.USER.token}`};
+    const user = store && store.getState().user;    
+    if(req.headers && user && user.token){
+      req.headers = {...req.headers, Authorization: `Bearer ${user.token}`};
     }
     return req;
   }

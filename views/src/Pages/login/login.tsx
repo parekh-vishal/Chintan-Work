@@ -22,7 +22,7 @@ class LoginPage extends React.PureComponent<any, {}> {
   }
 
   componentDidMount() {
-    if(this.props.user.USER && this.props.user.USER.token){
+    if(this.props.user && this.props.user.token){
       this.navigateToDashboadPage();
     }
   }
