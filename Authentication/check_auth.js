@@ -7,14 +7,15 @@ module.exports = (req,res,next)=>{
             const token = req.headers.authorization.split(" ")[1] || req.body.token; 
             Token.findOne({token:token}).exec()
             .then(doc=>{
+                console.log("doc",doc);
                 if(!doc){
                     throw err;
                 }
                 else{
-                    console.log("token",token);
+                    //console.log("token",token);
                     const decode = jwt.verify(token,process.env.JWT_KEY);
-                    console.log("decode",decode);
-                    req.userData = decode;
+                    //console.log("decode",decode);
+                    //req.userData = decode;
                      next();
                 }
             })
