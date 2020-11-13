@@ -1,10 +1,6 @@
-/*
-* Author: @nayunhwan (github.com/nayunhwan)
-* Email: nayunhwan.dev@gmail.com
-*/
-import { ServerEndPoint } from "../configs/Server";
-
 import axios from "axios";
+import { ServerEndPoint } from "../configs/server";
+import {store} from "../reducers/store";
 
 export interface IRequestParams {
   url: string;
@@ -12,10 +8,20 @@ export interface IRequestParams {
   body?: object;
 }
 
+axios.interceptors.request.use( req => {
+    const user = store.getState().user;    
+    if(req.headers && user && user.USER.token){
+      req.headers = {...req.headers ,Authorization: `Bearer ${user.USER.token}`};
+    }
+    return req;
+  }
+);
+
 export const get = (
   { url, headers, body }: IRequestParams,
   callback?: () => void
 ) => {
+  console.log(store.getState())
   return axios({
     method: "GET",
     url: ServerEndPoint + url,
@@ -33,12 +39,11 @@ export const get = (
       return res;
     })
     .catch(err => {
+      let errorMsg = "ERROR\n\n Error while processing data";
       if (err.response) {
-        alert("ERROR\n\n"+err.response.data.message);
-      } else {
-        alert("ERROR\n\n Error while processing data");
+        errorMsg = `ERROR\n\n${err.response.data.message}`
       }      
-      throw new Error(err);
+      alert(errorMsg);
     });
 };
 
@@ -63,12 +68,12 @@ export const post = (
       return res;
     })
     .catch(err => {
+      let errorMsg = "ERROR\n\n Error while processing data";
       if (err.response) {
-        alert("ERROR\n\n"+err.response.data.message);
-      } else {
-        alert("ERROR\n\n Error while processing data");
+        errorMsg = `ERROR\n\n${err.response.data.message}`
       }      
-      throw new Error(err);
+      alert(errorMsg);
+      throw new Error(errorMsg);
     });
 };
 
@@ -93,6 +98,11 @@ export const del = (
       return res;
     })
     .catch(err => {
-      throw new Error();
+      let errorMsg = "ERROR\n\n Error while processing data";
+      if (err.response) {
+        errorMsg = `ERROR\n\n${err.response.data.message}`
+      }      
+      alert(errorMsg);
+      throw new Error(errorMsg);
     });
 };

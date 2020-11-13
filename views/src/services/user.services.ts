@@ -1,4 +1,4 @@
-import { get, post } from "../utils/WebRequestUtil";
+import { get, post } from "../utils/axios.util";
 import {LoginTypes, SignUpTypes} from "../typings"
 
 export const login = (loginParam: LoginTypes) => {
@@ -9,7 +9,7 @@ export const signUp = (signupParam: SignUpTypes) => {
     return post({ url: 'admin/SignUp', body: signupParam })
 };
 
-export const getUserDetails = ({email, token}: any) => {
-    return get({ url: `admin/getUsr/${email}`, headers: {Authorization: `Bearer ${token}`}})
+export const getUserDetails = ({email}: any) => {
+    return get({ url: `admin/getUsr/${email}`})
 };
   
