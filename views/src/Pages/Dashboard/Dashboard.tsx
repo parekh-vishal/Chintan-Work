@@ -6,6 +6,9 @@ import { setUser } from "../../reducers/actions";
 import {HeaderComponent} from "../../components";
 import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "../../components/sidebar/sidebar.component";
+import { Route, Switch } from "react-router-dom";
+import { ROUTES } from "../../constants";
+import { SitesListing } from "../../components/listings";
 
 
 export interface IProps {
@@ -14,6 +17,7 @@ export interface IProps {
   user: any;
   history: any;
 }
+
 
 const mapStateToProps = (state: any) => {
   return {
@@ -42,6 +46,7 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
   }
 
   public render() {
+    
     return <div>
     <div>
       <HeaderComponent logoutHandler={this.logoutHandler} user={this.props.user}/>
@@ -51,7 +56,17 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
                 <Sidebar />
               </Col>
               <Col  xs={10} id="page-content-wrapper">
-                  this is a test
+                <Switch>
+                  <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.SITES}`} component={SitesListing}>
+                    
+                  </Route>
+                  <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.WORK_REPORT}`}>
+                    <h1>Work Report</h1>
+                  </Route>
+                  <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.EXPENSE}`}>
+                    <h1>Expense</h1>
+                  </Route>
+                </Switch>
               </Col> 
           </Row>
 
