@@ -6,7 +6,7 @@ import { setUser } from "../../reducers/actions";
 import {HeaderComponent} from "../../components";
 import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "../../components/sidebar/sidebar.component";
-import { Route, Switch } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import { ROUTES } from "../../constants";
 import { SitesListing } from "../../components/listings";
 
@@ -57,14 +57,15 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
               </Col>
               <Col  xs={10} id="page-content-wrapper">
                 <Switch>
-                  <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.SITES}`} component={SitesListing}>
-                    
-                  </Route>
+                  <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.SITES}`} component={SitesListing} />
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.WORK_REPORT}`}>
                     <h1>Work Report</h1>
                   </Route>
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.EXPENSE}`}>
                     <h1>Expense</h1>
+                  </Route>
+                  <Route exact path={`${ROUTES.DASHBOARD}`}>
+                    <Redirect to={`${ROUTES.DASHBOARD}${ROUTES.SITES}`}/>
                   </Route>
                 </Switch>
               </Col> 
