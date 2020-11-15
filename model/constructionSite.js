@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
-
-const constructionSite = new mongoose({
+let siteSupervisor = {
+    siteSupervisorId : String,
+    siteSupervisorName : String,
+    siteSupervisorNo : Number
+}
+const constructionSite = mongoose.Schema({
     siteId : String,
     siteName : String,
     ownerName : String,
@@ -12,7 +16,7 @@ const constructionSite = new mongoose({
     siteInaugurationDate : Date,
     siteEstimate : String,
     tentativeDeadline : Date,
-    siteSupervisor : String,
-    siteSupervisorNo : Number,
-    siteSupervisorId : String,
+    supervisors : [siteSupervisor]
 });
+
+module.exports = mongoose.model('Construction_Site' , constructionSite);
