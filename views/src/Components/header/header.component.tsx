@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 
-
+import './header.component.scss'
 
 export class HeaderComponent extends React.PureComponent<any, {}> {
   public constructor(props: any) {
