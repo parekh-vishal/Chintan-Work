@@ -12,4 +12,8 @@ export const signUp = (signupParam: SignUpTypes) => {
 export const getUserDetails = ({email}: any) => {
     return get({ url: `user/getUsr/${email}`})
 };
+
+export const getAllUsersDetails = () => {
+    return get({ url: `user/getAllUsr`})
+};
   

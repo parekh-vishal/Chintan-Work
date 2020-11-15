@@ -1,13 +1,24 @@
 import { FormikValues, useFormik } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Modal, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { getAllUsersDetails } from "../../../services";
+import { SiteType } from "../../../typings";
 import './sites-listing.component.scss'
 
 export const SitesListing = (props: any) => {
 
-  const siteFormsObj = {
+  useEffect( () => {
+    const allUsers: any = getAllUsersDetails();
+    allUsers.then((res:any) => {
+      console.log(res)
+    }).catch((err:any)=>{
+      console.log(err)
+    });
+  });
+
+  const siteFormsObj: SiteType = {
     siteName: '',
     ownerName: '',
     ownerContactNo: '',
@@ -15,26 +26,29 @@ export const SitesListing = (props: any) => {
       AddressLine1: '',
       City: '',
       State: '',
-      pincode: '',
+      pincode: 0,
     },
     siteInaugurationDate: new Date(),
     siteEstimate: '',
     tentativeDeadline: new Date(),
-    siteSupervisor: '',
-    siteSupervisorNo: '',
-    siteSupervisorId: '',
+    supervisors: [
+      {
+        siteSupervisorName: '',
+        siteSupervisorNo: 0,
+        siteSupervisorId: ''}
+    ]
   }
   const [show, setShow] = useState(false);
   
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const submitEvent = () => {
-
+  const submitEvent = (values: FormikValues) => {debugger
+    console.log(values)
   }
 
   const validateForm = (values: FormikValues) => {
-    const errors: any = {...siteFormsObj};
+    const errors: any = {};
     if (!values.siteName) {
       errors.siteName = 'Required';
     }
@@ -92,6 +106,7 @@ export const SitesListing = (props: any) => {
 
       <Modal
         show={show}
+        size="lg"
         onHide={handleClose}
         backdrop="static"
         keyboard={false}
@@ -167,7 +182,7 @@ export const SitesListing = (props: any) => {
               <Form.Row>
                 <Form.Label column lg={2}>Pincode</Form.Label>
                 <Col>
-                  <Form.Control type="text" name="siteAddress.pincode" placeholder="Enter Pincode" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteAddress.pincode} />
+                  <Form.Control type="number" name="siteAddress.pincode" placeholder="Enter Pincode" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteAddress.pincode} />
                   <Form.Text className="text-danger">{formik1.errors.siteAddress?.pincode}</Form.Text>
                 </Col>
               </Form.Row>
@@ -187,7 +202,7 @@ export const SitesListing = (props: any) => {
               <Form.Row>
                 <Form.Label column lg={2}>Estimate</Form.Label>
                 <Col>
-                  <Form.Control type="text" placeholder="Enter Estimate" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteEstimate} />
+                  <Form.Control type="number" placeholder="Enter Estimate" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteEstimate} />
                   <Form.Text className="text-danger">{formik1.errors.siteEstimate}</Form.Text>
                 </Col>
               </Form.Row>
@@ -207,8 +222,8 @@ export const SitesListing = (props: any) => {
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Close
-                </Button>
-            <Button variant="primary">Create</Button>
+            </Button>
+            <Button variant="primary" type="submit">Create</Button>
           </Modal.Footer>
         </Form>
       </Modal>
