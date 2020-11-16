@@ -16,4 +16,8 @@ export const getUserDetails = ({email}: any) => {
 export const getAllUsersDetails = () => {
     return get({ url: `user/getAllUsr`})
 };
+
+export const refreshToken = (email: string) => {
+    return get({ url: `authenticate/refershTkn/${email}`})
+};
   

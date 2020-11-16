@@ -1,6 +1,8 @@
 import axios from "axios";
 import { ServerEndPoint } from "../configs/server";
+import { setUser } from "../reducers/actions";
 import {store} from "../reducers/store";
+import { refreshToken } from "../services";
 
 export interface IRequestParams {
   url: string;
@@ -9,7 +11,7 @@ export interface IRequestParams {
 }
 
 axios.interceptors.request.use( req => {
-    const user = store && store.getState().user;    
+    const user = store && store.getState().user;
     if(req.headers && user && user.token){
       req.headers = {...req.headers, Authorization: `Bearer ${user.token}`};
     }
@@ -17,11 +19,29 @@ axios.interceptors.request.use( req => {
   }
 );
 
+axios.interceptors.response.use( res => {
+  return res;
+}, async (err) => {
+  const user = store && store.getState().user;
+  let errorMsg = "ERROR\n\n Error while processing data";
+  if(err.response && err.response.status === 401 && err.response.statusText === "Unauthorized" && user && user.email){
+    const originalRequest = err.config;
+    const newToken = await refreshToken(user.email);
+    if(newToken && newToken.data){
+      const newUser = {...user, token: newToken.data.token};
+      store.dispatch(setUser(newUser));
+      return axios(originalRequest);
+    }
+  }else if (err.response) {
+    errorMsg = `ERROR\n\n${err.response.data.message}`
+  }      
+  alert(errorMsg);
+});
+
 export const get = (
   { url, headers, body }: IRequestParams,
   callback?: () => void
 ) => {
-  console.log(store.getState())
   return axios({
     method: "GET",
     url: ServerEndPoint + url,
@@ -37,13 +57,6 @@ export const get = (
         callback();
       }
       return res;
-    })
-    .catch(err => {
-      let errorMsg = "ERROR\n\n Error while processing data";
-      if (err.response) {
-        errorMsg = `ERROR\n\n${err.response.data.message}`
-      }      
-      alert(errorMsg);
     });
 };
 
@@ -66,14 +79,6 @@ export const post = (
         callback();
       }
       return res;
-    })
-    .catch(err => {
-      let errorMsg = "ERROR\n\n Error while processing data";
-      if (err.response) {
-        errorMsg = `ERROR\n\n${err.response.data.message}`
-      }      
-      alert(errorMsg);
-      throw new Error(errorMsg);
     });
 };
 
@@ -96,13 +101,5 @@ export const del = (
         callback();
       }
       return res;
-    })
-    .catch(err => {
-      let errorMsg = "ERROR\n\n Error while processing data";
-      if (err.response) {
-        errorMsg = `ERROR\n\n${err.response.data.message}`
-      }      
-      alert(errorMsg);
-      throw new Error(errorMsg);
     });
 };

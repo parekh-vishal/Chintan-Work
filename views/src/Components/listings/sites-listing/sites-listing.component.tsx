@@ -1,22 +1,37 @@
 import { FormikValues, useFormik } from "formik";
 import React, { useEffect, useState } from "react";
+import Select from 'react-select';
 import { Container, Row, Col, Button, Modal, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getAllUsersDetails } from "../../../services";
-import { SiteType } from "../../../typings";
+import { SiteType, SupervisorType } from "../../../typings";
 import './sites-listing.component.scss'
 
 export const SitesListing = (props: any) => {
+  var [ allUsersDetails, setAllUsersDetails ] = useState([]);
+  var [ allUsersAsOption, setAllUsersAsOption ] = useState([{}]);
+  var [ selectedSupervisorOpt, setSupervisorOpt ] = useState([] as any);
+
+  const allUsers = async () => {
+    var respond = await getAllUsersDetails();
+    if(respond.data){
+      const userOptions:Array<{}>=[];
+      for (let index = 0; index < respond.data.length; index++) {
+        const element = respond.data[index];
+        userOptions.push({
+          value: element.user_id,
+          label: `${element.firstName} ${element.lastName}`
+        });
+      }
+      setAllUsersDetails(respond.data)
+      setAllUsersAsOption(userOptions)
+    }
+  }
 
   useEffect( () => {
-    const allUsers: any = getAllUsersDetails();
-    allUsers.then((res:any) => {
-      console.log(res)
-    }).catch((err:any)=>{
-      console.log(err)
-    });
-  });
+    allUsers();
+  }, []);
 
   const siteFormsObj: SiteType = {
     siteName: '',
@@ -218,6 +233,14 @@ export const SitesListing = (props: any) => {
               </Form.Row>
             </Form.Group>
 
+            <Form.Group controlId="supervisors">
+              <Form.Row>
+                <Form.Label column lg={2}>Supervisors</Form.Label>
+                <Col>
+                  <Select value={selectedSupervisorOpt} onChange={setSupervisorOpt} options={allUsersAsOption} isMulti={true}/>
+                </Col>
+              </Form.Row>
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>

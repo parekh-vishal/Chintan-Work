@@ -11,3 +11,9 @@ export interface SignUpTypes {
   contactNo: number;
   password: string;
 }
+
+export interface UserTypes extends Omit<SignUpTypes, 'password'>{
+  user_id: string;
+  _id: string;
+  __v: number;
+}
