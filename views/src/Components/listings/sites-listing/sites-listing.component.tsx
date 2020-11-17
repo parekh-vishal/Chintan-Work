@@ -5,11 +5,12 @@ import { Container, Row, Col, Button, Modal, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getAllUsersDetails } from "../../../services";
-import { SiteType, SupervisorType } from "../../../typings";
+import { SiteType, SupervisorType, UserTypes } from "../../../typings";
 import './sites-listing.component.scss'
+import { addNewSite } from "../../../services/site.services";
 
 export const SitesListing = (props: any) => {
-  var [ allUsersDetails, setAllUsersDetails ] = useState([]);
+  var [ allUsersDetails, setAllUsersDetails ] = useState([] as Array<UserTypes>);
   var [ allUsersAsOption, setAllUsersAsOption ] = useState([{}]);
   var [ selectedSupervisorOpt, setSupervisorOpt ] = useState([] as any);
 
@@ -58,8 +59,34 @@ export const SitesListing = (props: any) => {
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-  const submitEvent = (values: FormikValues) => {debugger
-    console.log(values)
+
+  const submitEvent = async (values: FormikValues) => {
+    const { ownerContactNo, ownerName, siteAddress, siteEstimate, siteInaugurationDate, siteName, tentativeDeadline } = values;
+    const supervisors: Array<SupervisorType> = [];
+    for (let index = 0; index < allUsersDetails.length; index++) {
+      const element = allUsersDetails[index];
+      supervisors.push({
+        siteSupervisorId : element.user_id,
+        siteSupervisorName : `${element.firstName} ${element.lastName}`,
+        siteSupervisorNo  : element.contactNo
+      });
+      
+    }
+    const newSiteData: SiteType = {
+      ownerContactNo,
+      ownerName,
+      siteAddress,
+      siteEstimate,
+      siteInaugurationDate,
+      siteName,
+      supervisors,
+      tentativeDeadline
+    };
+
+    var siteCreated = await addNewSite(newSiteData);
+    if(siteCreated && siteCreated.data){
+      handleClose();
+    }
   }
 
   const validateForm = (values: FormikValues) => {
