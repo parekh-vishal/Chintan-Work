@@ -17,7 +17,7 @@ route.post('/editSiteInfo/:siteName',checkAuth,constructSite.editSiteInfo);
 route.post('/addWorkDetails',work.addWorkDes);
 //Edit WorkDetails on specific date.
 route.post('/editWorkDetails/:date',work.updateWorkdetails);
-//Get WorkDetails by date
+//Get WorkDetails
 route.get('/getWorkDetail',work.getWorkByDate);
 
 //Add Payment Info in site

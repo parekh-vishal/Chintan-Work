@@ -1,18 +1,19 @@
 import { FormikValues, useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import Select from 'react-select';
-import { Container, Row, Col, Button, Modal, Form } from "react-bootstrap";
+import { Container, Row, Col, Button, Modal, Form, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
+
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllUsersDetails } from "../../../services";
+import { getAllUsersDetails, addNewSite, getAllSites } from "../../../services";
 import { SiteType, SupervisorType, UserTypes } from "../../../typings";
 import './sites-listing.component.scss'
-import { addNewSite } from "../../../services/site.services";
 
 export const SitesListing = (props: any) => {
   var [ allUsersDetails, setAllUsersDetails ] = useState([] as Array<UserTypes>);
   var [ allUsersAsOption, setAllUsersAsOption ] = useState([{}]);
   var [ selectedSupervisorOpt, setSupervisorOpt ] = useState([] as any);
+  var [ listData, setListData ] = useState([] as any);
 
   const allUsers = async () => {
     var respond = await getAllUsersDetails();
@@ -30,9 +31,19 @@ export const SitesListing = (props: any) => {
     }
   }
 
+  const allSites = async () => {
+    const allSitesRespond = await getAllSites();
+    console.log(allSitesRespond)
+    if(allSitesRespond.data){
+      setListData(allSitesRespond.data);
+    }
+  }
+
   useEffect( () => {
     allUsers();
+    allSites();
   }, []);
+
 
   const siteFormsObj: SiteType = {
     siteName: '',
@@ -130,6 +141,15 @@ export const SitesListing = (props: any) => {
     return errors;
   }
 
+  const tableObject = [{
+    columnName: "Site Name",
+    key: "siteName"
+  },
+  {
+    columnName: "Owner Name",
+    key: "ownerName"
+  }];
+
   const formik1 = useFormik({
     initialValues: siteFormsObj,
     onSubmit: submitEvent,
@@ -142,6 +162,33 @@ export const SitesListing = (props: any) => {
         <Row className="add-buttton-row">
           <Col>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={handleShow}>Add Site</Button>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+          <Table>
+            <thead>
+                <tr>
+                  {tableObject.map(columnObj => (
+                    <th key={columnObj.columnName}>
+                      {columnObj.columnName}
+                    </th>
+                  ))}
+                </tr>
+            </thead>
+            <tbody>
+              {listData.map((rowObj: any) => (
+                  <tr key={rowObj.siteId}>
+                    {tableObject.map(columnObj => 
+                      (<td key={columnObj.columnName}>
+                        {rowObj[columnObj.key]}
+                      </td>)
+                    )}
+                  </tr>
+                ))
+              }
+            </tbody>
+          </Table>
           </Col>
         </Row>
       </Container>
