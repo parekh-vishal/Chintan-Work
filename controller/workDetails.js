@@ -3,23 +3,18 @@ const User = require('../model/user')
 const date = require('date-and-time');
 //Add Work to System
 exports.addWorkDes = (req,res,next)=>{
-    User.find({contactNo : req.body.contactNo}).exec().then(result=>{
-        var userId = result[0].user_id;
-        var uiDate = req.body.date;
-        var temp = uiDate.split('/');
+        let uiDate = req.body.date;
+        let temp = uiDate.split('/');
         temp = temp.reverse();
-        var servDate = new Date();
+        let servDate = new Date();
         servDate = date.format(servDate,temp.join('-'));
-        //console.log('d',servDate.toString());
         workdets = new WorkDes({
-            supervisorId : userId,
-            supervisorContactNo : req.body.contactNo,
+            siteId : req.body.siteId,
+            supervisorId : req.body.supervisorId,
             workName : req.body.workName,
             totalworker : {
                 mason : req.body.totalworker.mason,
                 labour : req.body.totalworker.labour,
-                male : req.body.totalworker.male,
-                female : req.body.totalworker.female
             },
             workDescription : req.body.workDescription,
             cementAmount : req.body.cementAmount,
@@ -27,7 +22,6 @@ exports.addWorkDes = (req,res,next)=>{
         });
         workdets.save()
         .then(result => {
-            //res.redirect('http://localhost:3000/userLogin');
             res.status(200).json({
                 message : 'Work Details entered to system'
             });
@@ -39,12 +33,6 @@ exports.addWorkDes = (req,res,next)=>{
                 error : err
             });
     });
-}).catch(err=>{
-    console.log(err);
-    res.status(404).json({
-        error : err
-    });
-});
     }
 
 //Edit Work Details by Supervisor on specific date. Date could not be changed.
@@ -70,13 +58,8 @@ exports.updateWorkdetails = (req,res,next)=>{
 };
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = (req,res,next)=>{
-    var saperator = '-'
-    var date = req.params.date;
-    date = date.split(saperator);
-    date = date.reverse();
-    date = date.join(saperator);
-    console.log('param ',date)
-    WorkDes.find({date:date}).exec()
+    let filter = req.query;
+    WorkDes.find(filter).exec()
     .then(result=>{
         if(result.length == 0){
             throw 'Not found Records'

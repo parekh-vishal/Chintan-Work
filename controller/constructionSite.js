@@ -69,6 +69,12 @@ exports.addSite = (req,res,next)=>{
         });
     })
 };
+
+//Site Settings for Newly Created Site which consist of rules on Supervisors accessibility
+exports.siteSettings = (req,res,next)=>{
+    let siteId = req.body.siteId;
+
+}
 //Get Site by SiteID
 exports.getSite = (req,res,next)=>{
     const siteId = req.params.siteId;
