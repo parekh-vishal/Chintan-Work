@@ -3,12 +3,12 @@ import { Container, Row, Col, Button, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
 import { getAllSites } from "../../../services";
-import './sites-listing.component.scss'
+import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
 import { SitesForms } from "../../Forms";
 
-export const SitesListing = (props: any) => {
+export const WorkReportListing = (props: any) => {
  
   var [ listData, setListData ] = useState([] as any);
   const [show, setShow] = useState(false);
@@ -56,7 +56,7 @@ export const SitesListing = (props: any) => {
       <Container fluid>
         <Row className="add-buttton-row">
           <Col>
-            <Button variant="outline-primary" size="sm" className="float-right" onClick={handleShow}>Add Site</Button>
+            <Button variant="outline-primary" size="sm" className="float-right" onClick={handleShow}>Add Work Report</Button>
           </Col>
         </Row>
         <Row>
