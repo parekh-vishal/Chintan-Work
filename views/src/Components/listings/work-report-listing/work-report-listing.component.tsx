@@ -2,26 +2,26 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllSites } from "../../../services";
+import { getAllWorkReport } from "../../../services";
 import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
-import { SitesForms } from "../../Forms";
+import { WorkReportForms } from "../../Forms";
 
 export const WorkReportListing = (props: any) => {
  
   var [ listData, setListData ] = useState([] as any);
   const [show, setShow] = useState(false);
 
-  const allSites = async () => {
-    const allSitesRespond = await getAllSites();
-    if(allSitesRespond.data){
-      setListData(allSitesRespond.data);
-    }
+  const allWorkReport = async () => {
+    // const allWorkReportRespond = await getAllWorkReport();
+    // if(allWorkReportRespond.data){
+    //   setListData(allWorkReportRespond.data);
+    // }
   }
 
   useEffect( () => {
-    allSites();
+    allWorkReport();
   }, []);
 
   const tableObject = [{
@@ -30,25 +30,20 @@ export const WorkReportListing = (props: any) => {
     type: "text"
   },
   {
-    columnName: "Owner Name",
+    columnName: "Reporter",
     key: "ownerName",
     type: "text"
   },
   {
-    columnName: "Start Date",
-    key: "siteInaugurationDate",
-    type: "date"
-  },
-  {
-    columnName: "Complete Date",
-    key: "tentativeDeadline",
+    columnName: "Date",
+    key: "date",
     type: "date"
   }];
 
   const handleShow = () => setShow(true);
   const handleClose = () => {
     setShow(false);
-    allSites();
+    allWorkReport();
   };
 
   return (
@@ -88,7 +83,7 @@ export const WorkReportListing = (props: any) => {
         </Row>
       </Container>
       <ModalComponent handleShow={handleShow} handleClose={handleClose} show={show}>
-        <SitesForms handleClose={handleClose}></SitesForms>
+        <WorkReportForms handleClose={handleClose}></WorkReportForms>
       </ModalComponent>
     </>
   );
