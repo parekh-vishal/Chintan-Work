@@ -10,13 +10,10 @@ exports.addWorkDes = (req,res,next)=>{
         servDate = date.format(servDate,temp.join('-'));
         workdets = new WorkDes({
             siteId : req.body.siteId,
+            siteName : req.body.siteName,
             supervisorId : req.body.supervisorId,
-            workName : req.body.workName,
-            totalworker : {
-                mason : req.body.totalworker.mason,
-                labour : req.body.totalworker.labour,
-            },
-            workDescription : req.body.workDescription,
+            supervisorName : req.body.supervisorName,
+            works : req.body.works,
             cementAmount : req.body.cementAmount,
             date : new Date(servDate.toString())
         });
@@ -38,7 +35,7 @@ exports.addWorkDes = (req,res,next)=>{
 //Edit Work Details by Supervisor on specific date. Date could not be changed.
 exports.updateWorkdetails = (req,res,next)=>{
     var saperator = '-'
-    var date = req.params.date;
+    var date = req.body.date;
     date = date.split(saperator);
     date = date.reverse();
     date = date.join(saperator);

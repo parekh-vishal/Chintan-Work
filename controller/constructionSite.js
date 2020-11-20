@@ -110,8 +110,8 @@ exports.getAllSite = (req,res,next)=>{
 };
 //Edit Site Info Funcion
 exports.editSiteInfo = (req,res,next)=>{
-    const filter = req.params.siteName;
-    Constructsite.findOneAndUpdate({siteName:filter},req.body).exec()
+    const filter = req.body.siteId;
+    Constructsite.findOneAndUpdate({siteId:filter},req.body).exec()
     .then(doc=>{
         console.log(doc)
         res.status(200).json({
