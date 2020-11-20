@@ -6,7 +6,9 @@ const work = require('../controller/workDetails');
 //Add a new Site in System
 route.post('/addNewSite',checkAuth,constructSite.addSite);
 //Site Settings
-route.post('/siteSettings',checkAuth);
+route.post('/siteSettings',checkAuth,constructSite.siteSettings);
+//Edit Site Settings
+route.post('/editSiteSettings',checkAuth,constructSite.editSiteSettings);
 //Get Site By siteId
 route.get('/getSite/:siteId',checkAuth,constructSite.getSite);
 //Get All Site

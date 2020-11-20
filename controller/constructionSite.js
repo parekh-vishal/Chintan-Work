@@ -1,6 +1,7 @@
 const { compare } = require('bcrypt');
+const { mongo } = require('mongoose');
 const Constructsite = require('../model/constructionSite');
-
+const SiteRules= require('../model/siteRules');
 
 //This Function Used for Add New Site
 exports.addSite = (req,res,next)=>{
@@ -37,8 +38,7 @@ exports.addSite = (req,res,next)=>{
                                     pincode : req.body.pincode},
                     siteInaugurationDate : req.body.siteInaugurationDate,
                     siteEstimate : req.body.siteEstimate,
-                    tentativeDeadline : req.body.tentativeDeadline,
-                    supervisors : req.body.supervisors
+                    tentativeDeadline : req.body.tentativeDeadline
                 });
                 site.save()
                 .then(doc=>{
@@ -73,8 +73,57 @@ exports.addSite = (req,res,next)=>{
 //Site Settings for Newly Created Site which consist of rules on Supervisors accessibility
 exports.siteSettings = (req,res,next)=>{
     let siteId = req.body.siteId;
-
+    Constructsite.findOne({siteId:siteId}).exec()
+    .then(doc=>{
+        if(doc.length == 0){
+            console.log('Site Not Found')
+            res.status(200).json({
+                message : 'Site Not Found'
+            })
+        }
+        else{
+            let siteRule = new SiteRules({
+                siteId : siteId,
+                supervisors : req.body.supervisors,
+                userExpense : req.body.userExpense
+            });
+            siteRule.save()
+            .then(doc=>{
+                res.status(200).json({
+                    message : "Site Settings Added"
+                });
+            })
+            .catch(err=>{
+                console.log(err);
+                res.status(502).json({
+                    error : err
+                });
+            });
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+                res.status(502).json({
+                    error : err
+                });
+    })
 }
+//Edit Site Settings
+exports.editSiteSettings = (req,res,next)=>{
+    const filter = req.body.siteId;
+    SiteRules.findOneAndUpdate({siteId : filter},req.body).exec()
+    .then(doc=>{
+        res.status(200).json({
+            message : "Settings Updated"
+        });
+    })
+    .catch(err=>{
+        console.length(err);
+        res.status(502).json({
+            error : err
+        });
+    });
+};
 //Get Site by SiteID
 exports.getSite = (req,res,next)=>{
     const siteId = req.params.siteId;

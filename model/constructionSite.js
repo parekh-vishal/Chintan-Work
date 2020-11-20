@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
-let siteSupervisor = {
-    siteSupervisorId : String,
-    siteSupervisorName : String,
-    siteSupervisorNo : Number
-}
+
 const constructionSite = mongoose.Schema({
     siteId : String,
     siteName : String,
@@ -15,8 +11,7 @@ const constructionSite = mongoose.Schema({
                    pincode : Number},
     siteInaugurationDate : Date,
     siteEstimate : String,
-    tentativeDeadline : Date,
-    supervisors : [siteSupervisor]
+    tentativeDeadline : Date
 });
 
 module.exports = mongoose.model('Construction_Site' , constructionSite);
