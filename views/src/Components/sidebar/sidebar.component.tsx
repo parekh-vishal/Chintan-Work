@@ -1,7 +1,7 @@
 import React from "react";
 import { Nav } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faFileAlt, faRupeeSign } from '@fortawesome/free-solid-svg-icons';
 import { withRouter } from "react-router";
 import { useRouteMatch, useLocation } from "react-router-dom";
 import { ROUTES } from "../../constants";
@@ -19,14 +19,20 @@ const Side = (props: any) => {
         <Nav.Item>
           <Nav.Link href={`${url}${ROUTES.SITES}`}>
             <FontAwesomeIcon icon={ faHome }/>
-            sites
+            {` sites`}
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link href={`${url}${ROUTES.WORK_REPORT}`}>Work Report</Nav.Link>
+          <Nav.Link href={`${url}${ROUTES.WORK_REPORT}`}>
+            <FontAwesomeIcon icon={ faFileAlt }/>
+            {` Work Report`}
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link href={`${url}${ROUTES.EXPENSE}`}>Expense</Nav.Link>
+          <Nav.Link href={`${url}${ROUTES.EXPENSE}`}>
+            <FontAwesomeIcon icon={ faRupeeSign }/>
+            {` Expense`}
+          </Nav.Link>
         </Nav.Item>
       </Nav>
 

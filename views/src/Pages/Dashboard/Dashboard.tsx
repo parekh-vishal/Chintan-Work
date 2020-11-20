@@ -10,6 +10,8 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { ROUTES } from "../../constants";
 import { SitesListing, WorkReportListing } from "../../components/listings";
 
+import './dashboard.scss'
+
 
 export interface IProps {
   dispatch: Dispatch<any>;
