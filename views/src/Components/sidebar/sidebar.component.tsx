@@ -1,16 +1,17 @@
 import React from "react";
 import { Nav } from "react-bootstrap";
 import { withRouter } from "react-router";
-import { useRouteMatch } from "react-router-dom";
+import { useRouteMatch, useLocation } from "react-router-dom";
 import { ROUTES } from "../../constants";
 import './sidebar.component.scss'
 
 const Side = (props: any) => {
   let { url } = useRouteMatch();
+  const location = useLocation();
   return (
     <>
       <Nav className="col-md-12 d-none d-md-block bg-light sidebar"
-        activeKey={`${url}${ROUTES.SITES}`}
+        activeKey={location.pathname}
       >
         <div className="sidebar-sticky"></div>
         <Nav.Item>
