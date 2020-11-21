@@ -146,16 +146,31 @@ exports.getSite = (req,res,next)=>{
 }
 //Get All Site Function
 exports.getAllSite = (req,res,next)=>{
-    Constructsite.find().exec()
+    const filter = req.query;
+    SiteRules.find(filter).select('siteId').exec()
     .then(doc=>{
-        res.status(200).json(doc);
+        let siteIds = [];
+        for(let i = 0;i<doc.length;i++){
+            siteIds.push(doc[i].siteId);
+        }
+        //console.log(siteIds);
+        Constructsite.find({siteId:siteIds}).exec()
+        .then(doc=>{
+            res.status(200).json(doc);
+        })
+        .catch(err=>{
+            console.log(err);
+            res.status(502).json({
+                error : "Bad Gateway"
+            });
+        });
     })
     .catch(err=>{
         console.log(err);
-        res.status(404).json({
-            message : "Site Not Found!!"
+        res.status(502).json({
+            error : "Bad Gateway"
         });
-    })
+    });
 };
 //Edit Site Info Funcion
 exports.editSiteInfo = (req,res,next)=>{
