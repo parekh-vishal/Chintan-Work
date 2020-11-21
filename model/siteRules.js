@@ -8,9 +8,14 @@ let supervisor = {
     supervisorId : String,
     SupervisorName : String,
 }
+let adminUser = {
+    adminUserId : String,
+    adminUserName : String
+} 
 let siteSettings = mongoose.Schema({
     siteId : String,
     supervisors : [siteSupervisor],
-    userExpense : [supervisor]
+    userExpense : [supervisor],
+    adminUsers : [adminUser]
 });
 module.exports = mongoose.model('Rules' ,siteSettings);
