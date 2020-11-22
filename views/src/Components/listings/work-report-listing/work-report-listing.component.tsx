@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllWorkReport } from "../../../services";
+// import { getAllWorkReport } from "../../../services";
 import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
@@ -18,20 +18,22 @@ export const WorkReportListing = (props: any) => {
     // if(allWorkReportRespond.data){
     //   setListData(allWorkReportRespond.data);
     // }
+    setListData([]);
   }
 
   useEffect( () => {
     allWorkReport();
   }, []);
 
-  const tableObject = [{
-    columnName: "Site Name",
-    key: "siteName",
-    type: "text"
-  },
+  const tableObject = [
   {
     columnName: "Reporter",
     key: "ownerName",
+    type: "text"
+  },
+  {
+    columnName: "Site Name",
+    key: "siteName",
     type: "text"
   },
   {
@@ -51,6 +53,7 @@ export const WorkReportListing = (props: any) => {
       <Container fluid>
         <Row className="add-buttton-row">
           <Col>
+            <h3 className="float-left">Work Reports</h3>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={handleShow}>Add Work Report</Button>
           </Col>
         </Row>

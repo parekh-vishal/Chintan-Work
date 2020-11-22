@@ -1,264 +1,252 @@
-import React, { useEffect, useState } from "react";
+import React, { Component, Fragment } from "react";
 import { Button, Col, Form, Modal } from "react-bootstrap";
 
 import Select from "react-select";
-import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { addNewSite, getAllUsersDetails } from "../../../services";
+import { getAllSites, addNewWorkReport } from "../../../services";
 import './work-report-forms.component.scss'
-import { FormikValues, useFormik } from "formik";
-import { SiteType, SupervisorType, UserTypes } from "../../../typings";
+import { FieldArray, Formik, FormikValues } from "formik";
+import { WorkDetailTypes, WorkReportTypes } from "../../../typings";
+import moment from "moment";
+
+export interface IProps {
+  handleClose: any;
+}
 
 
-export const WorkReportForms = (props: any) => {
+export class WorkReportForms extends Component<IProps, any> {
 
-  var [allUsersDetails, setAllUsersDetails] = useState([] as Array<UserTypes>);
-  var [allUsersAsOption, setAllUsersAsOption] = useState([{}]);
-  var [selectedSupervisorOpt, setSupervisorOpt] = useState([] as any);
+  public constructor(props: IProps) {
+    super(props);
+    const workDetailsFormsObj: WorkDetailTypes = {
+      totalworker: {
+        labour: 0,
+        mason: 0
+      },
+      workDescription: "",
+      workType: ""
+    }
 
-  const allUsers = async () => {
-    var respond = await getAllUsersDetails();
+    const workReportFormsObj: WorkReportTypes = {
+      Works: [workDetailsFormsObj],
+      cementAmount: 0,
+      date: moment().toDate(),
+      siteId: "",
+      supervisorId: "",
+      supervisorName: "",
+      siteName: ""
+    }
+    
+    this.state = {
+      initialValues: workReportFormsObj,
+      allSitesAsOption: [],
+      siteRespond: [],
+      allWorkTypeOption: [],
+      siteDropdown: {},
+      workCategoryDropdown:[]
+    };
+
+  }
+
+  public componentDidMount() {
+    this.allSites();
+    this.setWorkCategoryArray();
+  }
+
+  setWorkCategoryArray = () => {
+    const WORK_TYPES = ["Concrit", "Plumbling", "Electric", "Tiles"]
+
+    const test1 = [];
+    for (let index = 0; index < WORK_TYPES.length; index++) {
+      const element = WORK_TYPES[index];
+      test1.push({
+        value: element,
+        label: element
+      });
+    }
+
+    this.setState({
+      allWorkTypeOption: test1
+    });
+  }
+
+  allSites = async () => {
+    const respond = await getAllSites();
     if (respond.data) {
-      const userOptions: Array<{}> = [];
+      const sitesOptions: Array<{}> = [];
       for (let index = 0; index < respond.data.length; index++) {
         const element = respond.data[index];
-        userOptions.push({
-          value: element.user_id,
-          label: `${element.firstName} ${element.lastName}`
+        sitesOptions.push({
+          value: element.siteId,
+          label: element.siteName
         });
       }
-      setAllUsersDetails(respond.data)
-      setAllUsersAsOption(userOptions)
+
+      this.setState({
+        allSitesAsOption: sitesOptions,
+        siteRespond: respond.data
+      })
     }
   }
 
-  useEffect(() => {
-    allUsers();
-  }, []);
 
-  const siteFormsObj: SiteType = {
-    siteName: '',
-    ownerName: '',
-    ownerContactNo: '',
-    siteAddress: {
-      AddressLine1: '',
-      City: '',
-      State: '',
-      pincode: 0,
-    },
-    siteInaugurationDate: new Date(),
-    siteEstimate: '',
-    tentativeDeadline: new Date(),
-    supervisors: [
-      {
-        siteSupervisorName: '',
-        siteSupervisorNo: 0,
-        siteSupervisorId: ''
-      }
-    ]
-  }
 
-  const validateForm = (values: FormikValues) => {
+  validateForm = (values: FormikValues) => {
     const errors: any = {};
     if (!values.siteName) {
       errors.siteName = 'Required';
     }
 
-    if (!values.ownerName) {
-      errors.ownerName = 'Required';
-    }
-
-    if (!values.ownerContactNo) {
-      errors.ownerContactNo = 'Required';
-    }
-
-    if (!values.siteAddress.AddressLine1) {
-      errors.siteAddress.AddressLine1 = 'Required';
-    }
-
-    if (!values.siteAddress.City) {
-      errors.siteAddress.City = 'Required';
-    }
-
-    if (!values.siteAddress.State) {
-      errors.siteAddress.State = 'Required';
-    }
-
-    if (!values.siteInaugurationDate) {
-      errors.siteInaugurationDate = 'Required';
-    }
-
-    if (!values.siteEstimate) {
-      errors.siteEstimate = 'Required';
-    }
-
-    if (!values.tentativeDeadline) {
-      errors.tentativeDeadline = 'Required';
-    }
+    
 
     return errors;
   }
 
-  const submitEvent = async (values: FormikValues) => {
-    const { ownerContactNo, ownerName, siteAddress, siteEstimate, siteInaugurationDate, siteName, tentativeDeadline } = values;
-    const supervisors: Array<SupervisorType> = [];
-    for (let index = 0; index < allUsersDetails.length; index++) {
-      const element = allUsersDetails[index];
-      supervisors.push({
-        siteSupervisorId: element.user_id,
-        siteSupervisorName: `${element.firstName} ${element.lastName}`,
-        siteSupervisorNo: element.contactNo
-      });
+  submitEvent = async (values: FormikValues) => {
+    const { Works,
+      cementAmount,
+      date } = values;
 
-    }
-    const newSiteData: SiteType = {
-      ownerContactNo,
-      ownerName,
-      siteAddress,
-      siteEstimate,
-      siteInaugurationDate,
-      siteName,
-      supervisors,
-      tentativeDeadline
+    const siteName = "";//allSitesDetails[0] ? allSitesDetails[0].siteName : "";
+    const siteId = "";//allSitesDetails[0]?.siteId ? allSitesDetails[0].siteId : "";
+    const supervisorId = '0';
+    const supervisorName = "";
+
+    const newWorkReportData: WorkReportTypes = {
+      Works,
+      cementAmount,
+      date,
+      siteId,
+      supervisorId,
+      supervisorName,
+      siteName
     };
 
-    var siteCreated = await addNewSite(newSiteData);
-    if (siteCreated && siteCreated.data) {
-      props.handleClose();
+    const workReportCreated = await addNewWorkReport(newWorkReportData);
+    if (workReportCreated && workReportCreated.data) {
+      this.props.handleClose();
     }
   }
 
-  const formik1 = useFormik({
-    initialValues: siteFormsObj,
-    onSubmit: submitEvent,
-    validate: validateForm
-  });
 
-  return (
-    <>
-      <Modal.Header closeButton>
-        <Modal.Title>New Work Report</Modal.Title>
-      </Modal.Header>
-      <Form onSubmit={formik1.handleSubmit}>
-        <Modal.Body>
-          <Form.Group controlId="siteName">
-            <Form.Row>
-              <Form.Label column lg={2}>Site Name</Form.Label>
-              <Col>
-                <Form.Control type="text" placeholder="Enter Site Name" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteName} />
-                <Form.Text className="text-danger">{formik1.errors.siteName}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
+  public render(){
 
-          <Form.Group controlId="ownerName">
-            <Form.Row>
-              <Form.Label column lg={2}>Owner Name</Form.Label>
-              <Col>
-                <Form.Control type="text" placeholder="Enter Owner Name" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.ownerName} />
-                <Form.Text className="text-danger">{formik1.errors.ownerName}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
+    return (
+      <>
+        <Modal.Header closeButton>
+          <Modal.Title>New Work Report</Modal.Title>
+        </Modal.Header>
+        <Formik
+          initialValues={this.state.initialValues}
+          validate={this.validateForm}
+          onSubmit={this.submitEvent}
+        >
+        {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              setFieldValue,
+              isSubmitting,
+              /* and other goodies */
+            }) => (
 
-          <Form.Group controlId="ownerContactNo">
-            <Form.Row>
-              <Form.Label column lg={2}>Owner Contract No</Form.Label>
-              <Col>
-                <Form.Control type="number" placeholder="Enter Owner Contract No" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.ownerContactNo} />
-                <Form.Text className="text-danger">{formik1.errors.ownerContactNo}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="AddressLine1">
-            <Form.Row>
-              <Form.Label column lg={2}>Address</Form.Label>
-              <Col>
-                <Form.Control name="siteAddress.AddressLine1" as="textarea" placeholder="Enter site address" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteAddress.AddressLine1} />
-                <Form.Text className="text-danger">{formik1.errors.siteAddress?.AddressLine1}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="City">
-            <Form.Row>
-              <Form.Label column lg={2}>City</Form.Label>
-              <Col>
-                <Form.Control name="siteAddress.City" type="text" placeholder="Enter City" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteAddress.City} />
-                <Form.Text className="text-danger">{formik1.errors.siteAddress?.City}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="State">
-            <Form.Row>
-              <Form.Label column lg={2}>State</Form.Label>
-              <Col>
-                <Form.Control type="text" name="siteAddress.State" placeholder="Enter State" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteAddress.State} />
-                <Form.Text className="text-danger">{formik1.errors.siteAddress?.State}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="pincode">
-            <Form.Row>
-              <Form.Label column lg={2}>Pincode</Form.Label>
-              <Col>
-                <Form.Control type="number" name="siteAddress.pincode" placeholder="Enter Pincode" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteAddress.pincode} />
-                <Form.Text className="text-danger">{formik1.errors.siteAddress?.pincode}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="siteInaugurationDate">
-            <Form.Row>
-              <Form.Label column lg={2}>Start Date</Form.Label>
-              <Col>
-                <DatePicker selected={formik1.values.siteInaugurationDate} onChange={(date) => formik1.setFieldValue('siteInaugurationDate', date)} />
-                {/* <Form.Text className="text-danger">{formik1.errors.siteInaugurationDate}</Form.Text> */}
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="siteEstimate">
-            <Form.Row>
-              <Form.Label column lg={2}>Estimate</Form.Label>
-              <Col>
-                <Form.Control type="number" placeholder="Enter Estimate" onChange={formik1.handleChange} onBlur={formik1.handleBlur} value={formik1.values.siteEstimate} />
-                <Form.Text className="text-danger">{formik1.errors.siteEstimate}</Form.Text>
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="tentativeDeadline">
-            <Form.Row>
-              <Form.Label column lg={2}>Deadline</Form.Label>
-              <Col>
-                <DatePicker selected={formik1.values.tentativeDeadline} onChange={(date) => formik1.setFieldValue('tentativeDeadline', date)} />
-                {/* <Form.Text className="text-danger">{formik1.errors.tentativeDeadline}</Form.Text> */}
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-          <Form.Group controlId="supervisors">
-            <Form.Row>
-              <Form.Label column lg={2}>Supervisors</Form.Label>
-              <Col>
-                <Select value={selectedSupervisorOpt} onChange={setSupervisorOpt} options={allUsersAsOption} isMulti={true} />
-              </Col>
-            </Form.Row>
-          </Form.Group>
-
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={props.handleClose}>
-            Close
-            </Button>
-          <Button variant="primary" type="submit">Create</Button>
-        </Modal.Footer>
-      </Form>
-    </>
-  );
+            <Form onSubmit={handleSubmit}>
+              <Modal.Body>
+                <Form.Group controlId="siteId">
+                  <Form.Row>
+                    <Form.Label column lg={2}>Site</Form.Label>
+                    <Col>
+                      <Select value={this.state.siteDropdown} onChange={(val)=>{this.setState({'siteDropdown': val})}} options={this.state.allSitesAsOption} />
+                    </Col>
+                  </Form.Row>
+                </Form.Group>
+      
+                <Form.Group controlId="ownerName">
+                  <Form.Row>
+                    <Form.Label column lg={2}>Date</Form.Label>
+                    <Col>
+                      <Form.Text>{moment().format('DD/MM/YYYY')}</Form.Text>
+                    </Col>
+                  </Form.Row>
+                </Form.Group>
+      
+                <div>
+                  
+                  <FieldArray
+                    name="Works"
+                    render={arrayHelpers => (
+                      <div>
+                        {values.Works.map((workDetails: any, idx: any) => (
+                          <Fragment key={idx}>
+                            <Form.Row>
+                              <Col>  
+                                <h5 className="float-left">Work Details {idx+1}</h5>
+                                <Button variant="primary" className="float-right" onClick={()=>{
+                                  arrayHelpers.remove(idx)
+                                }}>Remove</Button>
+                              </Col>
+                            </Form.Row>
+                            <hr />
+                            <Form.Group controlId="workType">
+                              <Form.Row>
+                                <Form.Label column lg={2}>Work Type</Form.Label>
+                                <Col>
+                                  <Select value={this.state.workCategoryDropdown[`wc${idx}`]} onChange={(val)=>{this.setState({workCategoryDropdown: [...this.state.workCategoryDropdown, {[`wc${idx}`]: val}]})}} options={this.state.allWorkTypeOption} />
+                                </Col>
+                              </Form.Row>
+                            </Form.Group>
+            
+                            <Form.Group controlId={`Works.${idx}.totalworker.mason`}>
+                              <Form.Row>
+                                <Form.Label column lg={2}>Total Mason</Form.Label>
+                                <Col>
+                                  <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} onBlur={handleBlur} value={workDetails.totalworker.mason} />
+                                </Col>
+                              </Form.Row>
+                            </Form.Group>
+            
+                            <Form.Group controlId={`Works.${idx}.totalworker.labour`}>
+                              <Form.Row>
+                                <Form.Label column lg={2}>Total Labour</Form.Label>
+                                <Col>
+                                  <Form.Control type="number" placeholder="Enter Total Labour" onChange={handleChange} onBlur={handleBlur} value={workDetails.totalworker.labour} />
+                                </Col>
+                              </Form.Row>
+                            </Form.Group>
+                                    
+                            <Form.Group controlId={`Works.${idx}.workDescription`}>
+                              <Form.Row>
+                                <Form.Label column lg={2}>Work Description</Form.Label>
+                                <Col>
+                                  <Form.Control as="textarea" placeholder="Enter Work Description" onChange={handleChange} onBlur={handleBlur} value={workDetails.workDescription} />
+                                </Col>
+                              </Form.Row>
+                            </Form.Group>
+            
+                          </Fragment>
+                        ))}
+                        
+                        <Button variant="primary" onClick={()=>{
+                          console.log(this.state.initialValues.Works);
+                          arrayHelpers.push(this.state.initialValues.Works[0])
+                        }}>Add Another Work Details</Button>
+                      </div>
+                    )} />
+                </div>
+      
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={this.props.handleClose}>Close</Button>
+                <Button variant="primary" type="submit">Create</Button>
+              </Modal.Footer>
+            </Form>
+            )}
+        </Formik>
+      </>
+    );
+  }
 };

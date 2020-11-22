@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Col, Form, Modal } from "react-bootstrap";
 
-import Select from "react-select";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -13,9 +12,9 @@ import { SiteType, SupervisorType, UserTypes } from "../../../typings";
 
 export const SitesForms = (props: any) => {
 
-  var [allUsersDetails, setAllUsersDetails] = useState([] as Array<UserTypes>);
-  var [allUsersAsOption, setAllUsersAsOption] = useState([{}]);
-  var [selectedSupervisorOpt, setSupervisorOpt] = useState([] as any);
+  const [allUsersDetails, setAllUsersDetails] = useState([] as Array<UserTypes>);
+  // var [allUsersAsOption, setAllUsersAsOption] = useState([{}]);
+  //var [selectedSupervisorOpt, setSupervisorOpt] = useState([] as any);
 
   const allUsers = async () => {
     var respond = await getAllUsersDetails();
@@ -29,7 +28,7 @@ export const SitesForms = (props: any) => {
         });
       }
       setAllUsersDetails(respond.data)
-      setAllUsersAsOption(userOptions)
+      //setAllUsersAsOption(userOptions)
     }
   }
 
@@ -242,14 +241,14 @@ export const SitesForms = (props: any) => {
             </Form.Row>
           </Form.Group>
 
-          <Form.Group controlId="supervisors">
+          {/* <Form.Group controlId="supervisors">
             <Form.Row>
               <Form.Label column lg={2}>Supervisors</Form.Label>
               <Col>
                 <Select value={selectedSupervisorOpt} onChange={setSupervisorOpt} options={allUsersAsOption} isMulti={true} />
               </Col>
             </Form.Row>
-          </Form.Group>
+          </Form.Group> */}
 
         </Modal.Body>
         <Modal.Footer>

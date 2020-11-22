@@ -14,6 +14,7 @@ export interface SupervisorType {
 
 export interface SiteType {
   siteName: string;
+  siteId?: string;
   ownerName: string;
   ownerContactNo: string;
   siteAddress: SiteAddressType;

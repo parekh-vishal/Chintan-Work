@@ -56,6 +56,7 @@ export const SitesListing = (props: any) => {
       <Container fluid>
         <Row className="add-buttton-row">
           <Col>
+            <h3 className="float-left">Sites</h3>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={handleShow}>Add Site</Button>
           </Col>
         </Row>
