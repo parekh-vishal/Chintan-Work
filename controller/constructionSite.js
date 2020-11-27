@@ -45,8 +45,10 @@ exports.addSite = (req, res, next) => {
                             tentativeDeadline: req.body.tentativeDeadline
                         });
                         let userInfo = Authusr(req);
-                        let adminUsrArr = [{"adminUserId": userInfo.id,
-                                            "adminUserName": userInfo.name}];
+                        let adminUsrArr = [{
+                            "adminUserId": userInfo.id,
+                            "adminUserName": userInfo.name
+                        }];
                         let siteRule = new SiteRules({
                             siteId: siteId,
                             adminUsers: adminUsrArr
@@ -129,8 +131,8 @@ exports.siteSettings = (req, res, next) => {
 }
 //Edit Site Settings
 exports.editSiteSettings = (req, res, next) => {
-    const filter = req.body.siteId;
-    SiteRules.findOneAndUpdate({ siteId: filter }, req.body).exec()
+    const filter = req.query;
+    SiteRules.findOneAndUpdate(filter, req.body).exec()
         .then(doc => {
             res.status(200).json({
                 message: "Settings Updated"
@@ -143,6 +145,7 @@ exports.editSiteSettings = (req, res, next) => {
             });
         });
 };
+
 //Get Site by SiteID
 exports.getSite = (req, res, next) => {
     const siteId = req.params.siteId;
@@ -165,7 +168,7 @@ exports.getSite = (req, res, next) => {
 }
 //Get All Site Function
 exports.getAllSite = (req, res, next) => {
-    const filter = req.query;
+    const filter = req.query;//Query Format: {supervisors.siteSupervisorId=usr0} 
     SiteRules.find(filter).select('siteId').exec()
         .then(doc => {
             let siteIds = [];
@@ -183,6 +186,27 @@ exports.getAllSite = (req, res, next) => {
                         error: "Bad Gateway"
                     });
                 });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(502).json({
+                error: "Bad Gateway"
+            });
+        });
+};
+//Get Site Settings 
+exports.getSiteSetting = (req, res, next) => {
+    const filter = req.query; //Query Format ?siteId=site0&amp;adminUsers.adminUserId=usr0;  
+    SiteRules.findOne(filter).exec()
+        .then(doc => {
+            if (doc != null) {
+                res.status(200).json(doc);
+            }
+            else {
+                res.status(200).json({
+                    error: "Permission Denied"
+                });
+            }
         })
         .catch(err => {
             console.log(err);
