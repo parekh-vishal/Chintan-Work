@@ -218,7 +218,9 @@ exports.refrshTkn = (req, res, next) => {
     //New Token 
     const email = req.params.email;
     const nwTkn = jwt.sign({
-        email: email,
+        id: user.user_id,
+        email: user.email,
+        name : user.firstName
     },
         process.env.JWT_KEY,
         {

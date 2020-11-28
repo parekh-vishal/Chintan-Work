@@ -35,20 +35,22 @@ exports.addSite = (req, res, next) => {
                             ownerName: req.body.ownerName,
                             ownerContactNo: req.body.ownerContactNo,
                             siteAddress: {
-                                AddressLine1: req.body.AddressLine1,
-                                City: req.body.City,
-                                State: req.body.State,
-                                pincode: req.body.pincode
+                                AddressLine1: req.body.siteAddress.AddressLine1,
+                                City: req.body.siteAddress.City,
+                                State: req.body.siteAddress.State,
+                                pincode: req.body.siteAddress.pincode
                             },
                             siteInaugurationDate: req.body.siteInaugurationDate,
                             siteEstimate: req.body.siteEstimate,
                             tentativeDeadline: req.body.tentativeDeadline
                         });
                         let userInfo = Authusr(req);
+                        //console.log("userInfo",userInfo);
                         let adminUsrArr = [{
                             "adminUserId": userInfo.id,
                             "adminUserName": userInfo.name
                         }];
+                      //  console.log(adminUsrArr);
                         let siteRule = new SiteRules({
                             siteId: siteId,
                             adminUsers: adminUsrArr
