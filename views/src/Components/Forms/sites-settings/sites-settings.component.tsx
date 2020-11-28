@@ -2,13 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Nav, Row } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { addNewSite, getAllUsersDetails } from "../../../services";
+import { addNewSite, getSiteSettings } from "../../../services";
 import './sites-settings.component.scss'
 import { FormikValues, useFormik } from "formik";
 import { SiteType, SupervisorType, UserTypes } from "../../../typings";
+import { connect } from "react-redux";
 
 
-export const SitesSettings = (props: any) => {
+const mapStateToProps = (state: any) => {
+  return {
+    user: state.user
+  };
+};
+
+const SitesSettings = (props: any) => {
 
   const VIEW_NAMES = {
     ADMIN_VIEW: "ADMIN_VIEW",
@@ -20,17 +27,20 @@ export const SitesSettings = (props: any) => {
   const [currentView, setViewName] = useState(VIEW_NAMES.ADMIN_VIEW);
 
   const allUsers = async () => {
-    var respond = await getAllUsersDetails();
+    console.log(props.currentSite)
+    //const todo = useSelector((state) => state.todos[props.id])
+    var respond = await getSiteSettings({siteId: props.currentSite.siteId,userId: props.user.user_id});
+    console.log(respond);
     if (respond.data) {
-      const userOptions: Array<{}> = [];
-      for (let index = 0; index < respond.data.length; index++) {
-        const element = respond.data[index];
-        userOptions.push({
-          value: element.user_id,
-          label: `${element.firstName} ${element.lastName}`
-        });
-      }
-      setAllUsersDetails(respond.data)
+      // const userOptions: Array<{}> = [];
+      // for (let index = 0; index < respond.data.length; index++) {
+      //   const element = respond.data[index];
+      //   userOptions.push({
+      //     value: element.user_id,
+      //     label: `${element.firstName} ${element.lastName}`
+      //   });
+      // }
+      // setAllUsersDetails(respond.data)
       //setAllUsersAsOption(userOptions)
     }
   }
@@ -188,3 +198,5 @@ export const SitesSettings = (props: any) => {
     </>
   );
 };
+
+export default connect(mapStateToProps, {})(SitesSettings);

@@ -6,9 +6,17 @@ import { getAllSites } from "../../../services";
 import './sites-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
-import { SitesForms, SitesSettings } from "../../Forms";
+import { SitesForms } from "../../Forms";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
+import { SiteType } from "../../../typings";
+import SitesSettings from "../../Forms/sites-settings/sites-settings.component"
+
+interface TableObject{
+  columnName: string;
+  key: string;
+  type: string
+}
 
 export const SitesListing = (props: any) => {
  
@@ -17,9 +25,10 @@ export const SitesListing = (props: any) => {
     SITE_SETTINGS: "SITE_SETTINGS"
   }
 
-  const [ listData, setListData ] = useState([] as any);
+  const [ listData, setListData ] = useState([] as Array<SiteType>);
   const [show, setShow] = useState(false);
   const [modalName, setModalName] = useState("");
+  const [currentSite, setCurrentSite] = useState({} as SiteType);
 
   const allSites = async () => {
     const allSitesRespond = await getAllSites();
@@ -32,7 +41,7 @@ export const SitesListing = (props: any) => {
     allSites();
   }, []);
 
-  const tableObject = [{
+  const tableObject:Array<TableObject> = [{
     columnName: "Site Name",
     key: "siteName",
     type: "text"
@@ -64,6 +73,11 @@ export const SitesListing = (props: any) => {
     handleShow();
   }
 
+  const openSiteSetting = (siteObject: SiteType) => {
+    setCurrentSite(siteObject);
+    openModal(MODAL_NAMES.SITE_SETTINGS);
+  }
+
   return (
     <>
       <Container fluid>
@@ -88,11 +102,11 @@ export const SitesListing = (props: any) => {
             <tbody>
               {listData.map((rowObj: any) => (
                   <tr key={rowObj.siteId}>
-                    {tableObject.map((columnObj, index: number) => 
+                    {tableObject.map((columnObj: any, index: number) => 
                       (<td key={columnObj.columnName}>
                         {columnObj.type === 'date' ? moment(rowObj[columnObj.key]).format('DD/MM/YYYY') : rowObj[columnObj.key]}
                         {tableObject.length-1 === index && 
-                          <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.SITE_SETTINGS)}>
+                          <Button variant="outline-primary" size="sm" className="float-right" onClick={()=>openSiteSetting(rowObj)}>
                             <FontAwesomeIcon icon={ faCog } />
                           </Button>
                         }
@@ -111,7 +125,7 @@ export const SitesListing = (props: any) => {
           <SitesForms handleClose={handleClose}></SitesForms>
         }
         {modalName === MODAL_NAMES.SITE_SETTINGS && 
-          <SitesSettings handleClose={handleClose}></SitesSettings>
+          <SitesSettings handleClose={handleClose} currentSite={currentSite}></SitesSettings>
         }
       </ModalComponent>
     </>

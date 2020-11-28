@@ -8,3 +8,7 @@ export const addNewSite = (siteParam: SiteType) => {
 export const getAllSites = () => {
     return get({ url: 'constructionSite/getAllSite'})
 };
+
+export const getSiteSettings = ({userId, siteId}:{userId: string, siteId: string}) => {
+    return get({ url: `constructionSite/getSiteSettings?siteId:"${siteId}"&adminUsers.adminUserId:"${userId}"`})
+};
