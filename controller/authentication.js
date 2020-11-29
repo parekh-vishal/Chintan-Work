@@ -87,7 +87,7 @@ exports.logUser = (req, res, next) => {
                             const token = jwt.sign({
                                 id: user.user_id,
                                 email: user.email,
-                                name : user.firstName
+                                name: user.firstName
                             },
                                 process.env.JWT_KEY,
                                 {
@@ -129,26 +129,26 @@ exports.logUser = (req, res, next) => {
                 else {
                     console.log(doc);
                     bcrypt.compare(req.body.password, user.password)
-                    .then(doMatch=>{
-                        let email = user.email;
-                        let _user = user.toObject();
-                        delete _user.password;
-                        delete _user.__v;
-                        delete _user._id;
-                        if (doMatch){
-                            res.status(200).json({
-                                message: 'Login Successful',
-                                token: doc.token,
-                                ..._user
-                            });
-                        }
-                        else{
-                            res.status(200).json({
-                                message: 'Invalid Password'
-                            });
-                        }
-                    })
-                    .catch(err => {
+                        .then(doMatch => {
+                            let email = user.email;
+                            let _user = user.toObject();
+                            delete _user.password;
+                            delete _user.__v;
+                            delete _user._id;
+                            if (doMatch) {
+                                res.status(200).json({
+                                    message: 'Login Successful',
+                                    token: doc.token,
+                                    ..._user
+                                });
+                            }
+                            else {
+                                res.status(200).json({
+                                    message: 'Invalid Password'
+                                });
+                            }
+                        })
+                        .catch(err => {
                             console.log(err);
                             res.status(401).json({
                                 message: 'Login Failed'
@@ -217,29 +217,41 @@ exports.refrshTkn = (req, res, next) => {
     const token = req.headers.authorization.split(" ")[1] || req.body.token;
     //New Token 
     const email = req.params.email;
-    const nwTkn = jwt.sign({
-        id: user.user_id,
-        email: user.email,
-        name : user.firstName
-    },
-        process.env.JWT_KEY,
-        {
-            expiresIn: "24h"
-        }
-    );
-    const filter = { mail: email };
-    const update = { token: nwTkn };
-    Token.findOneAndUpdate(filter, update).exec()
+    User.findOne({ email: email }).select('-password').exec()
         .then(doc => {
-            res.status(200).json({
-                message: 'Token Updated',
-                token: nwTkn
-            });
+            if (!doc) { throw err }
+            else {
+                const nwTkn = jwt.sign({
+                    id: doc.user_id,
+                    email: doc.email,
+                    name: doc.firstName
+                },
+                    process.env.JWT_KEY,
+                    {
+                        expiresIn: "24h"
+                    }
+                );
+                const filter = { mail: email };
+                const update = { token: nwTkn };
+                Token.findOneAndUpdate(filter, update).exec()
+                    .then(doc => {
+                        res.status(200).json({
+                            message: 'Token Updated',
+                            token: nwTkn
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(404).json({
+                            error: "User Not Found With Token"
+                        });
+                    });
+            }
         })
         .catch(err => {
             console.log(err);
-            res.status(404).json({
-                error: "User Not Found With Token"
+            res.status(502).json({
+                error: "Bad Gateway"
             });
         });
 };
