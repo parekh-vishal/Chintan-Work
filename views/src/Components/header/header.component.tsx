@@ -19,10 +19,10 @@ export class HeaderComponent extends React.PureComponent<any, {}> {
     <Navbar.Collapse id="basic-navbar-nav" className="justify-content-md-end">
       <Nav>
         <Nav.Link href="/signup">Add User</Nav.Link>
-        <NavDropdown title={this.props.user.firstName} id="basic-nav-dropdown">
+        <NavDropdown title={this.props.user?.firstName || ""} id="basic-nav-dropdown">
           <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
           <NavDropdown.Divider />
-          <NavDropdown.Item href="/login" onClick={this.logout}>Logout</NavDropdown.Item>
+          <NavDropdown.Item onClick={this.logout}>Logout</NavDropdown.Item>
         </NavDropdown>
       </Nav>
     </Navbar.Collapse>

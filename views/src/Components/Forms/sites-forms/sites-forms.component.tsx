@@ -13,7 +13,6 @@ import { SiteType, SupervisorType, UserTypes } from "../../../typings";
 export const SitesForms = (props: any) => {
 
   const [allUsersDetails, setAllUsersDetails] = useState([] as Array<UserTypes>);
-  // var [allUsersAsOption, setAllUsersAsOption] = useState([{}]);
   //var [selectedSupervisorOpt, setSupervisorOpt] = useState([] as any);
 
   const allUsers = async () => {
@@ -28,7 +27,6 @@ export const SitesForms = (props: any) => {
         });
       }
       setAllUsersDetails(respond.data)
-      //setAllUsersAsOption(userOptions)
     }
   }
 

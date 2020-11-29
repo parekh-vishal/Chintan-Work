@@ -11,6 +11,7 @@ import { ROUTES } from "../../constants";
 import { SitesListing, WorkReportListing } from "../../components/listings";
 
 import './dashboard.scss'
+import { logout } from "../../services";
 
 
 export interface IProps {
@@ -39,8 +40,13 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
     }
   }
 
-  logoutHandler = () => {
-    this.props.setUser("");    
+  logoutHandler = async () => {
+    const logoutRespond = await logout();
+    console.log(logoutRespond);
+    if(logoutRespond.data){
+      this.props.setUser("");
+      this.navigateToLoginPage();
+    }
   }
 
   navigateToLoginPage = () => {

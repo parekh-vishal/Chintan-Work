@@ -1,13 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Modal, Nav, Row } from "react-bootstrap";
+import React from "react";
+import { Button, Col, Modal, Nav, Row } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { addNewSite, getSiteSettings } from "../../../services";
+import { getAllUsersDetails, getSiteSettings } from "../../../services";
 import './sites-settings.component.scss'
-import { FormikValues, useFormik } from "formik";
-import { SiteType, SupervisorType, UserTypes } from "../../../typings";
 import { connect } from "react-redux";
+import Select from "react-select";
+import { ISiteRules } from "../../../typings";
 
+interface IDropdownObject {
+  value: string;
+  label: string;
+}
+
+interface IState {
+  siteSetting: ISiteRules;
+  allUsersDetails: Array<{}>;
+  allUsersAsOption: Array<IDropdownObject>;
+
+  adminUsersOpt: Array<{}>;
+  supervisorsOpt: Array<{}>;
+  userExpenseOpt: Array<{}>;
+
+  currentView: string;
+}
 
 const mapStateToProps = (state: any) => {
   return {
@@ -15,150 +31,112 @@ const mapStateToProps = (state: any) => {
   };
 };
 
-const SitesSettings = (props: any) => {
+const VIEW_NAMES = {
+  ADMIN_VIEW: "ADMIN_VIEW",
+  SUPERVISOR_VIEW: "SUPERVISOR_VIEW",
+  WORK_CATEGORY_VIEW: "WORK_CATEGORY_VIEW"
+}
 
-  const VIEW_NAMES = {
-    ADMIN_VIEW: "ADMIN_VIEW",
-    SUPERVISOR_VIEW: "SUPERVISOR_VIEW",
-    WORK_CATEGORY_VIEW: "WORK_CATEGORY_VIEW"
+class SitesSettings extends React.PureComponent<any, IState> {
+
+  public constructor(props: any) {
+    super(props);
+
+    this.state = {
+      siteSetting: {} as ISiteRules,
+      allUsersDetails: [],
+      allUsersAsOption: [],
+
+      adminUsersOpt:[],
+      supervisorsOpt:[],
+      userExpenseOpt:[],
+
+      currentView: VIEW_NAMES.ADMIN_VIEW
+    };
   }
 
-  const [allUsersDetails, setAllUsersDetails] = useState([] as Array<UserTypes>);
-  const [currentView, setViewName] = useState(VIEW_NAMES.ADMIN_VIEW);
+  componentDidMount =  async() => {
+    this.fetchSiteSetting();
+  }
 
-  const allUsers = async () => {
-    console.log(props.currentSite)
-    //const todo = useSelector((state) => state.todos[props.id])
-    var respond = await getSiteSettings({siteId: props.currentSite.siteId,userId: props.user.user_id});
+  fetchSiteSetting = async () => {
+    var respond = await getSiteSettings({siteId: this.props.currentSite.siteId,userId: this.props.user.user_id});
     console.log(respond);
     if (respond.data) {
-      // const userOptions: Array<{}> = [];
-      // for (let index = 0; index < respond.data.length; index++) {
-      //   const element = respond.data[index];
-      //   userOptions.push({
-      //     value: element.user_id,
-      //     label: `${element.firstName} ${element.lastName}`
-      //   });
-      // }
-      // setAllUsersDetails(respond.data)
-      //setAllUsersAsOption(userOptions)
-    }
-  }
-
-  useEffect(() => {
-    allUsers();
-  }, []);
-
-  const siteFormsObj: SiteType = {
-    siteName: '',
-    ownerName: '',
-    ownerContactNo: '',
-    siteAddress: {
-      AddressLine1: '',
-      City: '',
-      State: '',
-      pincode: 0,
-    },
-    siteInaugurationDate: new Date(),
-    siteEstimate: '',
-    tentativeDeadline: new Date(),
-    supervisors: [
-      {
-        siteSupervisorName: '',
-        siteSupervisorNo: 0,
-        siteSupervisorId: ''
-      }
-    ]
-  }
-
-  const validateForm = (values: FormikValues) => {
-    const errors: any = {};
-    if (!values.siteName) {
-      errors.siteName = 'Required';
-    }
-
-    if (!values.ownerName) {
-      errors.ownerName = 'Required';
-    }
-
-    if (!values.ownerContactNo) {
-      errors.ownerContactNo = 'Required';
-    }
-
-    if (!values.siteAddress.AddressLine1) {
-      errors.siteAddress.AddressLine1 = 'Required';
-    }
-
-    if (!values.siteAddress.City) {
-      errors.siteAddress.City = 'Required';
-    }
-
-    if (!values.siteAddress.State) {
-      errors.siteAddress.State = 'Required';
-    }
-
-    if (!values.siteInaugurationDate) {
-      errors.siteInaugurationDate = 'Required';
-    }
-
-    if (!values.siteEstimate) {
-      errors.siteEstimate = 'Required';
-    }
-
-    if (!values.tentativeDeadline) {
-      errors.tentativeDeadline = 'Required';
-    }
-
-    return errors;
-  }
-
-  const submitEvent = async (values: FormikValues) => {
-    const { ownerContactNo, ownerName, siteAddress, siteEstimate, siteInaugurationDate, siteName, tentativeDeadline } = values;
-    const supervisors: Array<SupervisorType> = [];
-    for (let index = 0; index < allUsersDetails.length; index++) {
-      const element = allUsersDetails[index];
-      supervisors.push({
-        siteSupervisorId: element.user_id,
-        siteSupervisorName: `${element.firstName} ${element.lastName}`,
-        siteSupervisorNo: element.contactNo
+      this.setState({
+        siteSetting: respond.data
       });
-
-    }
-    const newSiteData: SiteType = {
-      ownerContactNo,
-      ownerName,
-      siteAddress,
-      siteEstimate,
-      siteInaugurationDate,
-      siteName,
-      supervisors,
-      tentativeDeadline
-    };
-
-    var siteCreated = await addNewSite(newSiteData);
-    if (siteCreated && siteCreated.data) {
-      props.handleClose();
+      this.fetchAllUsers();
     }
   }
 
-  const formik1 = useFormik({
-    initialValues: siteFormsObj,
-    onSubmit: submitEvent,
-    validate: validateForm
-  });
+  setInitAdminUsers = () => {
+    const {siteSetting, allUsersAsOption} = this.state;
+    const allAdminMap = siteSetting.adminUsers && siteSetting.adminUsers.map((obj: any)=>{
+      return obj.adminUserId
+    });
+    console.log(allAdminMap)
+    const newData = [];
+    for (let index = 0; index < allUsersAsOption.length; index++) {
+      const element = allUsersAsOption[index];
+      if(element.value && allAdminMap.indexOf(element.value) > -1){
+        newData.push(element);
+      }
+    }
 
-  const handleViews = (selectedKey: any) => {
-    setViewName(selectedKey);
+    this.setState({
+      adminUsersOpt: newData
+    });
   }
 
-  return (
-    <>
-      <Modal.Header closeButton>
-        <Modal.Title>Site Settings</Modal.Title>
-      </Modal.Header>
-      <Form onSubmit={formik1.handleSubmit}>
+  fetchAllUsers = async () => {
+    var respond = await getAllUsersDetails();
+    if (respond.data) {
+      const userOptions: Array<IDropdownObject> = [];
+      for (let index = 0; index < respond.data.length; index++) {
+        const element = respond.data[index];
+        userOptions.push({
+          value: element.user_id,
+          label: `${element.firstName} ${element.lastName}`
+        });
+      }
+
+      this.setState({
+        allUsersDetails: respond.data,
+        allUsersAsOption: userOptions
+      });
+      
+      this.setInitAdminUsers();
+    }
+  };
+  
+  submitEvent = async () => {  
+    
+  }
+
+  setAdminUsersOpt = (value: any) => {
+    console.log(value);
+    this.setState({
+      adminUsersOpt: value
+    });
+
+  }
+
+  handleViews = (selectedKey: any) => {
+    this.setState({
+      currentView: selectedKey
+    })
+  }
+
+  public render() {
+    const {currentView, adminUsersOpt, allUsersAsOption} = this.state;
+    return <>
+        <Modal.Header closeButton>
+          <Modal.Title>Site Settings</Modal.Title>
+        </Modal.Header>
+        
         <Modal.Body>
-        <Nav fill variant="tabs" defaultActiveKey={VIEW_NAMES.ADMIN_VIEW} onSelect={handleViews}>
+        <Nav fill variant="tabs" defaultActiveKey={VIEW_NAMES.ADMIN_VIEW} onSelect={this.handleViews}>
           <Nav.Item>
             <Nav.Link eventKey={VIEW_NAMES.ADMIN_VIEW}>Admin Users</Nav.Link>
           </Nav.Item>
@@ -172,7 +150,9 @@ const SitesSettings = (props: any) => {
         
         {currentView === VIEW_NAMES.ADMIN_VIEW && 
           <Row>
-            <Col><h1>Admin Users</h1></Col>
+            <Col>
+              <Select value={adminUsersOpt} onChange={this.setAdminUsersOpt} options={allUsersAsOption} isMulti={true} />
+            </Col>
           </Row>
         }
         {currentView === VIEW_NAMES.SUPERVISOR_VIEW && 
@@ -189,14 +169,14 @@ const SitesSettings = (props: any) => {
 
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={props.handleClose}>
+          <Button variant="secondary" onClick={this.props.handleClose}>
             Close
             </Button>
-          <Button variant="primary" type="submit">Create</Button>
+          <Button variant="primary" type="submit">Save</Button>
         </Modal.Footer>
-      </Form>
-    </>
-  );
+      </>
+    ;
+  }
 };
 
 export default connect(mapStateToProps, {})(SitesSettings);

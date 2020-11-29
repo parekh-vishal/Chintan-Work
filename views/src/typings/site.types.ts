@@ -19,7 +19,24 @@ export interface SiteType {
   ownerContactNo: string;
   siteAddress: SiteAddressType;
   siteInaugurationDate: Date;
-  siteEstimate: string,
+  siteEstimate: string;
   tentativeDeadline: Date;
   supervisors: Array<SupervisorType>;
+}
+
+
+export interface ISiteRules {
+  siteId : string;
+  supervisors : Array<{
+    supervisorId : string;
+    SupervisorName : string;
+  }>;
+  userExpense : Array<{
+    expenseUserId : string;
+    expenseUserName : string;
+  }>;
+  adminUsers : Array<{
+    adminUserId : string;
+    adminUserName : string;
+  }>;
 }

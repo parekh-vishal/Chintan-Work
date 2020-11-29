@@ -10,5 +10,5 @@ export const getAllSites = () => {
 };
 
 export const getSiteSettings = ({userId, siteId}:{userId: string, siteId: string}) => {
-    return get({ url: `constructionSite/getSiteSettings?siteId:"${siteId}"&adminUsers.adminUserId:"${userId}"`})
+    return get({ url: `constructionSite/getSiteSettings?siteId=${siteId}&adminUsers.adminUserId=${userId}`})
 };

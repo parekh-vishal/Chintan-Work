@@ -5,6 +5,10 @@ export const login = (loginParam: LoginTypes) => {
     return post({ url: 'authenticate/SignIn', body: loginParam })
 };
 
+export const logout = () => {
+    return get({ url: 'authenticate/Logout' })
+};
+
 export const signUp = (signupParam: SignUpTypes) => {
     return post({ url: 'authenticate/SignUp', body: signupParam })
 };
