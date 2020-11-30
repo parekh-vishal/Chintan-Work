@@ -104,9 +104,14 @@ exports.editSiteSettings = (req, res, next) => {
         for(let i =0;i<qrykeys.length;i++){
             let innerLoop = reqBody[qrykeys[i]];
             let docArr = doc[qrykeys[i]];
-            for(let j=0;j<innerLoop.length;j++){
+            for(var j=0;j<innerLoop.length;j++){
                 docArr[j] = innerLoop[j];
-            }   
+            } 
+            if(docArr.length>j){
+                for(let i=docArr.length;i>j;i--){
+                    docArr.pop();
+                }
+            }
         }
        doc.save()
         .then(result=>{
