@@ -94,58 +94,39 @@ exports.addSite = (req, res, next) => {
         })
 };
 
-//Site Settings for Newly Created Site which consist of rules on Supervisors accessibility
-exports.siteSettings = (req, res, next) => {
-    let siteId = req.body.siteId;
-    Constructsite.findOne({ siteId: siteId }).exec()
-        .then(doc => {
-            if (doc.length == 0) {
-                console.log('Site Not Found')
-                res.status(200).json({
-                    message: 'Site Not Found'
-                })
-            }
-            else {
-                let siteRule = new SiteRules({
-                    supervisors: req.body.supervisors,
-                    userExpense: req.body.userExpense
-                });
-                siteRule.save()
-                    .then(doc => {
-                        res.status(200).json({
-                            message: "Site Settings Added"
-                        });
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(502).json({
-                            error: err
-                        });
-                    });
-            }
+//Edit Site Settings
+exports.editSiteSettings = (req, res, next) => {
+    const filter = req.query;
+    const reqBody = req.body;
+    SiteRules.findOne(filter).exec()
+    .then(doc=>{
+        const qrykeys = Object.keys(reqBody);
+        for(let i =0;i<qrykeys.length;i++){
+            let innerLoop = reqBody[qrykeys[i]];
+            let docArr = doc[qrykeys[i]];
+            for(let j=0;j<innerLoop.length;j++){
+                docArr[j] = innerLoop[j];
+            }   
+        }
+       doc.save()
+        .then(result=>{
+            res.status(200).json({
+                message : "Site Settings Updated"
+            });
         })
         .catch(err => {
             console.log(err);
             res.status(502).json({
                 error: err
             });
-        })
-}
-//Edit Site Settings
-exports.editSiteSettings = (req, res, next) => {
-    const filter = req.query;
-    SiteRules.findOneAndUpdate(filter, req.body).exec()
-        .then(doc => {
-            res.status(200).json({
-                message: "Settings Updated"
-            });
-        })
-        .catch(err => {
-            console.length(err);
-            res.status(502).json({
-                error: err
-            });
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(502).json({
+            error: err
         });
+    });
+})
 };
 
 //Get Site by SiteID
