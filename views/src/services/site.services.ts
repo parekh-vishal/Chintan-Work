@@ -12,3 +12,7 @@ export const getAllSites = () => {
 export const getSiteSettings = ({userId, siteId}:{userId: string, siteId: string}) => {
     return get({ url: `constructionSite/getSiteSettings?siteId=${siteId}&adminUsers.adminUserId=${userId}`})
 };
+
+export const updateSiteSettings = ({siteId, body}:{body: any, siteId: string}) => {
+    return post({ url: `constructionSite/editSiteSettings?siteId=${siteId}`, body})
+};

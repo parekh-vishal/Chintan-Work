@@ -1,8 +1,8 @@
 import React from "react";
-import { Button, Col, Modal, Nav, Row } from "react-bootstrap";
+import { Button, Col, Modal, Row } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllUsersDetails, getSiteSettings } from "../../../services";
+import { getAllUsersDetails, getSiteSettings, updateSiteSettings } from "../../../services";
 import './sites-settings.component.scss'
 import { connect } from "react-redux";
 import Select from "react-select";
@@ -18,9 +18,9 @@ interface IState {
   allUsersDetails: Array<{}>;
   allUsersAsOption: Array<IDropdownObject>;
 
-  adminUsersOpt: Array<{}>;
-  supervisorsOpt: Array<{}>;
-  userExpenseOpt: Array<{}>;
+  adminUsersOpt: Array<IDropdownObject>;
+  supervisorsOpt: Array<IDropdownObject>;
+  userExpenseOpt: Array<IDropdownObject>;
 
   currentView: string;
 }
@@ -34,6 +34,7 @@ const mapStateToProps = (state: any) => {
 const VIEW_NAMES = {
   ADMIN_VIEW: "ADMIN_VIEW",
   SUPERVISOR_VIEW: "SUPERVISOR_VIEW",
+  EXPENSE_USERS_VIEW: "EXPENSE_USERS_VIEW",
   WORK_CATEGORY_VIEW: "WORK_CATEGORY_VIEW"
 }
 
@@ -61,7 +62,6 @@ class SitesSettings extends React.PureComponent<any, IState> {
 
   fetchSiteSetting = async () => {
     var respond = await getSiteSettings({siteId: this.props.currentSite.siteId,userId: this.props.user.user_id});
-    console.log(respond);
     if (respond.data) {
       this.setState({
         siteSetting: respond.data
@@ -75,17 +75,35 @@ class SitesSettings extends React.PureComponent<any, IState> {
     const allAdminMap = siteSetting.adminUsers && siteSetting.adminUsers.map((obj: any)=>{
       return obj.adminUserId
     });
-    console.log(allAdminMap)
-    const newData = [];
+    const allSupervisorsMap = siteSetting.supervisors && siteSetting.supervisors.map((obj: any)=>{
+      return obj.supervisorId
+    });
+    const allExpenseUserMap = siteSetting.userExpense && siteSetting.userExpense.map((obj: any)=>{
+      return obj.expenseUserId
+    });
+    const adminUsersOpt = [];
+    const supervisorsOpt = [];
+    const userExpenseOpt = [];
     for (let index = 0; index < allUsersAsOption.length; index++) {
       const element = allUsersAsOption[index];
       if(element.value && allAdminMap.indexOf(element.value) > -1){
-        newData.push(element);
+        adminUsersOpt.push(element);
       }
+
+      if(element.value && allSupervisorsMap.indexOf(element.value) > -1){
+        supervisorsOpt.push(element);
+      }
+
+      if(element.value && allExpenseUserMap.indexOf(element.value) > -1){
+        userExpenseOpt.push(element);
+      }
+
     }
 
     this.setState({
-      adminUsersOpt: newData
+      adminUsersOpt,
+      supervisorsOpt,
+      userExpenseOpt
     });
   }
 
@@ -110,15 +128,79 @@ class SitesSettings extends React.PureComponent<any, IState> {
     }
   };
   
-  submitEvent = async () => {  
-    
+  handleSubmit = async () => {  
+    const body = {
+      adminUsers: this.getUsersFromView(VIEW_NAMES.ADMIN_VIEW),
+      supervisors: this.getUsersFromView(VIEW_NAMES.SUPERVISOR_VIEW),
+      userExpense: this.getUsersFromView(VIEW_NAMES.EXPENSE_USERS_VIEW),
+    };
+    const updateData = await updateSiteSettings({siteId: this.props.currentSite.siteId, body});
+    if(updateData.data){
+      console.log(updateData.data);
+      this.props.handleClose();
+    }
   }
 
-  setAdminUsersOpt = (value: any) => {
-    console.log(value);
-    this.setState({
-      adminUsersOpt: value
-    });
+  getUsersFromView = (userType: string) => {
+    const newUserArray: any = [];
+    const { adminUsersOpt, supervisorsOpt, userExpenseOpt } = this.state;
+    switch (userType) {
+      case VIEW_NAMES.ADMIN_VIEW:
+        for (let index = 0; index < adminUsersOpt.length; index++) {
+          const element = adminUsersOpt[index];
+          newUserArray.push({
+            adminUserId: element.value,
+            adminUserName: element.label,
+          });
+        }
+        break;
+      case VIEW_NAMES.SUPERVISOR_VIEW:
+        for (let index = 0; index < supervisorsOpt.length; index++) {
+          const element = supervisorsOpt[index];
+          newUserArray.push({
+            supervisorId: element.value,
+            supervisorName: element.label,
+          });
+        }
+        break;
+      case VIEW_NAMES.EXPENSE_USERS_VIEW:
+        for (let index = 0; index < userExpenseOpt.length; index++) {
+          const element = userExpenseOpt[index];
+          newUserArray.push({
+            expenseUserId: element.value,
+            expenseUserName: element.label,
+          });
+        }
+      break;
+    
+      default:
+        break;
+    }
+
+    return newUserArray;
+  }
+
+  setUsersOptState = (value: any, viewName: string) => {
+    switch (viewName) {
+      case VIEW_NAMES.ADMIN_VIEW:
+        this.setState({
+          adminUsersOpt: value
+        });
+        break;
+      case VIEW_NAMES.SUPERVISOR_VIEW:
+        this.setState({
+          supervisorsOpt: value
+        });
+        break;
+      case VIEW_NAMES.EXPENSE_USERS_VIEW:
+        this.setState({
+          userExpenseOpt: value
+        });
+        break;
+    
+      default:
+        break;
+    }
 
   }
 
@@ -129,42 +211,32 @@ class SitesSettings extends React.PureComponent<any, IState> {
   }
 
   public render() {
-    const {currentView, adminUsersOpt, allUsersAsOption} = this.state;
+    const {adminUsersOpt, allUsersAsOption, supervisorsOpt, userExpenseOpt} = this.state;
     return <>
         <Modal.Header closeButton>
           <Modal.Title>Site Settings</Modal.Title>
         </Modal.Header>
         
         <Modal.Body>
-        <Nav fill variant="tabs" defaultActiveKey={VIEW_NAMES.ADMIN_VIEW} onSelect={this.handleViews}>
-          <Nav.Item>
-            <Nav.Link eventKey={VIEW_NAMES.ADMIN_VIEW}>Admin Users</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey={VIEW_NAMES.SUPERVISOR_VIEW}>Supervisors</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey={VIEW_NAMES.WORK_CATEGORY_VIEW}>Work Category</Nav.Link>
-          </Nav.Item>
-        </Nav>
         
-        {currentView === VIEW_NAMES.ADMIN_VIEW && 
           <Row>
-            <Col>
-              <Select value={adminUsersOpt} onChange={this.setAdminUsersOpt} options={allUsersAsOption} isMulti={true} />
+            <Col>Admin Users</Col>
+            <Col xs={10}>
+              <Select value={adminUsersOpt} onChange={(value)=>this.setUsersOptState(value, VIEW_NAMES.ADMIN_VIEW)} options={allUsersAsOption} isMulti={true} />
             </Col>
           </Row>
-        }
-        {currentView === VIEW_NAMES.SUPERVISOR_VIEW && 
           <Row>
-            <Col><h1>Supervisors</h1></Col>
+            <Col>Supervisors</Col>
+            <Col xs={10}>
+              <Select value={supervisorsOpt} onChange={(value)=>this.setUsersOptState(value, VIEW_NAMES.SUPERVISOR_VIEW)} options={allUsersAsOption} isMulti={true} />
+            </Col>
           </Row>
-        }
-        {currentView === VIEW_NAMES.WORK_CATEGORY_VIEW && 
           <Row>
-            <Col><h1>Work Category</h1></Col>
+            <Col>Expense Users</Col>
+            <Col xs={10}>
+              <Select value={userExpenseOpt} onChange={(value)=>this.setUsersOptState(value, VIEW_NAMES.EXPENSE_USERS_VIEW)} options={allUsersAsOption} isMulti={true} />
+            </Col>
           </Row>
-        }
         
 
         </Modal.Body>
@@ -172,7 +244,7 @@ class SitesSettings extends React.PureComponent<any, IState> {
           <Button variant="secondary" onClick={this.props.handleClose}>
             Close
             </Button>
-          <Button variant="primary" type="submit">Save</Button>
+          <Button variant="primary" onClick={this.handleSubmit}>Save</Button>
         </Modal.Footer>
       </>
     ;
