@@ -5,6 +5,7 @@ const constructionSite = mongoose.Schema({
     siteName : {type : String,required :'Please enter your Site Name'},
     ownerName : { type :String, required : 'Please enter your Owner name'},
     ownerContactNo : {type :Number, required : 'Please enter your Owner\'s ContactNo'},
+    createdBy : {type : String},
     siteAddress : {AddressLine1 : {type :String, required : 'Please enter Address'},
                    City : {type :String, required : 'Please enter City'},
                    State : {type :String,required : 'Please enter State'},

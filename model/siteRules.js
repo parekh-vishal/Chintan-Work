@@ -12,10 +12,13 @@ let adminUser = {
     adminUserId : String,
     adminUserName : String
 } 
+const workCategory = {
+}
 let siteSettings = mongoose.Schema({
     siteId : String,
     supervisors : [siteSupervisor],
     userExpense : [supervisor],
-    adminUsers : [adminUser]
+    adminUsers : [adminUser],
+    workCategory : []
 });
 module.exports = mongoose.model('Rules' ,siteSettings);
