@@ -29,7 +29,7 @@ export interface ISiteRules {
   siteId : string;
   supervisors : Array<{
     supervisorId : string;
-    SupervisorName : string;
+    supervisorName : string;
   }>;
   userExpense : Array<{
     expenseUserId : string;
