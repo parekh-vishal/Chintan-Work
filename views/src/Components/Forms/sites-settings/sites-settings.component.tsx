@@ -128,7 +128,7 @@ class SitesSettings extends React.PureComponent<any, IState> {
     }
   };
   
-  handleSubmit = async () => {  
+  handleSubmit = async () => {
     const body = {
       adminUsers: this.getUsersFromView(VIEW_NAMES.ADMIN_VIEW),
       supervisors: this.getUsersFromView(VIEW_NAMES.SUPERVISOR_VIEW),
@@ -144,9 +144,11 @@ class SitesSettings extends React.PureComponent<any, IState> {
   getUsersFromView = (userType: string) => {
     const newUserArray: any = [];
     const { adminUsersOpt, supervisorsOpt, userExpenseOpt } = this.state;
+    let arrayLength = 0
     switch (userType) {
       case VIEW_NAMES.ADMIN_VIEW:
-        for (let index = 0; index < adminUsersOpt.length; index++) {
+        arrayLength = adminUsersOpt ? adminUsersOpt.length : 0;
+        for (let index = 0; index < arrayLength; index++) {
           const element = adminUsersOpt[index];
           newUserArray.push({
             adminUserId: element.value,
@@ -155,7 +157,8 @@ class SitesSettings extends React.PureComponent<any, IState> {
         }
         break;
       case VIEW_NAMES.SUPERVISOR_VIEW:
-        for (let index = 0; index < supervisorsOpt.length; index++) {
+        arrayLength = supervisorsOpt ? supervisorsOpt.length : 0;
+        for (let index = 0; index < arrayLength; index++) {
           const element = supervisorsOpt[index];
           newUserArray.push({
             supervisorId: element.value,
@@ -164,7 +167,8 @@ class SitesSettings extends React.PureComponent<any, IState> {
         }
         break;
       case VIEW_NAMES.EXPENSE_USERS_VIEW:
-        for (let index = 0; index < userExpenseOpt.length; index++) {
+        arrayLength = userExpenseOpt ? userExpenseOpt.length : 0;
+        for (let index = 0; index < arrayLength; index++) {
           const element = userExpenseOpt[index];
           newUserArray.push({
             expenseUserId: element.value,

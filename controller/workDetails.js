@@ -20,7 +20,7 @@ exports.addWorkCategory = (req, res, next) => {
             }
             let workCategory = new WorkCategory({
                 workId : wrkId,
-                WorkTypes : req.body.workType
+                WorkTypes : req.body.WorkTypes
             });
             workCategory.save()
             .then(result=>{

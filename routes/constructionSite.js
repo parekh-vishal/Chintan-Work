@@ -20,7 +20,7 @@ route.post('/editSiteInfo',checkAuth,constructSite.editSiteInfo);
 //Set Work Category in System
 route.post('/addWorkCategory',checkAuth,work.addWorkCategory);
 //Get All Work Categories
-route.get('getAllCategories',checkAuth,work.getAllCategories);
+route.get('/getAllCategories',checkAuth,work.getAllCategories);
 //Edit Work Category
 route.post('/editWorkCatego',checkAuth,work.editWorkCategory)
 //Push WorkDetails in system
