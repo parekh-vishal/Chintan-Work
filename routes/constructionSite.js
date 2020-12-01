@@ -22,7 +22,7 @@ route.post('/addWorkCategory',checkAuth,work.addWorkCategory);
 //Get All Work Categories
 route.get('/getAllCategories',checkAuth,work.getAllCategories);
 //Edit Work Category
-route.post('/editWorkCatego',checkAuth,work.editWorkCategory)
+route.post('/editWorkCategory',checkAuth,work.editWorkCategory)
 //Push WorkDetails in system
 route.post('/addWorkDetails',work.addWorkDes);
 //Edit WorkDetails on specific date.

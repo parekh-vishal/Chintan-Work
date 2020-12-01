@@ -16,3 +16,11 @@ export const getSiteSettings = ({userId, siteId}:{userId: string, siteId: string
 export const updateSiteSettings = ({siteId, body}:{body: any, siteId: string}) => {
     return post({ url: `constructionSite/editSiteSettings?siteId=${siteId}`, body})
 };
+
+export const addWorkCategory = (body: any) => {
+    return post({ url: `constructionSite/addWorkCategory`, body})
+};
+
+export const getAllWorkCategory = () => {
+    return get({ url: `constructionSite/getAllCategories`})
+};

@@ -6,7 +6,7 @@ import { getAllSites } from "../../../services";
 import './sites-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
-import { SitesForms } from "../../Forms";
+import { SitesForms, WorkCategory } from "../../Forms";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { SiteType } from "../../../typings";
@@ -22,7 +22,8 @@ export const SitesListing = (props: any) => {
  
   const MODAL_NAMES = {
     CREATE_SITE: "CREATE_SITE",
-    SITE_SETTINGS: "SITE_SETTINGS"
+    SITE_SETTINGS: "SITE_SETTINGS",
+    WORK_CATEGORY: "WORK_CATEGORY"
   }
 
   const [ listData, setListData ] = useState([] as Array<SiteType>);
@@ -85,6 +86,7 @@ export const SitesListing = (props: any) => {
           <Col>
             <h3 className="float-left">Sites</h3>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.CREATE_SITE)}>Add Site</Button>
+            <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>
           </Col>
         </Row>
         <Row>
@@ -126,6 +128,9 @@ export const SitesListing = (props: any) => {
         }
         {modalName === MODAL_NAMES.SITE_SETTINGS && 
           <SitesSettings handleClose={handleClose} currentSite={currentSite}></SitesSettings>
+        }
+        {modalName === MODAL_NAMES.WORK_CATEGORY && 
+          <WorkCategory handleClose={handleClose}></WorkCategory>
         }
       </ModalComponent>
     </>
