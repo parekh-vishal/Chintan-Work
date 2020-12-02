@@ -8,7 +8,7 @@ export const ModalComponent = (props: any) => {
     <>
       <Modal
         show={props.show}
-        size="lg"
+        size={props.size || "lg"}
         onHide={props.handleClose}
         backdrop="static"
         keyboard={false}

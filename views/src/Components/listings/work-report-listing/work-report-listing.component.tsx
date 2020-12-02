@@ -6,7 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
-import { WorkReportForms } from "../../Forms";
+import WorkReportForms from "../../Forms/work-report-forms/work-report-forms.component";
 
 export const WorkReportListing = (props: any) => {
  
@@ -85,7 +85,7 @@ export const WorkReportListing = (props: any) => {
           </Col>
         </Row>
       </Container>
-      <ModalComponent handleShow={handleShow} handleClose={handleClose} show={show}>
+      <ModalComponent handleShow={handleShow} handleClose={handleClose} show={show} size="xl">
         <WorkReportForms handleClose={handleClose}></WorkReportForms>
       </ModalComponent>
     </>

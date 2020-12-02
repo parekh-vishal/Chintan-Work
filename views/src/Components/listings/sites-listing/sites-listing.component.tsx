@@ -85,8 +85,8 @@ export const SitesListing = (props: any) => {
         <Row className="add-buttton-row">
           <Col>
             <h3 className="float-left">Sites</h3>
-            <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.CREATE_SITE)}>Add Site</Button>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>
+            <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={openModal.bind(null, MODAL_NAMES.CREATE_SITE)}>Add Site</Button>
           </Col>
         </Row>
         <Row>

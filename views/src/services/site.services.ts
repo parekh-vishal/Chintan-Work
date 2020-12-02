@@ -24,3 +24,8 @@ export const addWorkCategory = (body: any) => {
 export const getAllWorkCategory = () => {
     return get({ url: `constructionSite/getAllCategories`})
 };
+
+export const editWorkCategory = ({workId, body}:{workId: string, body: any}) => {
+    return post({ url: `constructionSite/editWorkCategory?workId=${workId}`, body})
+};
+

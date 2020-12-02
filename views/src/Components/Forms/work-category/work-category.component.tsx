@@ -1,8 +1,8 @@
 import React from "react";
-import { Button, Col, FormControl, Modal, Row } from "react-bootstrap";
+import { Button, Col, FormControl, Modal, Row, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { addWorkCategory, getAllWorkCategory } from "../../../services";
+import { addWorkCategory, editWorkCategory, getAllWorkCategory } from "../../../services";
 import './work-category.component.scss'
 
 interface IWorkCategory {
@@ -13,6 +13,7 @@ interface IWorkCategory {
 interface IState {
   newWorkCategory: string;
   allCategory: Array<IWorkCategory>;
+  editCategory: IWorkCategory;
 }
 
 
@@ -23,7 +24,8 @@ export class WorkCategory extends React.PureComponent<any, IState> {
 
     this.state = {
       newWorkCategory: "",
-      allCategory: [] as Array<IWorkCategory>
+      allCategory: [] as Array<IWorkCategory>,
+      editCategory: {} as IWorkCategory
     };
   }
 
@@ -33,7 +35,6 @@ export class WorkCategory extends React.PureComponent<any, IState> {
 
   fetchAllWorkCategory = async () => {
     var respond = await getAllWorkCategory();
-    console.log(respond.data);
     if (respond.data) {
       this.setState({
         allCategory: respond.data
@@ -42,18 +43,17 @@ export class WorkCategory extends React.PureComponent<any, IState> {
   }
   
   handleSubmit = async () => {
-    const {newWorkCategory} = this.state;
-    console.log(newWorkCategory)
+    const {newWorkCategory, editCategory} = this.state;
     if(newWorkCategory){
       const body = {WorkTypes: newWorkCategory}
-      const respond = await addWorkCategory(body);
-      if(respond.data){
-        console.log(respond.data);
+      const respond = await (editCategory.workId ? editWorkCategory({body, workId:editCategory.workId }) : addWorkCategory(body));
+      if(respond && respond.data){
+        alert(respond.data.message)
         this.setState({
-          newWorkCategory: ""
+          newWorkCategory: "",
+          editCategory: {} as IWorkCategory
         });
         this.fetchAllWorkCategory();
-        alert("Work category Added.")
       }
     }else{
       alert("Please add text in field.")
@@ -68,22 +68,35 @@ export class WorkCategory extends React.PureComponent<any, IState> {
     });
   }
 
+  editWorkCategory = (obj: IWorkCategory) => {
+    this.setState({
+      editCategory: obj,
+      newWorkCategory: obj.WorkTypes
+    });
+  }
+
 
   public render() {
-    const {newWorkCategory, allCategory} = this.state;
+    const {newWorkCategory, allCategory, editCategory} = this.state;
     return <>
         <Modal.Header closeButton>
           <Modal.Title>Work Category</Modal.Title>
         </Modal.Header>
         
         <Modal.Body>
+
+          {editCategory.workId && <Row>
+            <Col>
+              {`Edit Work Category: ${editCategory.WorkTypes}`}
+            </Col>
+          </Row>}
         
           <Row>
             <Col xs={10}>
               <FormControl placeholder="Enter new Work Category" value={newWorkCategory} onChange={this.updateNewWorkCategory}/>
             </Col>
             <Col>
-              <Button variant="primary" onClick={this.handleSubmit}>Add</Button>
+              <Button variant="primary" onClick={this.handleSubmit}>{editCategory.workId ? 'Save' : 'Add'}</Button>
             </Col>
           </Row>
           
@@ -93,13 +106,23 @@ export class WorkCategory extends React.PureComponent<any, IState> {
             </Col>
           </Row>
 
-          {allCategory.map((rowObj: IWorkCategory) => (
-            <Row key={rowObj.workId}>
+            <Row>
               <Col>
-                {rowObj.WorkTypes}
+                <Table striped bordered hover size="sm">
+                  <tbody>
+                    {allCategory.map((rowObj: IWorkCategory) => (
+                      <tr key={rowObj.workId}>
+                        <td>
+                          {rowObj.WorkTypes}
+                          <Button variant="link" className="float-right" onClick={this.editWorkCategory.bind(this,rowObj)}>Edit</Button>
+                        </td>
+                      </tr>
+                      ))}
+                  </tbody>
+                </Table>
+                
               </Col>
             </Row>
-          ))}
 
         </Modal.Body>
         

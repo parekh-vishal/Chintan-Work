@@ -1,21 +1,29 @@
-import React, { Component, Fragment } from "react";
-import { Button, Col, Form, Modal } from "react-bootstrap";
+import React, { Component } from "react";
+import { Button, Col, Form, Modal, Table } from "react-bootstrap";
 
 import Select from "react-select";
+import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllSites, addNewWorkReport } from "../../../services";
+import { getAllSites, addNewWorkReport, getAllWorkCategory } from "../../../services";
 import './work-report-forms.component.scss'
 import { FieldArray, Formik, FormikValues } from "formik";
-import { WorkDetailTypes, WorkReportTypes } from "../../../typings";
+import { UserTypes, WorkDetailTypes, WorkReportTypes } from "../../../typings";
 import moment from "moment";
+import { connect } from "react-redux";
 
 export interface IProps {
   handleClose: any;
+  user: UserTypes
 }
 
+const mapStateToProps = (state: any) => {
+  return {
+    user: state.user
+  };
+};
 
-export class WorkReportForms extends Component<IProps, any> {
+class WorkReportForms extends Component<IProps, any> {
 
   public constructor(props: IProps) {
     super(props);
@@ -42,9 +50,7 @@ export class WorkReportForms extends Component<IProps, any> {
       initialValues: workReportFormsObj,
       allSitesAsOption: [],
       siteRespond: [],
-      allWorkTypeOption: [],
-      siteDropdown: {},
-      workCategoryDropdown:[]
+      allWorkTypeOption: []
     };
 
   }
@@ -54,21 +60,22 @@ export class WorkReportForms extends Component<IProps, any> {
     this.setWorkCategoryArray();
   }
 
-  setWorkCategoryArray = () => {
-    const WORK_TYPES = ["Concrit", "Plumbling", "Electric", "Tiles"]
-
-    const test1 = [];
-    for (let index = 0; index < WORK_TYPES.length; index++) {
-      const element = WORK_TYPES[index];
-      test1.push({
-        value: element,
-        label: element
+  setWorkCategoryArray = async () => {
+    var respond = await getAllWorkCategory();
+    if (respond.data) {
+      const newArray = [];
+      for (let index = 0; index < respond.data.length; index++) {
+        const element = respond.data[index];
+        newArray.push({
+          value: element.WorkTypes,
+          label: element.WorkTypes
+        });
+      }
+  
+      this.setState({
+        allWorkTypeOption: newArray
       });
     }
-
-    this.setState({
-      allWorkTypeOption: test1
-    });
   }
 
   allSites = async () => {
@@ -90,26 +97,25 @@ export class WorkReportForms extends Component<IProps, any> {
     }
   }
 
-
-
   validateForm = (values: FormikValues) => {
     const errors: any = {};
     if (!values.siteName) {
       errors.siteName = 'Required';
     }
-
     
 
     return errors;
   }
 
   submitEvent = async (values: FormikValues) => {
-    const { Works,
+    const { 
+      Works,
       cementAmount,
-      date } = values;
+      date,
+      siteId
+    } = values;
 
     const siteName = "";//allSitesDetails[0] ? allSitesDetails[0].siteName : "";
-    const siteId = "";//allSitesDetails[0]?.siteId ? allSitesDetails[0].siteId : "";
     const supervisorId = '0';
     const supervisorName = "";
 
@@ -158,18 +164,27 @@ export class WorkReportForms extends Component<IProps, any> {
               <Modal.Body>
                 <Form.Group controlId="siteId">
                   <Form.Row>
-                    <Form.Label column lg={2}>Site</Form.Label>
+                    <Form.Label column lg={1}>Site</Form.Label>
                     <Col>
-                      <Select value={this.state.siteDropdown} onChange={(val)=>{this.setState({'siteDropdown': val})}} options={this.state.allSitesAsOption} />
+                      <Select value={values.siteId} onChange={(val)=>{setFieldValue('siteId', val)}} options={this.state.allSitesAsOption} />
                     </Col>
                   </Form.Row>
                 </Form.Group>
       
                 <Form.Group controlId="ownerName">
                   <Form.Row>
-                    <Form.Label column lg={2}>Date</Form.Label>
+                    <Form.Label column lg={1}>Date</Form.Label>
                     <Col>
-                      <Form.Text>{moment().format('DD/MM/YYYY')}</Form.Text>
+                      <DatePicker selected={values.date} onChange={(date) => setFieldValue('date', date)} />
+                    </Col>
+                  </Form.Row>
+                </Form.Group>
+
+                <Form.Group controlId="cementAmount">
+                  <Form.Row>
+                    <Form.Label column lg={1}>Cement</Form.Label>
+                    <Col>
+                      <Form.Control type="number" placeholder="Enter used cement count" onChange={handleChange} name="cementAmount" onBlur={handleBlur} value={values.cementAmount} />
                     </Col>
                   </Form.Row>
                 </Form.Group>
@@ -180,55 +195,43 @@ export class WorkReportForms extends Component<IProps, any> {
                     name="Works"
                     render={arrayHelpers => (
                       <div>
-                        {values.Works.map((workDetails: any, idx: any) => (
-                          <Fragment key={idx}>
-                            <Form.Row>
-                              <Col>  
-                                <h5 className="float-left">Work Details {idx+1}</h5>
-                                <Button variant="primary" className="float-right" onClick={()=>{
-                                  arrayHelpers.remove(idx)
-                                }}>Remove</Button>
-                              </Col>
-                            </Form.Row>
-                            <hr />
-                            <Form.Group controlId="workType">
-                              <Form.Row>
-                                <Form.Label column lg={2}>Work Type</Form.Label>
-                                <Col>
-                                  <Select value={this.state.workCategoryDropdown[`wc${idx}`]} onChange={(val)=>{this.setState({workCategoryDropdown: [...this.state.workCategoryDropdown, {[`wc${idx}`]: val}]})}} options={this.state.allWorkTypeOption} />
-                                </Col>
-                              </Form.Row>
-                            </Form.Group>
-            
-                            <Form.Group controlId={`Works.${idx}.totalworker.mason`}>
-                              <Form.Row>
-                                <Form.Label column lg={2}>Total Mason</Form.Label>
-                                <Col>
-                                  <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} onBlur={handleBlur} value={workDetails.totalworker.mason} />
-                                </Col>
-                              </Form.Row>
-                            </Form.Group>
-            
-                            <Form.Group controlId={`Works.${idx}.totalworker.labour`}>
-                              <Form.Row>
-                                <Form.Label column lg={2}>Total Labour</Form.Label>
-                                <Col>
-                                  <Form.Control type="number" placeholder="Enter Total Labour" onChange={handleChange} onBlur={handleBlur} value={workDetails.totalworker.labour} />
-                                </Col>
-                              </Form.Row>
-                            </Form.Group>
-                                    
-                            <Form.Group controlId={`Works.${idx}.workDescription`}>
-                              <Form.Row>
-                                <Form.Label column lg={2}>Work Description</Form.Label>
-                                <Col>
-                                  <Form.Control as="textarea" placeholder="Enter Work Description" onChange={handleChange} onBlur={handleBlur} value={workDetails.workDescription} />
-                                </Col>
-                              </Form.Row>
-                            </Form.Group>
-            
-                          </Fragment>
-                        ))}
+                        <Table bordered size="sm">
+                          <colgroup>
+                            <col width="5%" />
+                            <col width="25%" />
+                            <col width="15%" />
+                            <col width="15%" />
+                            <col width="40%" />
+                          </colgroup>
+                          <thead>
+                            <tr>
+                              <th>No.</th>
+                              <th>Work Type</th>
+                              <th>Mason</th>
+                              <th>Labour</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {values.Works.map((workDetails: any, idx: any) => (
+                            <tr key={idx}>
+                              <td>{idx+1}</td>
+                              <td>
+                                <Select value={workDetails.workType} name={`Works[${idx}].workType`} onChange={(val)=>{setFieldValue(`Works[${idx}].workType`, val)}} options={this.state.allWorkTypeOption} />
+                              </td>
+                              <td>
+                                <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} name={`Works[${idx}].totalworker.mason`} onBlur={handleBlur} value={workDetails.totalworker.mason} />
+                              </td>
+                              <td>
+                                <Form.Control type="number" placeholder="Enter Total Labour" onChange={handleChange} name={`Works[${idx}].totalworker.labour`} onBlur={handleBlur} value={workDetails.totalworker.labour} />
+                              </td>
+                              <td>
+                                <Form.Control as="textarea" placeholder="Enter Work Description" onChange={handleChange} name={`Works[${idx}].workDescription`}onBlur={handleBlur} value={workDetails.workDescription} />
+                              </td>
+                            </tr>
+                            ))}
+                          </tbody>
+                        </Table>
                         
                         <Button variant="primary" onClick={()=>{
                           console.log(this.state.initialValues.Works);
@@ -250,3 +253,5 @@ export class WorkReportForms extends Component<IProps, any> {
     );
   }
 };
+
+export default connect(mapStateToProps, {})(WorkReportForms);
