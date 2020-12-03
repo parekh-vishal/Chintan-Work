@@ -5,8 +5,8 @@ const checkAuth = require('../Authentication/check_auth');
 const work = require('../controller/workDetails');
 //Add a new Site in System
 route.post('/addNewSite',checkAuth,constructSite.addSite);
-//Site Settings
-//route.post('/siteSettings',checkAuth,constructSite.siteSettings);
+//Change Site Status to Deactive
+route.get('/chngStatus',checkAuth,constructSite.chngSiteStatus)
 //Get Site Settings
 route.get('/getSiteSettings',checkAuth,constructSite.getSiteSetting); 
 //Edit Site Settings

@@ -50,7 +50,7 @@ exports.addSite = (req, res, next) => {
                             "adminUserId": userInfo.id,
                             "adminUserName": userInfo.name
                         }];
-                      //  console.log(adminUsrArr);
+                        //  console.log(adminUsrArr);
                         let siteRule = new SiteRules({
                             siteId: siteId,
                             adminUsers: adminUsrArr
@@ -93,45 +93,71 @@ exports.addSite = (req, res, next) => {
             });
         })
 };
-
-//Edit Site Settings
-exports.editSiteSettings = (req, res, next) => {
+//Change Site Status 
+exports.chngSiteStatus = (req, res, next) => {
     const filter = req.query;
-    const reqBody = req.body;
-    SiteRules.findOne(filter).exec()
-    .then(doc=>{
-        const qrykeys = Object.keys(reqBody);
-        for(let i =0;i<qrykeys.length;i++){
-            let innerLoop = reqBody[qrykeys[i]];
-            let docArr = doc[qrykeys[i]];
-            for(var j=0;j<innerLoop.length;j++){
-                docArr[j] = innerLoop[j];
-            } 
-            if(docArr.length>j){
-                for(let i=docArr.length;i>j;i--){
-                    docArr.pop();
-                }
-            }
-        }
-       doc.save()
-        .then(result=>{
-            res.status(200).json({
-                message : "Site Settings Updated"
-            });
+    Constructsite.findOne(filter).select('siteStatus').exec()
+        .then(doc => {
+            const status = 'Deactivated';
+            doc.siteStatus = status;
+            doc.save()
+                .then(result => {
+                    res.status(200).json({
+                        message: 'Site Status Updated'
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(502).json({
+                        error: err
+                    });
+                })
         })
         .catch(err => {
             console.log(err);
             res.status(502).json({
                 error: err
             });
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(502).json({
-            error: err
-        });
-    });
-})
+        })
+};
+//Edit Site Settings
+exports.editSiteSettings = (req, res, next) => {
+    const filter = req.query;
+    const reqBody = req.body;
+    SiteRules.findOne(filter).exec()
+        .then(doc => {
+            const qrykeys = Object.keys(reqBody);
+            for (let i = 0; i < qrykeys.length; i++) {
+                let innerLoop = reqBody[qrykeys[i]];
+                let docArr = doc[qrykeys[i]];
+                for (var j = 0; j < innerLoop.length; j++) {
+                    docArr[j] = innerLoop[j];
+                }
+                if (docArr.length > j) {
+                    for (let i = docArr.length; i > j; i--) {
+                        docArr.pop();
+                    }
+                }
+            }
+            doc.save()
+                .then(result => {
+                    res.status(200).json({
+                        message: "Site Settings Updated"
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(502).json({
+                        error: err
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(502).json({
+                        error: err
+                    });
+                });
+        })
 };
 
 //Get Site by SiteID
@@ -156,15 +182,15 @@ exports.getSite = (req, res, next) => {
 }
 //Get All Site Function
 exports.getAllSite = (req, res, next) => {
-    const filter = req.query;//Query Format: {supervisors.siteSupervisorId=usr0} 
+    let filter = req.query;//Query Format: {supervisors.siteSupervisorId=usr0}
+    console.log(filter);
     SiteRules.find(filter).select('siteId').exec()
         .then(doc => {
             let siteIds = [];
             for (let i = 0; i < doc.length; i++) {
                 siteIds.push(doc[i].siteId);
             }
-            //console.log(siteIds);
-            Constructsite.find({ siteId: siteIds }).exec()
+            Constructsite.find({ siteId: siteIds,siteStatus : 'Active'}).exec()
                 .then(doc => {
                     res.status(200).json(doc);
                 })
@@ -184,7 +210,8 @@ exports.getAllSite = (req, res, next) => {
 };
 //Get Site Settings 
 exports.getSiteSetting = (req, res, next) => {
-    const filter = req.query; //Query Format ?siteId=site0&amp;adminUsers.adminUserId=usr0;  
+    const filter = req.query; //Query Format ?siteId=site0&amp;adminUsers.adminUserId=usr0; 
+    console.log(filter);
     SiteRules.findOne(filter).exec()
         .then(doc => {
             if (doc != null) {

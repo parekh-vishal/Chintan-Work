@@ -12,7 +12,8 @@ const constructionSite = mongoose.Schema({
                    pincode : {type :Number, required : 'Please enter Pincode'}},
     siteInaugurationDate : {type :Date, required : 'Please enter InaugurationDate'},
     siteEstimate : {type :String, required : 'Please enter Estimate of Site'},
-    tentativeDeadline : {type :Date, required : 'Please enter Deadline Date'}
+    tentativeDeadline : {type :Date, required : 'Please enter Deadline Date'},
+    siteStatus : {type : String, default : 'Active'}
 });
 
 module.exports = mongoose.model('Construction_Site' , constructionSite);
