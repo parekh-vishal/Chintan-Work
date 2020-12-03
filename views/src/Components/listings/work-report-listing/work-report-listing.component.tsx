@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-// import { getAllWorkReport } from "../../../services";
+import { getAllWorkReport } from "../../../services";
 import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
@@ -14,11 +14,11 @@ export const WorkReportListing = (props: any) => {
   const [show, setShow] = useState(false);
 
   const allWorkReport = async () => {
-    // const allWorkReportRespond = await getAllWorkReport();
-    // if(allWorkReportRespond.data){
-    //   setListData(allWorkReportRespond.data);
-    // }
-    setListData([]);
+    const allWorkReportRespond = await getAllWorkReport();
+    if(allWorkReportRespond.data){
+      setListData(allWorkReportRespond.data);
+    }
+    //setListData([]);
   }
 
   useEffect( () => {
@@ -28,7 +28,7 @@ export const WorkReportListing = (props: any) => {
   const tableObject = [
   {
     columnName: "Reporter",
-    key: "ownerName",
+    key: "supervisorName",
     type: "text"
   },
   {

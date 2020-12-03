@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Col, Modal, Row } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllUsersDetails, getSiteSettings, updateSiteSettings } from "../../../services";
+import { getAllUsersDetails, getAllWorkCategory, getSiteSettings, updateSiteSettings } from "../../../services";
 import './sites-settings.component.scss'
 import { connect } from "react-redux";
 import Select from "react-select";
@@ -18,9 +18,13 @@ interface IState {
   allUsersDetails: Array<{}>;
   allUsersAsOption: Array<IDropdownObject>;
 
+  allWorkCategory: Array<{}>;
+  allWorkCategoryAsOption: Array<IDropdownObject>;
+
   adminUsersOpt: Array<IDropdownObject>;
   supervisorsOpt: Array<IDropdownObject>;
   userExpenseOpt: Array<IDropdownObject>;
+  workCategoryOpt: Array<IDropdownObject>;
 
   currentView: string;
 }
@@ -45,12 +49,16 @@ class SitesSettings extends React.PureComponent<any, IState> {
 
     this.state = {
       siteSetting: {} as ISiteRules,
+      allWorkCategory: [],
+      allWorkCategoryAsOption: [],
+
       allUsersDetails: [],
       allUsersAsOption: [],
 
-      adminUsersOpt:[],
-      supervisorsOpt:[],
-      userExpenseOpt:[],
+      adminUsersOpt: [],
+      supervisorsOpt: [],
+      userExpenseOpt: [],
+      workCategoryOpt: [],
 
       currentView: VIEW_NAMES.ADMIN_VIEW
     };
@@ -60,6 +68,39 @@ class SitesSettings extends React.PureComponent<any, IState> {
     this.fetchSiteSetting();
   }
 
+  fetchAllWorkCategory = async () => {
+    var respond = await getAllWorkCategory();
+    if (respond.data) {
+      console.log(this.state.siteSetting.workCategories);
+      const alreadyExistWorkType = this.state.siteSetting.workCategories && this.state.siteSetting.workCategories.map((obj: any)=>{
+        return obj.workCategoryId
+      });
+      const tempWorkCategory = [];
+      const selectedWorkType = [];
+      for (let index = 0; index < respond.data.length; index++) {
+        const element = respond.data[index];
+        tempWorkCategory.push({
+          value: element.workId,
+          label: element.WorkTypes
+        });
+
+        if(alreadyExistWorkType.indexOf(element.workId) > -1 ){
+          selectedWorkType.push({
+            value: element.workId,
+            label: element.WorkTypes
+          });
+        }
+        
+      }
+
+      this.setState({
+        allWorkCategory: respond.data,
+        allWorkCategoryAsOption: tempWorkCategory,
+        workCategoryOpt: selectedWorkType
+      });
+    }
+  }
+
   fetchSiteSetting = async () => {
     var respond = await getSiteSettings({siteId: this.props.currentSite.siteId,userId: this.props.user.user_id});
     if (respond.data) {
@@ -67,6 +108,7 @@ class SitesSettings extends React.PureComponent<any, IState> {
         siteSetting: respond.data
       });
       this.fetchAllUsers();
+      this.fetchAllWorkCategory();
     }
   }
 
@@ -130,9 +172,10 @@ class SitesSettings extends React.PureComponent<any, IState> {
   
   handleSubmit = async () => {
     const body = {
-      adminUsers: this.getUsersFromView(VIEW_NAMES.ADMIN_VIEW),
-      supervisors: this.getUsersFromView(VIEW_NAMES.SUPERVISOR_VIEW),
-      userExpense: this.getUsersFromView(VIEW_NAMES.EXPENSE_USERS_VIEW),
+      adminUsers: this.getDataFromView(VIEW_NAMES.ADMIN_VIEW),
+      supervisors: this.getDataFromView(VIEW_NAMES.SUPERVISOR_VIEW),
+      userExpense: this.getDataFromView(VIEW_NAMES.EXPENSE_USERS_VIEW),
+      workCategories: this.getDataFromView(VIEW_NAMES.WORK_CATEGORY_VIEW),
     };
     const updateData = await updateSiteSettings({siteId: this.props.currentSite.siteId, body});
     if(updateData.data){
@@ -141,9 +184,14 @@ class SitesSettings extends React.PureComponent<any, IState> {
     }
   }
 
-  getUsersFromView = (userType: string) => {
+  getDataFromView = (userType: string) => {
     const newUserArray: any = [];
-    const { adminUsersOpt, supervisorsOpt, userExpenseOpt } = this.state;
+    const { 
+      adminUsersOpt,
+      supervisorsOpt,
+      userExpenseOpt,
+      workCategoryOpt
+    } = this.state;
     let arrayLength = 0
     switch (userType) {
       case VIEW_NAMES.ADMIN_VIEW:
@@ -176,6 +224,16 @@ class SitesSettings extends React.PureComponent<any, IState> {
           });
         }
       break;
+      case VIEW_NAMES.WORK_CATEGORY_VIEW:
+        arrayLength = workCategoryOpt ? workCategoryOpt.length : 0;
+        for (let index = 0; index < arrayLength; index++) {
+          const element = workCategoryOpt[index];
+          newUserArray.push({
+            workCategoryId: element.value,
+            workType: element.label,
+          });
+        }
+      break;
     
       default:
         break;
@@ -201,6 +259,11 @@ class SitesSettings extends React.PureComponent<any, IState> {
           userExpenseOpt: value
         });
         break;
+      case VIEW_NAMES.WORK_CATEGORY_VIEW:
+        this.setState({
+          workCategoryOpt: value
+        });
+        break;
     
       default:
         break;
@@ -215,7 +278,14 @@ class SitesSettings extends React.PureComponent<any, IState> {
   }
 
   public render() {
-    const {adminUsersOpt, allUsersAsOption, supervisorsOpt, userExpenseOpt} = this.state;
+    const {
+      adminUsersOpt,
+      allUsersAsOption,
+      supervisorsOpt,
+      userExpenseOpt,
+      workCategoryOpt,
+      allWorkCategoryAsOption
+    } = this.state;
     return <>
         <Modal.Header closeButton>
           <Modal.Title>Site Settings</Modal.Title>
@@ -239,6 +309,12 @@ class SitesSettings extends React.PureComponent<any, IState> {
             <Col>Expense Users</Col>
             <Col xs={10}>
               <Select value={userExpenseOpt} onChange={(value)=>this.setUsersOptState(value, VIEW_NAMES.EXPENSE_USERS_VIEW)} options={allUsersAsOption} isMulti={true} />
+            </Col>
+          </Row>
+          <Row>
+            <Col>Site Category</Col>
+            <Col xs={10}>
+              <Select value={workCategoryOpt} onChange={(value)=>this.setUsersOptState(value, VIEW_NAMES.WORK_CATEGORY_VIEW)} options={allWorkCategoryAsOption} isMulti={true} />
             </Col>
           </Row>
         

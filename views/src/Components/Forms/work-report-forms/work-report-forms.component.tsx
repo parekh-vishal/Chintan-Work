@@ -5,7 +5,7 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllSites, addNewWorkReport, getAllWorkCategory } from "../../../services";
+import { getAllSites, addNewWorkReport, getSiteSettings } from "../../../services";
 import './work-report-forms.component.scss'
 import { FieldArray, Formik, FormikValues } from "formik";
 import { UserTypes, WorkDetailTypes, WorkReportTypes } from "../../../typings";
@@ -57,26 +57,8 @@ class WorkReportForms extends Component<IProps, any> {
 
   public componentDidMount() {
     this.allSites();
-    this.setWorkCategoryArray();
   }
 
-  setWorkCategoryArray = async () => {
-    var respond = await getAllWorkCategory();
-    if (respond.data) {
-      const newArray = [];
-      for (let index = 0; index < respond.data.length; index++) {
-        const element = respond.data[index];
-        newArray.push({
-          value: element.WorkTypes,
-          label: element.WorkTypes
-        });
-      }
-  
-      this.setState({
-        allWorkTypeOption: newArray
-      });
-    }
-  }
 
   allSites = async () => {
     const respond = await getAllSites();
@@ -97,12 +79,33 @@ class WorkReportForms extends Component<IProps, any> {
     }
   }
 
+  fetchSiteSetting = async (siteObj: any) => {
+    var respond = await getSiteSettings({siteId: siteObj.value, userId: this.props.user.user_id});
+    if (respond.data && respond.data.workCategories) {
+      const newArray = [];
+      for (let index = 0; index < respond.data.workCategories.length; index++) {
+        const element = respond.data.workCategories[index];
+        newArray.push({
+          value: element.workType,
+          label: element.workType
+        });
+      }
+  
+      this.setState({
+        allWorkTypeOption: newArray
+      });
+    }
+  }
+
   validateForm = (values: FormikValues) => {
     const errors: any = {};
-    if (!values.siteName) {
+    if (!values.siteId.value) {
       errors.siteName = 'Required';
     }
-    
+
+    if (!values.date) {
+      errors.date = 'Required';
+    }
 
     return errors;
   }
@@ -115,18 +118,14 @@ class WorkReportForms extends Component<IProps, any> {
       siteId
     } = values;
 
-    const siteName = "";//allSitesDetails[0] ? allSitesDetails[0].siteName : "";
-    const supervisorId = '0';
-    const supervisorName = "";
-
     const newWorkReportData: WorkReportTypes = {
       Works,
       cementAmount,
       date,
-      siteId,
-      supervisorId,
-      supervisorName,
-      siteName
+      siteId: siteId.value,
+      supervisorId: this.props.user.user_id,
+      supervisorName: `${this.props.user.firstName} ${this.props.user.lastName}`,
+      siteName: siteId.label
     };
 
     const workReportCreated = await addNewWorkReport(newWorkReportData);
@@ -134,7 +133,6 @@ class WorkReportForms extends Component<IProps, any> {
       this.props.handleClose();
     }
   }
-
 
   public render(){
 
@@ -166,7 +164,8 @@ class WorkReportForms extends Component<IProps, any> {
                   <Form.Row>
                     <Form.Label column lg={1}>Site</Form.Label>
                     <Col>
-                      <Select value={values.siteId} onChange={(val)=>{setFieldValue('siteId', val)}} options={this.state.allSitesAsOption} />
+                      <Select value={values.siteId} onChange={(val)=>{setFieldValue('siteId', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} />
+                      <Form.Text className="text-danger">{errors.siteName}</Form.Text>
                     </Col>
                   </Form.Row>
                 </Form.Group>
@@ -176,6 +175,7 @@ class WorkReportForms extends Component<IProps, any> {
                     <Form.Label column lg={1}>Date</Form.Label>
                     <Col>
                       <DatePicker selected={values.date} onChange={(date) => setFieldValue('date', date)} />
+                      <Form.Text className="text-danger">{errors.date}</Form.Text>
                     </Col>
                   </Form.Row>
                 </Form.Group>

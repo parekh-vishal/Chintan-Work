@@ -39,4 +39,8 @@ export interface ISiteRules {
     adminUserId : string;
     adminUserName : string;
   }>;
+  workCategories: Array<{
+    workId : string;
+    WorkTypes : string;
+  }>
 }
