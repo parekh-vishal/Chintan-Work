@@ -2,7 +2,6 @@ const User = require('../model/user');
 const Token = require('../model/token');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { update } = require('../model/user');
 
 //This function create new user and save it to the database
 exports.addUser = (req, res, next) => {

@@ -1,9 +1,6 @@
-const { compare } = require('bcrypt');
-const { mongo } = require('mongoose');
 const Constructsite = require('../model/constructionSite');
 const SiteRules = require('../model/siteRules');
 const Authusr = require('../Authentication/tokenToUsr');
-const { addMonths } = require('date-and-time');
 
 //This Function Used for Add New Site
 exports.addSite = (req, res, next) => {
@@ -182,9 +179,11 @@ exports.getSite = (req, res, next) => {
 }
 //Get All Site Function
 exports.getAllSite = (req, res, next) => {
-    let filter = req.query;//Query Format: {supervisors.siteSupervisorId=usr0}
-    console.log(filter);
-    SiteRules.find(filter).select('siteId').exec()
+    const userInfo = Authusr(req);
+    const uid = userInfo.id;
+    const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${uid}"},{"supervisors.supervisorId" : "${uid}"},{"userExpense.expenseUserId":"${uid}"}]}`;
+    const queryfilterObj = JSON.parse(queryfilterJson);
+    SiteRules.find(queryfilterObj).select('siteId').exec()
         .then(doc => {
             let siteIds = [];
             for (let i = 0; i < doc.length; i++) {

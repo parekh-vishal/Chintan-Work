@@ -1,6 +1,5 @@
 const WorkDes = require('../model/workDetails');
 const WorkCategory = require('../model/workCategory');
-const User = require('../model/user')
 const date = require('date-and-time');
 //Set New Work Category
 exports.addWorkCategory = (req, res, next) => {
