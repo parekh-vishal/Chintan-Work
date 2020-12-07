@@ -1,59 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button, Col, Form, Modal } from "react-bootstrap";
 
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { addNewSite, getAllUsersDetails } from "../../../services";
+import { addNewSite, editSite } from "../../../services";
 import './sites-forms.component.scss'
 import { FormikValues, useFormik } from "formik";
-import { SiteType, SupervisorType, UserTypes } from "../../../typings";
+import { SiteType } from "../../../typings";
+import moment from "moment";
 
 
 export const SitesForms = (props: any) => {
 
-  const [allUsersDetails, setAllUsersDetails] = useState([] as Array<UserTypes>);
-  //var [selectedSupervisorOpt, setSupervisorOpt] = useState([] as any);
 
-  const allUsers = async () => {
-    var respond = await getAllUsersDetails();
-    if (respond.data) {
-      const userOptions: Array<{}> = [];
-      for (let index = 0; index < respond.data.length; index++) {
-        const element = respond.data[index];
-        userOptions.push({
-          value: element.user_id,
-          label: `${element.firstName} ${element.lastName}`
-        });
+  const getInitialValue = () => {
+    if(props.currentSite.siteId){
+      return {
+        siteName: props.currentSite.siteName,
+        ownerName: props.currentSite.ownerName,
+        ownerContactNo: props.currentSite.ownerContactNo,
+        siteAddress: {
+          AddressLine1: props.currentSite.siteAddress.AddressLine1,
+          City: props.currentSite.siteAddress.City,
+          State: props.currentSite.siteAddress.State,
+          pincode: props.currentSite.siteAddress.pincode,
+        },
+        siteInaugurationDate: moment(props.currentSite.siteInaugurationDate).toDate(),
+        siteEstimate: props.currentSite.siteEstimate,
+        tentativeDeadline: moment(props.currentSite.tentativeDeadline).toDate()
       }
-      setAllUsersDetails(respond.data)
+    } else {
+      return {
+        siteName: '',
+        ownerName: '',
+        ownerContactNo: '',
+        siteAddress: {
+          AddressLine1: '',
+          City: '',
+          State: '',
+          pincode: 0,
+        },
+        siteInaugurationDate: new Date(),
+        siteEstimate: '',
+        tentativeDeadline: new Date()
+      }
     }
-  }
-
-  useEffect(() => {
-    allUsers();
-  }, []);
-
-  const siteFormsObj: SiteType = {
-    siteName: '',
-    ownerName: '',
-    ownerContactNo: '',
-    siteAddress: {
-      AddressLine1: '',
-      City: '',
-      State: '',
-      pincode: 0,
-    },
-    siteInaugurationDate: new Date(),
-    siteEstimate: '',
-    tentativeDeadline: new Date(),
-    supervisors: [
-      {
-        siteSupervisorName: '',
-        siteSupervisorNo: 0,
-        siteSupervisorId: ''
-      }
-    ]
   }
 
   const validateForm = (values: FormikValues) => {
@@ -99,16 +91,7 @@ export const SitesForms = (props: any) => {
 
   const submitEvent = async (values: FormikValues) => {
     const { ownerContactNo, ownerName, siteAddress, siteEstimate, siteInaugurationDate, siteName, tentativeDeadline } = values;
-    const supervisors: Array<SupervisorType> = [];
-    for (let index = 0; index < allUsersDetails.length; index++) {
-      const element = allUsersDetails[index];
-      supervisors.push({
-        siteSupervisorId: element.user_id,
-        siteSupervisorName: `${element.firstName} ${element.lastName}`,
-        siteSupervisorNo: element.contactNo
-      });
-
-    }
+    
     const newSiteData: SiteType = {
       ownerContactNo,
       ownerName,
@@ -116,18 +99,17 @@ export const SitesForms = (props: any) => {
       siteEstimate,
       siteInaugurationDate,
       siteName,
-      supervisors,
       tentativeDeadline
     };
 
-    var siteCreated = await addNewSite(newSiteData);
+    var siteCreated = await (props.currentSite.siteId ? editSite({...newSiteData, siteId: props.currentSite.siteId }) : addNewSite(newSiteData));
     if (siteCreated && siteCreated.data) {
       props.handleClose();
     }
   }
 
   const formik1 = useFormik({
-    initialValues: siteFormsObj,
+    initialValues: getInitialValue(),
     onSubmit: submitEvent,
     validate: validateForm
   });
@@ -135,7 +117,7 @@ export const SitesForms = (props: any) => {
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>New Site</Modal.Title>
+        <Modal.Title>{`${props.currentSite.siteId ? 'Edit':'New'} Site`}</Modal.Title>
       </Modal.Header>
       <Form onSubmit={formik1.handleSubmit}>
         <Modal.Body>
@@ -253,7 +235,7 @@ export const SitesForms = (props: any) => {
           <Button variant="secondary" onClick={props.handleClose}>
             Close
             </Button>
-          <Button variant="primary" type="submit">Create</Button>
+          <Button variant="primary" type="submit">{`${props.currentSite.siteId ? 'Edit':'Create'}`}</Button>
         </Modal.Footer>
       </Form>
     </>

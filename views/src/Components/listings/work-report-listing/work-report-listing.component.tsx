@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Container, Row, Col, Button, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,10 +7,12 @@ import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
 import WorkReportForms from "../../Forms/work-report-forms/work-report-forms.component";
+import { WorkReportTypes } from "../../../typings";
 
 export const WorkReportListing = (props: any) => {
  
-  var [ listData, setListData ] = useState([] as any);
+  var [ listData, setListData ] = useState([] as Array<WorkReportTypes>);
+  var [ currentWorkReport, setCurrentWorkReport ] = useState({} as WorkReportTypes);
   const [show, setShow] = useState(false);
 
   const allWorkReport = async () => {
@@ -48,6 +50,11 @@ export const WorkReportListing = (props: any) => {
     allWorkReport();
   };
 
+  const editWorkReport = (obj: WorkReportTypes) => {
+    setCurrentWorkReport(obj);
+    handleShow();
+  }
+
   return (
     <>
       <Container fluid>
@@ -71,10 +78,15 @@ export const WorkReportListing = (props: any) => {
             </thead>
             <tbody>
               {listData.map((rowObj: any) => (
-                  <tr key={rowObj.siteId}>
-                    {tableObject.map(columnObj => 
+                  <tr key={rowObj._id}>
+                    {tableObject.map((columnObj, index) => 
                       (<td key={columnObj.columnName}>
                         {columnObj.type === 'date' ? moment(rowObj[columnObj.key]).format('DD/MM/YYYY') : rowObj[columnObj.key]}
+                        {tableObject.length-1 === index && 
+                          <Fragment>
+                            <Button variant="link" className="float-right" onClick={()=>{editWorkReport(rowObj)}}>Edit</Button>
+                          </Fragment>
+                        }
                       </td>)
                     )}
                   </tr>
@@ -86,7 +98,7 @@ export const WorkReportListing = (props: any) => {
         </Row>
       </Container>
       <ModalComponent handleShow={handleShow} handleClose={handleClose} show={show} size="xl">
-        <WorkReportForms handleClose={handleClose}></WorkReportForms>
+        <WorkReportForms handleClose={handleClose} currentWorkReport={currentWorkReport}></WorkReportForms>
       </ModalComponent>
     </>
   );

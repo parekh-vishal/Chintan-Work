@@ -6,12 +6,7 @@ import { getAllUsersDetails, getAllWorkCategory, getSiteSettings, updateSiteSett
 import './sites-settings.component.scss'
 import { connect } from "react-redux";
 import Select from "react-select";
-import { ISiteRules } from "../../../typings";
-
-interface IDropdownObject {
-  value: string;
-  label: string;
-}
+import { IDropdownObject, ISiteRules } from "../../../typings";
 
 interface IState {
   siteSetting: ISiteRules;

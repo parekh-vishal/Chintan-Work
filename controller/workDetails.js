@@ -82,7 +82,7 @@ exports.addWorkDes = (req, res, next) => {
         siteName: req.body.siteName,
         supervisorId: req.body.supervisorId,
         supervisorName: req.body.supervisorName,
-        works: req.body.works,
+        Works: req.body.Works,
         cementAmount: req.body.cementAmount,
         date: new Date(servDate.toString())
     });

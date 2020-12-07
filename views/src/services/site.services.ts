@@ -5,6 +5,10 @@ export const addNewSite = (siteParam: SiteType) => {
     return post({ url: 'constructionSite/addNewSite', body: siteParam })
 };
 
+export const editSite = (siteParam: SiteType) => {
+    return post({ url: 'constructionSite/editSiteInfo', body: siteParam })
+};
+
 export const getAllSites = () => {
     return get({ url: 'constructionSite/getAllSite'})
 };

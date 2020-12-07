@@ -21,7 +21,6 @@ export interface SiteType {
   siteInaugurationDate: Date;
   siteEstimate: string;
   tentativeDeadline: Date;
-  supervisors: Array<SupervisorType>;
 }
 
 
@@ -43,4 +42,9 @@ export interface ISiteRules {
     workId : string;
     WorkTypes : string;
   }>
+}
+
+export interface IDropdownObject {
+  value: string;
+  label: string;
 }

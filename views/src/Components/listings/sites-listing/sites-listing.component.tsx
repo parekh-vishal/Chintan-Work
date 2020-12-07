@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Container, Row, Col, Button, Table } from "react-bootstrap";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -79,6 +79,11 @@ export const SitesListing = (props: any) => {
     openModal(MODAL_NAMES.SITE_SETTINGS);
   }
 
+  const editSite = (siteObject: SiteType) => {
+    setCurrentSite(siteObject);
+    openModal(MODAL_NAMES.CREATE_SITE);
+  }
+
   return (
     <>
       <Container fluid>
@@ -86,7 +91,7 @@ export const SitesListing = (props: any) => {
           <Col>
             <h3 className="float-left">Sites</h3>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>
-            <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={openModal.bind(null, MODAL_NAMES.CREATE_SITE)}>Add Site</Button>
+            <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={()=>{setCurrentSite({} as SiteType);openModal(MODAL_NAMES.CREATE_SITE)}}>Add Site</Button>
           </Col>
         </Row>
         <Row>
@@ -108,9 +113,12 @@ export const SitesListing = (props: any) => {
                       (<td key={columnObj.columnName}>
                         {columnObj.type === 'date' ? moment(rowObj[columnObj.key]).format('DD/MM/YYYY') : rowObj[columnObj.key]}
                         {tableObject.length-1 === index && 
-                          <Button variant="outline-primary" size="sm" className="float-right" onClick={()=>openSiteSetting(rowObj)}>
-                            <FontAwesomeIcon icon={ faCog } />
-                          </Button>
+                          <Fragment>
+                            <Button variant="outline-primary" size="sm" className="float-right" onClick={()=>openSiteSetting(rowObj)}>
+                              <FontAwesomeIcon icon={ faCog } />
+                            </Button>
+                            <Button variant="link" className="float-right" onClick={()=>editSite(rowObj)}>Edit</Button>
+                          </Fragment>
                         }
                       </td>)
                     )}
@@ -124,7 +132,7 @@ export const SitesListing = (props: any) => {
       </Container>
       <ModalComponent handleShow={handleShow} handleClose={handleClose} show={show}>
         {modalName === MODAL_NAMES.CREATE_SITE && 
-          <SitesForms handleClose={handleClose}></SitesForms>
+          <SitesForms handleClose={handleClose} currentSite={currentSite}></SitesForms>
         }
         {modalName === MODAL_NAMES.SITE_SETTINGS && 
           <SitesSettings handleClose={handleClose} currentSite={currentSite}></SitesSettings>

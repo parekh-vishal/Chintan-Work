@@ -8,13 +8,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import { getAllSites, addNewWorkReport, getSiteSettings } from "../../../services";
 import './work-report-forms.component.scss'
 import { FieldArray, Formik, FormikValues } from "formik";
-import { UserTypes, WorkDetailTypes, WorkReportTypes } from "../../../typings";
+import { IDropdownObject, UserTypes, WorkDetailTypes, WorkReportTypes } from "../../../typings";
 import moment from "moment";
 import { connect } from "react-redux";
 
 export interface IProps {
   handleClose: any;
-  user: UserTypes
+  user: UserTypes;
+  currentWorkReport?: WorkReportTypes
 }
 
 const mapStateToProps = (state: any) => {
@@ -27,32 +28,76 @@ class WorkReportForms extends Component<IProps, any> {
 
   public constructor(props: IProps) {
     super(props);
-    const workDetailsFormsObj: WorkDetailTypes = {
+
+    const workReportFormsObj: WorkReportTypes = this.getWorkReportFormObject();
+    const WorkDetailTypes: WorkDetailTypes = {
       totalworker: {
         labour: 0,
         mason: 0
       },
       workDescription: "",
-      workType: ""
-    }
-
-    const workReportFormsObj: WorkReportTypes = {
-      Works: [workDetailsFormsObj],
-      cementAmount: 0,
-      date: moment().toDate(),
-      siteId: "",
-      supervisorId: "",
-      supervisorName: "",
-      siteName: ""
+      workType: "",
+      workId: "",
+      workTypeObject: {} as IDropdownObject
     }
     
     this.state = {
       initialValues: workReportFormsObj,
       allSitesAsOption: [],
       siteRespond: [],
-      allWorkTypeOption: []
+      allWorkTypeOption: [],
+      WorkDetailTypes
     };
 
+  }
+
+  getWorkReportFormObject = () => {
+    const workDetailsFormsObj: WorkDetailTypes = {
+      totalworker: {
+        labour: 0,
+        mason: 0
+      },
+      workDescription: "",
+      workType: "",
+      workId: "",
+      workTypeObject: {} as IDropdownObject
+    }
+
+    if(this.props.currentWorkReport && this.props.currentWorkReport._id){
+      const allExistingWorks = [...this.props.currentWorkReport.Works];
+      for (let index = 0; index < allExistingWorks.length; index++) {
+        const element = allExistingWorks[index];
+        element.workTypeObject = {
+          label: element.workType,
+          value: element.workId,
+        }
+        
+      }
+      return {
+        Works: allExistingWorks,
+        cementAmount: this.props.currentWorkReport.cementAmount,
+        date: moment(this.props.currentWorkReport.date).toDate(),
+        siteObject: {
+          value: this.props.currentWorkReport.siteId,
+          label: this.props.currentWorkReport.siteName,
+        },
+        siteId: this.props.currentWorkReport.siteId,
+        supervisorId: this.props.currentWorkReport.supervisorId,
+        supervisorName: this.props.currentWorkReport.supervisorName,
+        siteName: this.props.currentWorkReport.siteName
+      }
+    }else{
+      return {
+        Works: [workDetailsFormsObj],
+        cementAmount: 0,
+        date: moment().toDate(),
+        siteId: "",
+        siteObject: {} as IDropdownObject,
+        supervisorId: "",
+        supervisorName: "",
+        siteName: ""
+      }
+    }
   }
 
   public componentDidMount() {
@@ -86,7 +131,7 @@ class WorkReportForms extends Component<IProps, any> {
       for (let index = 0; index < respond.data.workCategories.length; index++) {
         const element = respond.data.workCategories[index];
         newArray.push({
-          value: element.workType,
+          value: element.workCategoryId,
           label: element.workType
         });
       }
@@ -99,7 +144,7 @@ class WorkReportForms extends Component<IProps, any> {
 
   validateForm = (values: FormikValues) => {
     const errors: any = {};
-    if (!values.siteId.value) {
+    if (!values.siteObject.value) {
       errors.siteName = 'Required';
     }
 
@@ -115,17 +160,17 @@ class WorkReportForms extends Component<IProps, any> {
       Works,
       cementAmount,
       date,
-      siteId
+      siteObject
     } = values;
 
     const newWorkReportData: WorkReportTypes = {
       Works,
       cementAmount,
       date,
-      siteId: siteId.value,
+      siteId: siteObject.value,
       supervisorId: this.props.user.user_id,
       supervisorName: `${this.props.user.firstName} ${this.props.user.lastName}`,
-      siteName: siteId.label
+      siteName: siteObject.label
     };
 
     const workReportCreated = await addNewWorkReport(newWorkReportData);
@@ -135,7 +180,6 @@ class WorkReportForms extends Component<IProps, any> {
   }
 
   public render(){
-
     return (
       <>
         <Modal.Header closeButton>
@@ -160,11 +204,11 @@ class WorkReportForms extends Component<IProps, any> {
 
             <Form onSubmit={handleSubmit}>
               <Modal.Body>
-                <Form.Group controlId="siteId">
+                <Form.Group controlId="siteObject">
                   <Form.Row>
                     <Form.Label column lg={1}>Site</Form.Label>
                     <Col>
-                      <Select value={values.siteId} onChange={(val)=>{setFieldValue('siteId', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} />
+                      <Select value={values.siteObject} onChange={(val)=>{setFieldValue('siteObject', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} />
                       <Form.Text className="text-danger">{errors.siteName}</Form.Text>
                     </Col>
                   </Form.Row>
@@ -217,7 +261,7 @@ class WorkReportForms extends Component<IProps, any> {
                             <tr key={idx}>
                               <td>{idx+1}</td>
                               <td>
-                                <Select value={workDetails.workType} name={`Works[${idx}].workType`} onChange={(val)=>{setFieldValue(`Works[${idx}].workType`, val)}} options={this.state.allWorkTypeOption} />
+                                <Select value={workDetails.workTypeObject} name={`Works[${idx}].workTypeObject`} onChange={(val)=>{setFieldValue(`Works[${idx}].workTypeObject`, val);setFieldValue(`Works[${idx}].workId`, val.value);setFieldValue(`Works[${idx}].workType`, val.label);}} options={this.state.allWorkTypeOption} />
                               </td>
                               <td>
                                 <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} name={`Works[${idx}].totalworker.mason`} onBlur={handleBlur} value={workDetails.totalworker.mason} />
@@ -234,8 +278,7 @@ class WorkReportForms extends Component<IProps, any> {
                         </Table>
                         
                         <Button variant="primary" onClick={()=>{
-                          console.log(this.state.initialValues.Works);
-                          arrayHelpers.push(this.state.initialValues.Works[0])
+                          arrayHelpers.push(this.state.WorkDetailTypes)
                         }}>Add Another Work Details</Button>
                       </div>
                     )} />
