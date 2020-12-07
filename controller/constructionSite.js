@@ -6,6 +6,9 @@ const Authusr = require('../Authentication/tokenToUsr');
 exports.addSite = (req, res, next) => {
     Constructsite.find({ siteName: req.body.siteName }).exec()
         .then(doc => {
+            const userInfo = Authusr(req);
+            const userId = userInfo.id;
+            console.log(userId);
             if (doc.length >= 1) {
                 return res.status(409).json({
                     message: "Site already exist"
@@ -31,6 +34,7 @@ exports.addSite = (req, res, next) => {
                             siteName: req.body.siteName,
                             ownerName: req.body.ownerName,
                             ownerContactNo: req.body.ownerContactNo,
+                            createdBy : userId,
                             siteAddress: {
                                 AddressLine1: req.body.siteAddress.AddressLine1,
                                 City: req.body.siteAddress.City,
