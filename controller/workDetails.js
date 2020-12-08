@@ -108,16 +108,17 @@ exports.updateWorkdetails = (req, res, next) => {
     date = date.split(saperator);
     date = date.reverse();
     date = date.join(saperator);
-    //console.log(date);
+    
     const filter = req.body._id;
-    WorkDes.findOneAndUpdate(filter, req.body).exec()
+    delete req.body._id;
+    WorkDes.findOneAndUpdate(filter, {...req.body}).exec()
         .then(doc => {
             res.status(200).json({
                 message: "Work Details Updated."
             });
         })
         .catch(err => {
-            //console.log(err);
+            console.log(err);
             res.status(404).json({
                 error: err
             });

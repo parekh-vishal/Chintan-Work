@@ -38,7 +38,10 @@ class WorkReportForms extends Component<IProps, any> {
       workDescription: "",
       workType: "",
       workId: "",
-      workTypeObject: {} as IDropdownObject
+      workTypeObject: {
+        label: "",
+        value: ""
+      }
     }
     
     this.state = {
@@ -120,7 +123,11 @@ class WorkReportForms extends Component<IProps, any> {
       this.setState({
         allSitesAsOption: sitesOptions,
         siteRespond: respond.data
-      })
+      });
+
+      if(this.props.currentWorkReport && this.props.currentWorkReport._id){
+        this.fetchSiteSetting({value: this.props.currentWorkReport.siteId});
+      }
     }
   }
 

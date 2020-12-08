@@ -17,7 +17,7 @@ export const WorkReportListing = (props: any) => {
 
   const allWorkReport = async () => {
     const allWorkReportRespond = await getAllWorkReport();
-    if(allWorkReportRespond.data){
+    if(allWorkReportRespond && allWorkReportRespond.data){
       setListData(allWorkReportRespond.data);
     }
     //setListData([]);
