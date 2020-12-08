@@ -15,7 +15,8 @@ import SitesSettings from "../../Forms/sites-settings/sites-settings.component"
 interface TableObject{
   columnName: string;
   key: string;
-  type: string
+  type: string;
+  view: Function;
 }
 
 export const SitesListing = (props: any) => {
@@ -45,22 +46,26 @@ export const SitesListing = (props: any) => {
   const tableObject:Array<TableObject> = [{
     columnName: "Site Name",
     key: "siteName",
-    type: "text"
+    type: "text",
+    view: (text: any)=>(<h6>{text}</h6>),
   },
   {
     columnName: "Owner Name",
     key: "ownerName",
-    type: "text"
+    type: "text",
+    view: (text: any)=>(<h6>{text}</h6>),
   },
   {
     columnName: "Start Date",
     key: "siteInaugurationDate",
-    type: "date"
+    type: "date",
+    view: (text: any)=>(moment(text).format('DD/MM/YYYY')),
   },
   {
     columnName: "Complete Date",
     key: "tentativeDeadline",
-    type: "date"
+    type: "date",
+    view: (text: any)=>(moment(text).format('DD/MM/YYYY')),
   }];
 
   const handleShow = () => setShow(true);
@@ -111,7 +116,7 @@ export const SitesListing = (props: any) => {
                   <tr key={rowObj.siteId}>
                     {tableObject.map((columnObj: any, index: number) => 
                       (<td key={columnObj.columnName}>
-                        {columnObj.type === 'date' ? moment(rowObj[columnObj.key]).format('DD/MM/YYYY') : rowObj[columnObj.key]}
+                        {columnObj.view(rowObj[columnObj.key])}
                         {tableObject.length-1 === index && 
                           <Fragment>
                             <Button variant="outline-primary" size="sm" className="float-right" onClick={()=>openSiteSetting(rowObj)}>

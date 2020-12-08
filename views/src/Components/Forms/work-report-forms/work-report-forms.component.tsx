@@ -5,7 +5,7 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllSites, addNewWorkReport, getSiteSettings } from "../../../services";
+import { getAllSites, addNewWorkReport, getSiteSettings, editWorkReport } from "../../../services";
 import './work-report-forms.component.scss'
 import { FieldArray, Formik, FormikValues } from "formik";
 import { IDropdownObject, UserTypes, WorkDetailTypes, WorkReportTypes } from "../../../typings";
@@ -173,7 +173,8 @@ class WorkReportForms extends Component<IProps, any> {
       siteName: siteObject.label
     };
 
-    const workReportCreated = await addNewWorkReport(newWorkReportData);
+    const workReportCreated = await ((this.props.currentWorkReport && this.props.currentWorkReport._id) ? editWorkReport({...newWorkReportData, _id: this.props.currentWorkReport._id }) : addNewWorkReport(newWorkReportData));
+
     if (workReportCreated && workReportCreated.data) {
       this.props.handleClose();
     }
