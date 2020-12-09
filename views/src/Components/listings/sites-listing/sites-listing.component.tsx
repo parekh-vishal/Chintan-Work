@@ -12,7 +12,7 @@ import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { SiteType } from "../../../typings";
 import SitesSettings from "../../Forms/sites-settings/sites-settings.component"
 
-interface TableObject{
+interface TableObject {
   columnName: string;
   key: string;
   type: string;
@@ -20,57 +20,59 @@ interface TableObject{
 }
 
 export const SitesListing = (props: any) => {
- 
+
   const MODAL_NAMES = {
     CREATE_SITE: "CREATE_SITE",
     SITE_SETTINGS: "SITE_SETTINGS",
     WORK_CATEGORY: "WORK_CATEGORY"
   }
 
-  const [ listData, setListData ] = useState([] as Array<SiteType>);
+  const [listData, setListData] = useState([] as Array<SiteType>);
   const [show, setShow] = useState(false);
+  const [isReadOnly, setReadOnlyFlag] = useState(false);
   const [modalName, setModalName] = useState("");
   const [currentSite, setCurrentSite] = useState({} as SiteType);
 
   const allSites = async () => {
     const allSitesRespond = await getAllSites();
-    if(allSitesRespond.data){
+    if (allSitesRespond.data) {
       setListData(allSitesRespond.data);
     }
   }
 
-  useEffect( () => {
+  useEffect(() => {
     allSites();
   }, []);
 
-  const tableObject:Array<TableObject> = [{
+  const tableObject: Array<TableObject> = [{
     columnName: "Site Name",
     key: "siteName",
     type: "text",
-    view: (text: any)=>(<h6>{text}</h6>),
+    view: (rowObj:any, text: any) => (<Button variant="link" onClick={() => viewSite(rowObj)}>{text}</Button>),
   },
   {
     columnName: "Owner Name",
     key: "ownerName",
     type: "text",
-    view: (text: any)=>(<h6>{text}</h6>),
+    view: (rowObj:any, text: any) => (<h6>{text}</h6>),
   },
   {
     columnName: "Start Date",
     key: "siteInaugurationDate",
     type: "date",
-    view: (text: any)=>(moment(text).format('DD/MM/YYYY')),
+    view: (rowObj:any, text: any) => (moment(text).format('DD/MM/YYYY')),
   },
   {
     columnName: "Complete Date",
     key: "tentativeDeadline",
     type: "date",
-    view: (text: any)=>(moment(text).format('DD/MM/YYYY')),
+    view: (rowObj:any, text: any) => (moment(text).format('DD/MM/YYYY')),
   }];
 
   const handleShow = () => setShow(true);
   const handleClose = () => {
     setShow(false);
+    setReadOnlyFlag(false);
     allSites();
   };
 
@@ -89,6 +91,12 @@ export const SitesListing = (props: any) => {
     openModal(MODAL_NAMES.CREATE_SITE);
   }
 
+  const viewSite = (siteObject: SiteType) => {
+    setReadOnlyFlag(true);
+    setCurrentSite(siteObject);
+    openModal(MODAL_NAMES.CREATE_SITE);
+  }
+
   return (
     <>
       <Container fluid>
@@ -96,13 +104,13 @@ export const SitesListing = (props: any) => {
           <Col>
             <h3 className="float-left">Sites</h3>
             <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>
-            <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={()=>{setCurrentSite({} as SiteType);openModal(MODAL_NAMES.CREATE_SITE)}}>Add Site</Button>
+            <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={() => { setCurrentSite({} as SiteType); openModal(MODAL_NAMES.CREATE_SITE) }}>Add Site</Button>
           </Col>
         </Row>
         <Row>
           <Col>
-          <Table striped bordered hover size="sm">
-            <thead>
+            <Table striped bordered hover size="sm">
+              <thead>
                 <tr>
                   {tableObject.map(columnObj => (
                     <th key={columnObj.columnName}>
@@ -110,39 +118,39 @@ export const SitesListing = (props: any) => {
                     </th>
                   ))}
                 </tr>
-            </thead>
-            <tbody>
-              {listData.map((rowObj: any) => (
+              </thead>
+              <tbody>
+                {listData.map((rowObj: any) => (
                   <tr key={rowObj.siteId}>
-                    {tableObject.map((columnObj: any, index: number) => 
+                    {tableObject.map((columnObj: any, index: number) =>
                       (<td key={columnObj.columnName}>
-                        {columnObj.view(rowObj[columnObj.key])}
-                        {tableObject.length-1 === index && 
+                        {columnObj.view(rowObj, rowObj[columnObj.key])}
+                        {tableObject.length - 1 === index &&
                           <Fragment>
-                            <Button variant="outline-primary" size="sm" className="float-right" onClick={()=>openSiteSetting(rowObj)}>
-                              <FontAwesomeIcon icon={ faCog } />
+                            <Button variant="outline-primary" size="sm" className="float-right" onClick={() => openSiteSetting(rowObj)}>
+                              <FontAwesomeIcon icon={faCog} />
                             </Button>
-                            <Button variant="link" className="float-right" onClick={()=>editSite(rowObj)}>Edit</Button>
+                            <Button variant="link" className="float-right" onClick={() => editSite(rowObj)}>Edit</Button>
                           </Fragment>
                         }
                       </td>)
                     )}
                   </tr>
                 ))
-              }
-            </tbody>
-          </Table>
+                }
+              </tbody>
+            </Table>
           </Col>
         </Row>
       </Container>
       <ModalComponent handleShow={handleShow} handleClose={handleClose} show={show}>
-        {modalName === MODAL_NAMES.CREATE_SITE && 
-          <SitesForms handleClose={handleClose} currentSite={currentSite}></SitesForms>
+        {modalName === MODAL_NAMES.CREATE_SITE &&
+          <SitesForms handleClose={handleClose} currentSite={currentSite} isReadOnly={isReadOnly}></SitesForms>
         }
-        {modalName === MODAL_NAMES.SITE_SETTINGS && 
+        {modalName === MODAL_NAMES.SITE_SETTINGS &&
           <SitesSettings handleClose={handleClose} currentSite={currentSite}></SitesSettings>
         }
-        {modalName === MODAL_NAMES.WORK_CATEGORY && 
+        {modalName === MODAL_NAMES.WORK_CATEGORY &&
           <WorkCategory handleClose={handleClose}></WorkCategory>
         }
       </ModalComponent>
