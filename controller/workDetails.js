@@ -1,5 +1,6 @@
 const WorkDes = require('../model/workDetails');
 const WorkCategory = require('../model/workCategory');
+const UserInfo = require('../Authentication/tokenToUsr');
 const date = require('date-and-time');
 //Set New Work Category
 exports.addWorkCategory = (req, res, next) => {
@@ -127,14 +128,16 @@ exports.updateWorkdetails = (req, res, next) => {
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = (req, res, next) => {
     let filter = req.query;
+    if(filter == undefined){
+        filter = null;
+    }
+    const userInfo = UserInfo(req);
+    const userId = userInfo.id;
+    filter.supervisorId = userId;
+    console.log('filter',filter);
     WorkDes.find(filter).exec()
         .then(result => {
-            if (result.length == 0) {
-                throw 'Not found Records'
-            }
-            else {
                 res.status(200).json(result);
-            }
         })
         .catch(err => {
             console.log(err);

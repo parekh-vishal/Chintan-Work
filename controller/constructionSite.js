@@ -1,6 +1,8 @@
 const Constructsite = require('../model/constructionSite');
 const SiteRules = require('../model/siteRules');
 const Authusr = require('../Authentication/tokenToUsr');
+const PDF = require('html-pdf');
+const { options } = require('../routes/constructionSite');
 
 //This Function Used for Add New Site
 exports.addSite = (req, res, next) => {
@@ -250,3 +252,26 @@ exports.editSiteInfo = (req, res, next) => {
             });
         });
 };
+
+//Create PDF file for Construction Site.
+exports.generatePDF = (req,res,next)=>{
+    const filter = req.query;
+    Constructsite.find(filter)
+    .then(doc=>{
+        if(doc.length==0){
+            res.status(200).json({
+                message : "Site Details Not Found"
+            });
+        }
+        else{
+                let options = {format : 'Letter'};
+                //PDF.create(options).toFile
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(404).json({
+            error: err
+        });
+    });
+}

@@ -17,6 +17,8 @@ route.get('/getSite/:siteId',checkAuth,constructSite.getSite);
 route.get('/getAllSite',checkAuth,constructSite.getAllSite);
 //Edit Site Info
 route.post('/editSiteInfo',checkAuth,constructSite.editSiteInfo);
+//Create PDF of Construction Site Info.
+route.post('/createSitePdf',checkAuth);
 //Set Work Category in System
 route.post('/addWorkCategory',checkAuth,work.addWorkCategory);
 //Get All Work Categories
