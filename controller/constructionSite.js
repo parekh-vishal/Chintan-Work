@@ -1,8 +1,12 @@
 const Constructsite = require('../model/constructionSite');
 const SiteRules = require('../model/siteRules');
+const User = require('../model/user');
 const Authusr = require('../Authentication/tokenToUsr');
 const PDF = require('html-pdf');
-const { options } = require('../routes/constructionSite');
+const pdfTemplate = require('../Documents');
+const path = require('path');
+const { json } = require('body-parser');
+const { compareSync } = require('bcrypt');
 
 //This Function Used for Add New Site
 exports.addSite = (req, res, next) => {
@@ -265,12 +269,50 @@ exports.generatePDF = (req,res,next)=>{
         }
         else{
                 let options = {format : 'Letter'};
-                //PDF.create(options).toFile
+                let filter = JSON.parse(JSON.stringify(doc[0]));
+                delete filter.__v;
+                delete filter._id;
+                delete filter.siteStatus;
+                let startdate= new Date(filter.siteInaugurationDate).toLocaleDateString();
+                filter.siteInaugurationDate = startdate;
+                let due = new Date(filter.tentativeDeadline).toLocaleDateString();
+                filter.tentativeDeadline = due;
+                filter.Adderssline1 = filter.siteAddress.AddressLine1;
+                delete filter.siteAddress.AddressLine1;
+                filter.City = filter.siteAddress.City;
+                delete filter.siteAddress.City;
+                filter.State = filter.siteAddress.State;
+                delete filter.siteAddress.State;
+                filter.pincode = filter.siteAddress.pincode;
+                delete filter.siteAddress.pincode;
+                delete filter.siteAddress;
+                User.find({user_id:filter.createdBy}).exec()
+                .then(result=>{
+                    console.log(result);
+                    let userName = result[0].firstName;
+                    filter.createdBy = userName;
+                    console.log(filter);
+                    PDF.create(pdfTemplate(filter),options).toFile(`${filter.siteId}.pdf`,(err)=>{
+                        if(err){
+                            console.log(err);
+                        }
+                        let root=path.dirname(require.main.filename);
+                        console.log('root',root);
+                        res.status(200).sendFile(`${root}/${filter.siteId}.pdf`);
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(502).json({
+                        error: err
+                    });
+                });
+                
         }
     })
     .catch(err => {
         console.log(err);
-        res.status(404).json({
+        res.status(502).json({
             error: err
         });
     });

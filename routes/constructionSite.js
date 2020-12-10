@@ -3,6 +3,7 @@ const route = express.Router();
 const constructSite = require('../controller/constructionSite');
 const checkAuth = require('../Authentication/check_auth');
 const work = require('../controller/workDetails');
+const constructionSite = require('../model/constructionSite');
 //Add a new Site in System
 route.post('/addNewSite',checkAuth,constructSite.addSite);
 //Change Site Status to Deactive
@@ -18,7 +19,7 @@ route.get('/getAllSite',checkAuth,constructSite.getAllSite);
 //Edit Site Info
 route.post('/editSiteInfo',checkAuth,constructSite.editSiteInfo);
 //Create PDF of Construction Site Info.
-route.post('/createSitePdf',checkAuth);
+route.get('/createSitePdf',checkAuth,constructSite.generatePDF);
 //Set Work Category in System
 route.post('/addWorkCategory',checkAuth,work.addWorkCategory);
 //Get All Work Categories
