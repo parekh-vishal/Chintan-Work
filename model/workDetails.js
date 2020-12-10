@@ -9,6 +9,7 @@ let workDetail = {
     workDescription : String
 }
 const workDesSchema = mongoose.Schema({
+    workId : String,
     siteId : String,
     siteName : {type : String, required : 'Please enter your Site Name'},
     supervisorId : String,

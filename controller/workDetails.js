@@ -11,12 +11,12 @@ exports.addWorkCategory = (req, res, next) => {
                 wrkId = doc[(doc.length - 1)].workId;
             }
             if (wrkId == null) {
-                wrkId = "wrk0";
+                wrkId = "WRKC0";
             }
             else {
                 let dum = parseInt(wrkId.replace('wrk', ''));
                 dum += 1;
-                wrkId = 'wrk' + dum;
+                wrkId = 'WRKC' + dum;
             }
             let workCategory = new WorkCategory({
                 workId : wrkId,
@@ -78,28 +78,50 @@ exports.addWorkDes = (req, res, next) => {
     temp = temp.reverse();
     let servDate = new Date();
     servDate = date.format(servDate, temp.join('-'));
-    workdets = new WorkDes({
-        siteId: req.body.siteId,
-        siteName: req.body.siteName,
-        supervisorId: req.body.supervisorId,
-        supervisorName: req.body.supervisorName,
-        Works: req.body.Works,
-        cementAmount: req.body.cementAmount,
-        date: new Date(servDate.toString())
-    });
-    workdets.save()
-        .then(result => {
-            res.status(200).json({
-                message: 'Work Details entered to system'
+    let workId;
+    WorkDes.find().exec()
+    .then(doc=>{
+            if (doc.length != 0) {
+                workId = doc[(doc.length - 1)].workId;
+            }
+            if (workId == null) {
+                workId = "WRK0";
+            }
+            else {
+                let dum = parseInt(workId.replace('WRK', ''));
+                dum += 1;
+                workId = 'WRK' + dum;
+            }
+            workdets = new WorkDes({
+                workId : workId,
+                siteId: req.body.siteId,
+                siteName: req.body.siteName,
+                supervisorId: req.body.supervisorId,
+                supervisorName: req.body.supervisorName,
+                Works: req.body.Works,
+                cementAmount: req.body.cementAmount,
+                date: new Date(servDate.toString())
             });
-            console.log('res', result);
-        })
-        .catch(err => {
-            console.log('error', err);
-            res.status(5002).json({
-                error: err
-            });
+            workdets.save()
+                .then(result => {
+                    res.status(200).json({
+                        message: 'Work Details entered to system'
+                    });
+                    console.log('res', result);
+                })
+                .catch(err => {
+                    console.log('error', err);
+                    res.status(502).json({
+                        error: err
+                    });
+                });
+    })
+    .catch(err => {
+        console.log('error', err);
+        res.status(5002).json({
+            error: err
         });
+    });
 }
 
 //Edit Work Details by Supervisor on specific date. Date could not be changed.

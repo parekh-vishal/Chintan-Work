@@ -27,12 +27,12 @@ exports.addUser = (req, res, next) => {
                                 uid = doc[(doc.length - 1)].user_id;
                             }
                             if (uid == null) {
-                                uid = "usr0"
+                                uid = "USR0"
                             }
                             else {
-                                var dum = parseInt(uid.replace('usr', ''));
+                                var dum = parseInt(uid.replace('USR', ''));
                                 dum += 1;
-                                uid = 'usr' + dum;
+                                uid = 'USR' + dum;
 
                             }
                             user = new User({

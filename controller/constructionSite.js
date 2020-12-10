@@ -24,12 +24,12 @@ exports.addSite = (req, res, next) => {
                             siteId = doc[(doc.length - 1)].siteId;
                         }
                         if (siteId == null) {
-                            siteId = "site0";
+                            siteId = "SITE0";
                         }
                         else {
-                            var dum = parseInt(siteId.replace('site', ''));
+                            var dum = parseInt(siteId.replace('SITE', ''));
                             dum += 1;
-                            siteId = 'site' + dum;
+                            siteId = 'SITE' + dum;
                         }
                         site = new Constructsite({
                             siteId: siteId,
