@@ -7,12 +7,12 @@ import './work-report-listing.component.scss'
 import moment from "moment";
 import { ModalComponent } from "../..";
 import WorkReportForms from "../../Forms/work-report-forms/work-report-forms.component";
-import { WorkReportTypes } from "../../../typings";
+import { IWorkReportTypes } from "../../../typings";
 
 export const WorkReportListing = (props: any) => {
  
-  var [ listData, setListData ] = useState([] as Array<WorkReportTypes>);
-  var [ currentWorkReport, setCurrentWorkReport ] = useState({} as WorkReportTypes);
+  var [ listData, setListData ] = useState([] as Array<IWorkReportTypes>);
+  var [ currentWorkReport, setCurrentWorkReport ] = useState({} as IWorkReportTypes);
   const [show, setShow] = useState(false);
 
   const allWorkReport = async () => {
@@ -50,7 +50,7 @@ export const WorkReportListing = (props: any) => {
     allWorkReport();
   };
 
-  const editWorkReport = (obj: WorkReportTypes) => {
+  const editWorkReport = (obj: IWorkReportTypes) => {
     setCurrentWorkReport(obj);
     handleShow();
   }

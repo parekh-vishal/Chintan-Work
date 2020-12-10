@@ -47,4 +47,5 @@ export interface ISiteRules {
 export interface IDropdownObject {
   value: string;
   label: string;
+  isFixed?: boolean;
 }

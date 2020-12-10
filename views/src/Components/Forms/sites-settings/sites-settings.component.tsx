@@ -66,7 +66,6 @@ class SitesSettings extends React.PureComponent<any, IState> {
   fetchAllWorkCategory = async () => {
     var respond = await getAllWorkCategory();
     if (respond.data) {
-      console.log(this.state.siteSetting.workCategories);
       const alreadyExistWorkType = this.state.siteSetting.workCategories && this.state.siteSetting.workCategories.map((obj: any)=>{
         return obj.workCategoryId
       });
@@ -152,7 +151,8 @@ class SitesSettings extends React.PureComponent<any, IState> {
         const element = respond.data[index];
         userOptions.push({
           value: element.user_id,
-          label: `${element.firstName} ${element.lastName}`
+          label: `${element.firstName} ${element.lastName}`,
+          isFixed: element.user_id === this.props.currentSite.createdBy,
         });
       }
 
@@ -174,7 +174,6 @@ class SitesSettings extends React.PureComponent<any, IState> {
     };
     const updateData = await updateSiteSettings({siteId: this.props.currentSite.siteId, body});
     if(updateData.data){
-      console.log(updateData.data);
       this.props.handleClose();
     }
   }
@@ -272,6 +271,20 @@ class SitesSettings extends React.PureComponent<any, IState> {
     })
   }
 
+  selectStyles = {
+    multiValue: (base: any, state: any) => {
+      return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
+    },
+    multiValueLabel: (base: any, state: any) => {
+      return state.data.isFixed
+        ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
+        : base;
+    },
+    multiValueRemove: (base: any, state: any) => {
+      return state.data.isFixed ? { ...base, display: 'none' } : base;
+    },
+  };
+
   public render() {
     const {
       adminUsersOpt,
@@ -291,7 +304,17 @@ class SitesSettings extends React.PureComponent<any, IState> {
           <Row>
             <Col>Admin Users</Col>
             <Col xs={10}>
-              <Select value={adminUsersOpt} onChange={(value)=>this.setUsersOptState(value, VIEW_NAMES.ADMIN_VIEW)} options={allUsersAsOption} isMulti={true} />
+              <Select value={adminUsersOpt} onChange={(value,{action, removedValue})=>{
+                switch (action) {
+                  case 'remove-value':
+                  case 'pop-value':
+                    if (removedValue && removedValue.isFixed) {
+                      return;
+                    }
+                    break;
+                }
+                this.setUsersOptState(value, VIEW_NAMES.ADMIN_VIEW);
+                }} options={allUsersAsOption} isMulti={true} isClearable={adminUsersOpt.some(v => !v.isFixed)} styles={this.selectStyles}/>
             </Col>
           </Row>
           <Row>

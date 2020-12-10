@@ -8,14 +8,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import { getAllSites, addNewWorkReport, getSiteSettings, editWorkReport } from "../../../services";
 import './work-report-forms.component.scss'
 import { FieldArray, Formik, FormikValues } from "formik";
-import { IDropdownObject, UserTypes, WorkDetailTypes, WorkReportTypes } from "../../../typings";
+import { IDropdownObject, UserTypes, IWorkDetailTypes, IWorkReportTypes } from "../../../typings";
 import moment from "moment";
 import { connect } from "react-redux";
 
 export interface IProps {
   handleClose: any;
   user: UserTypes;
-  currentWorkReport?: WorkReportTypes
+  currentWorkReport?: IWorkReportTypes
 }
 
 const mapStateToProps = (state: any) => {
@@ -29,8 +29,7 @@ class WorkReportForms extends Component<IProps, any> {
   public constructor(props: IProps) {
     super(props);
 
-    const workReportFormsObj: WorkReportTypes = this.getWorkReportFormObject();
-    const WorkDetailTypes: WorkDetailTypes = {
+    const WorkDetailTypes: IWorkDetailTypes = {
       totalworker: {
         labour: 0,
         mason: 0
@@ -43,6 +42,7 @@ class WorkReportForms extends Component<IProps, any> {
         value: ""
       }
     }
+    const workReportFormsObj: IWorkReportTypes = this.getWorkReportFormObject(WorkDetailTypes);
     
     this.state = {
       initialValues: workReportFormsObj,
@@ -54,17 +54,7 @@ class WorkReportForms extends Component<IProps, any> {
 
   }
 
-  getWorkReportFormObject = () => {
-    const workDetailsFormsObj: WorkDetailTypes = {
-      totalworker: {
-        labour: 0,
-        mason: 0
-      },
-      workDescription: "",
-      workType: "",
-      workId: "",
-      workTypeObject: {} as IDropdownObject
-    }
+  getWorkReportFormObject = (WorkDetailTypes: IWorkDetailTypes) => {
 
     if(this.props.currentWorkReport && this.props.currentWorkReport._id){
       const allExistingWorks = [...this.props.currentWorkReport.Works];
@@ -91,7 +81,7 @@ class WorkReportForms extends Component<IProps, any> {
       }
     }else{
       return {
-        Works: [workDetailsFormsObj],
+        Works: [WorkDetailTypes],
         cementAmount: 0,
         date: moment().toDate(),
         siteId: "",
@@ -170,7 +160,7 @@ class WorkReportForms extends Component<IProps, any> {
       siteObject
     } = values;
 
-    const newWorkReportData: WorkReportTypes = {
+    const newWorkReportData: IWorkReportTypes = {
       Works,
       cementAmount,
       date,

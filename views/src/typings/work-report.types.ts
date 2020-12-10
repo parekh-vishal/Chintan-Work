@@ -1,6 +1,6 @@
 import { IDropdownObject } from ".";
 
-export interface WorkDetailTypes {
+export interface IWorkDetailTypes {
   workType : string;
   totalworker : {
       mason : number;
@@ -12,13 +12,13 @@ export interface WorkDetailTypes {
 }
 
 
-export interface WorkReportTypes {
+export interface IWorkReportTypes {
   siteId : string;
   siteObject? : IDropdownObject;
   siteName : string;
   supervisorId : string;
   supervisorName : string;
-  Works : Array<WorkDetailTypes>;
+  Works : Array<IWorkDetailTypes>;
   cementAmount : number;
   date : Date;
   _id?: string;

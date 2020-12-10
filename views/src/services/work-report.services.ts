@@ -1,11 +1,11 @@
 import { get, post } from "../utils/axios.util";
-import {WorkReportTypes} from "../typings"
+import {IWorkReportTypes} from "../typings"
 
-export const addNewWorkReport = (siteParam: WorkReportTypes) => {
+export const addNewWorkReport = (siteParam: IWorkReportTypes) => {
     return post({ url: 'constructionSite/addWorkDetails', body: siteParam })
 };
 
-export const editWorkReport = (siteParam: WorkReportTypes) => {
+export const editWorkReport = (siteParam: IWorkReportTypes) => {
     return post({ url: 'constructionSite/editWorkDetails', body: siteParam })
 };
 

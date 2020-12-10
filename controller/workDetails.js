@@ -14,7 +14,7 @@ exports.addWorkCategory = (req, res, next) => {
                 wrkId = "WRKC0";
             }
             else {
-                let dum = parseInt(wrkId.replace('wrk', ''));
+                let dum = parseInt(wrkId.replace('WRKC', ''));
                 dum += 1;
                 wrkId = 'WRKC' + dum;
             }
