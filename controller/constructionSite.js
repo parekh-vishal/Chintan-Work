@@ -291,13 +291,13 @@ exports.generatePDF = (req,res,next)=>{
                     console.log(result);
                     let userName = result[0].firstName;
                     filter.createdBy = userName;
-                    console.log(filter);
+                    //console.log(filter);
                     PDF.create(pdfTemplate(filter),options).toFile(`${filter.siteId}.pdf`,(err)=>{
                         if(err){
                             console.log(err);
                         }
                         let root=path.dirname(require.main.filename);
-                        console.log('root',root);
+                        //console.log('root',root);
                         res.status(200).sendFile(`${root}/${filter.siteId}.pdf`);
                     });
                 })
