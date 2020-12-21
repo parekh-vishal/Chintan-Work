@@ -46,7 +46,7 @@ class LoginPage extends React.PureComponent<any, {}> {
           <Navbar bg="light" expand="lg">
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
-              <Nav.Link href="/signup">Signup</Nav.Link>
+              {/* <Nav.Link href="/signup">Signup</Nav.Link> */}
             </Navbar.Collapse>
           </Navbar>
         </Col>

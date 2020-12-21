@@ -14,6 +14,7 @@ export interface IWorkDetailTypes {
 
 export interface IWorkReportTypes {
   siteId : string;
+  workId?: string;
   siteObject? : IDropdownObject;
   siteName : string;
   supervisorId : string;

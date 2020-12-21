@@ -60,10 +60,10 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
       <HeaderComponent logoutHandler={this.logoutHandler} user={this.props.user}/>
       <Container fluid>
           <Row>
-              <Col xs={2} id="sidebar-wrapper">      
+              <Col sm={2} id="sidebar-wrapper">      
                 <Sidebar />
               </Col>
-              <Col  xs={10} id="page-content-wrapper">
+              <Col  sm={10} id="page-content-wrapper">
                 <Switch>
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.SITES}`} component={SitesListing} />
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.WORK_REPORT}`} component={WorkReportListing} />

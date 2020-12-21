@@ -1,5 +1,5 @@
-import React from "react";
-import { Nav } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Nav } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faFileAlt, faRupeeSign } from '@fortawesome/free-solid-svg-icons';
 import { withRouter } from "react-router";
@@ -12,10 +12,10 @@ const Side = (props: any) => {
   const location = useLocation();
   return (
     <>
-      <Nav className="col-md-12 d-none d-md-block bg-light sidebar"
+      <Nav className="col-md-12 d-md-block bg-light sidebar"
         activeKey={location.pathname}
-      >
-        <div className="sidebar-sticky"></div>
+      >        
+     
         <Nav.Item>
           <Nav.Link href={`${url}${ROUTES.SITES}`}>
             <FontAwesomeIcon icon={ faHome }/>

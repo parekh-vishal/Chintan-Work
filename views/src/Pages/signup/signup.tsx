@@ -46,9 +46,9 @@ class SignupPage extends React.PureComponent<IProps, signupStates> {
 
 
   public componentDidMount() {
-    if(this.props.user.USER && this.props.user.USER.token){
+    // if(this.props.user.USER && this.props.user.USER.token){
       this.navigateToDashboadPage();
-    }
+    // }
   }
 
   navigateToDashboadPage = () => {

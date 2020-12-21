@@ -15,7 +15,8 @@ import { connect } from "react-redux";
 export interface IProps {
   handleClose: any;
   user: UserTypes;
-  currentWorkReport?: IWorkReportTypes
+  currentWorkReport?: IWorkReportTypes;
+  isReadOnly: boolean;
 }
 
 const mapStateToProps = (state: any) => {
@@ -178,10 +179,14 @@ class WorkReportForms extends Component<IProps, any> {
   }
 
   public render(){
+    const {
+      isReadOnly,
+      currentWorkReport
+    } = this.props;
     return (
       <>
         <Modal.Header closeButton>
-          <Modal.Title>New Work Report</Modal.Title>
+          <Modal.Title>{`${isReadOnly ? 'View' : (currentWorkReport && currentWorkReport.workId) ? 'Edit' : 'New'} Work Report`}</Modal.Title>
         </Modal.Header>
         <Formik
           initialValues={this.state.initialValues}
@@ -206,7 +211,7 @@ class WorkReportForms extends Component<IProps, any> {
                   <Form.Row>
                     <Form.Label column lg={1}>Site</Form.Label>
                     <Col>
-                      <Select value={values.siteObject} onChange={(val)=>{setFieldValue('siteObject', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} />
+                      <Select value={values.siteObject} onChange={(val)=>{setFieldValue('siteObject', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} isDisabled={isReadOnly}/>
                       <Form.Text className="text-danger">{errors.siteName}</Form.Text>
                     </Col>
                   </Form.Row>
@@ -216,7 +221,7 @@ class WorkReportForms extends Component<IProps, any> {
                   <Form.Row>
                     <Form.Label column lg={1}>Date</Form.Label>
                     <Col>
-                      <DatePicker selected={values.date} onChange={(date) => setFieldValue('date', date)} />
+                      <DatePicker selected={values.date} onChange={(date) => setFieldValue('date', date)} readOnly={isReadOnly} />
                       <Form.Text className="text-danger">{errors.date}</Form.Text>
                     </Col>
                   </Form.Row>
@@ -226,7 +231,7 @@ class WorkReportForms extends Component<IProps, any> {
                   <Form.Row>
                     <Form.Label column lg={1}>Cement</Form.Label>
                     <Col>
-                      <Form.Control type="number" placeholder="Enter used cement count" onChange={handleChange} name="cementAmount" onBlur={handleBlur} value={values.cementAmount} />
+                      <Form.Control type="number" placeholder="Enter used cement count" onChange={handleChange} name="cementAmount" onBlur={handleBlur} value={values.cementAmount} readOnly={isReadOnly}/>
                     </Col>
                   </Form.Row>
                 </Form.Group>
@@ -259,25 +264,25 @@ class WorkReportForms extends Component<IProps, any> {
                             <tr key={idx}>
                               <td>{idx+1}</td>
                               <td>
-                                <Select value={workDetails.workTypeObject} name={`Works[${idx}].workTypeObject`} onChange={(val)=>{setFieldValue(`Works[${idx}].workTypeObject`, val);setFieldValue(`Works[${idx}].workId`, val.value);setFieldValue(`Works[${idx}].workType`, val.label);}} options={this.state.allWorkTypeOption} />
+                                <Select value={workDetails.workTypeObject} name={`Works[${idx}].workTypeObject`} onChange={(val)=>{setFieldValue(`Works[${idx}].workTypeObject`, val);setFieldValue(`Works[${idx}].workId`, val.value);setFieldValue(`Works[${idx}].workType`, val.label);}} options={this.state.allWorkTypeOption} isDisabled={isReadOnly}/>
                               </td>
                               <td>
-                                <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} name={`Works[${idx}].totalworker.mason`} onBlur={handleBlur} value={workDetails.totalworker.mason} />
+                                <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} name={`Works[${idx}].totalworker.mason`} onBlur={handleBlur} value={workDetails.totalworker.mason} readOnly={isReadOnly}/>
                               </td>
                               <td>
-                                <Form.Control type="number" placeholder="Enter Total Labour" onChange={handleChange} name={`Works[${idx}].totalworker.labour`} onBlur={handleBlur} value={workDetails.totalworker.labour} />
+                                <Form.Control type="number" placeholder="Enter Total Labour" onChange={handleChange} name={`Works[${idx}].totalworker.labour`} onBlur={handleBlur} value={workDetails.totalworker.labour} readOnly={isReadOnly}/>
                               </td>
                               <td>
-                                <Form.Control as="textarea" placeholder="Enter Work Description" onChange={handleChange} name={`Works[${idx}].workDescription`}onBlur={handleBlur} value={workDetails.workDescription} />
+                                <Form.Control as="textarea" placeholder="Enter Work Description" onChange={handleChange} name={`Works[${idx}].workDescription`}onBlur={handleBlur} value={workDetails.workDescription} readOnly={isReadOnly}/>
                               </td>
                             </tr>
                             ))}
                           </tbody>
                         </Table>
                         
-                        <Button variant="primary" onClick={()=>{
+                        {!isReadOnly && <Button variant="primary" onClick={()=>{
                           arrayHelpers.push(this.state.WorkDetailTypes)
-                        }}>Add Another Work Details</Button>
+                        }}>Add Another Work Details</Button>}
                       </div>
                     )} />
                 </div>
@@ -285,7 +290,7 @@ class WorkReportForms extends Component<IProps, any> {
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="secondary" onClick={this.props.handleClose}>Close</Button>
-                <Button variant="primary" type="submit">Create</Button>
+                {!isReadOnly && <Button variant="primary" type="submit">Create</Button>}
               </Modal.Footer>
             </Form>
             )}

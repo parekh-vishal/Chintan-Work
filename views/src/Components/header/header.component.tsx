@@ -18,7 +18,7 @@ export class HeaderComponent extends React.PureComponent<any, {}> {
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
     <Navbar.Collapse id="basic-navbar-nav" className="justify-content-md-end">
       <Nav>
-        <Nav.Link href="/signup">Add User</Nav.Link>
+        {/* <Nav.Link href="/signup">Add User</Nav.Link> */}
         <NavDropdown title={this.props.user?.firstName || ""} id="basic-nav-dropdown">
           <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
           <NavDropdown.Divider />
