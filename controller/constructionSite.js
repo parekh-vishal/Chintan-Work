@@ -5,16 +5,14 @@ const Authusr = require('../Authentication/tokenToUsr');
 const PDF = require('html-pdf');
 const pdfTemplate = require('../Documents');
 const path = require('path');
-const { json } = require('body-parser');
-const { compareSync } = require('bcrypt');
 
 //This Function Used for Add New Site
-exports.addSite = (req, res, next) => {
+exports.addSite = (req, res) => {
     Constructsite.find({ siteName: req.body.siteName }).exec()
         .then(doc => {
             const userInfo = Authusr(req);
             const userId = userInfo.id;
-            console.log(userId);
+           // console.log(userId);
             if (doc.length >= 1) {
                 return res.status(409).json({
                     message: "Site already exist"
@@ -63,9 +61,9 @@ exports.addSite = (req, res, next) => {
                             adminUsers: adminUsrArr
                         });
                         siteRule.save()
-                            .then(doc => {
+                            .then(() => {
                                 site.save()
-                                    .then(doc => {
+                                    .then(() => {
                                         res.status(200).json({
                                             message: "Site Added"
                                         });
@@ -101,14 +99,14 @@ exports.addSite = (req, res, next) => {
         })
 };
 //Change Site Status 
-exports.chngSiteStatus = (req, res, next) => {
+exports.chngSiteStatus = (req, res) => {
     const filter = req.query;
     Constructsite.findOne(filter).select('siteStatus').exec()
         .then(doc => {
             const status = 'Deactivated';
             doc.siteStatus = status;
             doc.save()
-                .then(result => {
+                .then(() => {
                     res.status(200).json({
                         message: 'Site Status Updated'
                     });
@@ -128,7 +126,7 @@ exports.chngSiteStatus = (req, res, next) => {
         })
 };
 //Edit Site Settings
-exports.editSiteSettings = (req, res, next) => {
+exports.editSiteSettings = (req, res) => {
     const filter = req.query;
     const reqBody = req.body;
     SiteRules.findOne(filter).exec()
@@ -147,7 +145,7 @@ exports.editSiteSettings = (req, res, next) => {
                 }
             }
             doc.save()
-                .then(result => {
+                .then(() => {
                     res.status(200).json({
                         message: "Site Settings Updated"
                     });
@@ -168,7 +166,7 @@ exports.editSiteSettings = (req, res, next) => {
 };
 
 //Get Site by SiteID
-exports.getSite = (req, res, next) => {
+exports.getSite = (req, res) => {
     const siteId = req.params.siteId;
     Constructsite.findOne({ siteId: siteId }).exec()
         .then(doc => {
@@ -188,7 +186,7 @@ exports.getSite = (req, res, next) => {
         })
 }
 //Get All Site Function
-exports.getAllSite = (req, res, next) => {
+exports.getAllSite = (req, res) => {
     const userInfo = Authusr(req);
     const uid = userInfo.id;
     const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${uid}"},{"supervisors.supervisorId" : "${uid}"},{"userExpense.expenseUserId":"${uid}"}]}`;
@@ -218,9 +216,9 @@ exports.getAllSite = (req, res, next) => {
         });
 };
 //Get Site Settings 
-exports.getSiteSetting = (req, res, next) => {
+exports.getSiteSetting = (req, res) => {
     const filter = req.query; //Query Format ?siteId=site0&amp;adminUsers.adminUserId=usr0; 
-    console.log(filter);
+   // console.log(filter);
     SiteRules.findOne(filter).exec()
         .then(doc => {
             if (doc != null) {
@@ -240,11 +238,11 @@ exports.getSiteSetting = (req, res, next) => {
         });
 };
 //Edit Site Info Funcion
-exports.editSiteInfo = (req, res, next) => {
+exports.editSiteInfo = (req, res) => {
     const filter = req.body.siteId;
     Constructsite.findOneAndUpdate({ siteId: filter }, req.body).exec()
         .then(doc => {
-            console.log(doc)
+         //   console.log(doc)
             res.status(200).json({
                 message: "Site Info Updated"
             })
@@ -258,7 +256,7 @@ exports.editSiteInfo = (req, res, next) => {
 };
 
 //Create PDF file for Construction Site.
-exports.generatePDF = (req,res,next)=>{
+exports.generatePDF = (req,res)=>{
     const filter = req.query;
     Constructsite.find(filter)
     .then(doc=>{

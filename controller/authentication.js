@@ -48,7 +48,7 @@ exports.addUser = (req, res, next) => {
                                 res.status(200).json({
                                     message: 'User Added'
                                 });
-                                console.log('res', result);
+                                //console.log('res', result);
                             })
                                 .catch(err => {
                                     console.log('error', err);
@@ -185,7 +185,7 @@ exports.logoutUser = (req, res, next) => {
     const tkn = req.headers.authorization.split(" ")[1] || req.body.token;
     Token.findOne({ token: tkn })
         .then(doc => {
-            console.log(doc);
+            //console.log(doc);
             if (doc.token != null) {
                 Token.remove({ token: tkn }).exec()
                     .then(result => {

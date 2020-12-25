@@ -107,7 +107,7 @@ exports.addWorkDes = (req, res, next) => {
                     res.status(200).json({
                         message: 'Work Details entered to system'
                     });
-                    console.log('res', result);
+                  //  console.log('res', result);
                 })
                 .catch(err => {
                     console.log('error', err);
@@ -118,7 +118,7 @@ exports.addWorkDes = (req, res, next) => {
     })
     .catch(err => {
         console.log('error', err);
-        res.status(5002).json({
+        res.status(502).json({
             error: err
         });
     });
@@ -156,7 +156,7 @@ exports.getWorkByDate = (req, res, next) => {
     const userInfo = UserInfo(req);
     const userId = userInfo.id;
     filter.supervisorId = userId;
-    console.log('filter',filter);
+    //console.log('filter',filter);
     WorkDes.find(filter).exec()
         .then(result => {
                 res.status(200).json(result);

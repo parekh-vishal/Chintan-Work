@@ -7,7 +7,7 @@ exports.getUsr = (req,res,next)=>{
     var email = req.params.email;
     User.find({email:email}).select('-password').exec()
     .then(doc=>{
-        console.log(doc);
+        //console.log(doc);
         res.status(200).json(doc);
     })
     .catch(err=>{
@@ -21,7 +21,7 @@ exports.getUsr = (req,res,next)=>{
 exports.getAllUsr = (req,res,next)=>{
     User.find().select('-password').exec()
     .then(doc=>{
-        console.log("Users Found");
+     //   console.log("Users Found");
         res.status(200).json(doc);
     })
     .catch(err=>{
