@@ -22,7 +22,6 @@
     "bootstrap": "^4.5.3",
     "formik": "^2.2.1",
     "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
     "react": "^16.14.0",
     "react-bootstrap": "^1.4.0",
     "react-datepicker": "^3.3.0",
@@ -35,6 +34,7 @@
     "redux-logger": "^3.0.6",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.3.0",
+    "sass": "^1.30.0",
     "typescript": "^3.8.3"
   },
   "scripts": {
