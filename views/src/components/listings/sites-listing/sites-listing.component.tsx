@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog } from "@fortawesome/free-solid-svg-icons";
 import { SiteType } from "../../../typings";
 import SitesSettings from "../../Forms/sites-settings/sites-settings.component"
+import { useSelector } from "react-redux";
+import { COMMON } from "../../../constants";
 
 interface TableObject {
   columnName: string;
@@ -21,6 +23,7 @@ interface TableObject {
 
 export const SitesListing = (props: any) => {
 
+  const user = useSelector((state:any) => state.user)
   const MODAL_NAMES = {
     CREATE_SITE: "CREATE_SITE",
     SITE_SETTINGS: "SITE_SETTINGS",
@@ -103,8 +106,8 @@ export const SitesListing = (props: any) => {
         <Row className="add-buttton-row">
           <Col>
             <h3 className="float-left">Sites</h3>
-            <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>
-            <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={() => { setCurrentSite({} as SiteType); openModal(MODAL_NAMES.CREATE_SITE) }}>Add Site</Button>
+            {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button> }
+            {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={() => { setCurrentSite({} as SiteType); openModal(MODAL_NAMES.CREATE_SITE) }}>Add Site</Button>}
           </Col>
         </Row>
         <Row>

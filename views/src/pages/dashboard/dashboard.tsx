@@ -42,7 +42,6 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
 
   logoutHandler = async () => {
     const logoutRespond = await logout();
-    console.log(logoutRespond);
     if(logoutRespond.data){
       this.props.setUser("");
       this.navigateToLoginPage();
