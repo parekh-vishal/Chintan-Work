@@ -1,8 +1,9 @@
 import axios from "axios";
-import { ServerEndPoint } from "../configs/server";
 import { setUser } from "../reducers/actions";
 import {store} from "../reducers/store";
 import { refreshToken } from "../services";
+
+const ServerEndPoint = process.env.REACT_APP_SERVER_END_POINT;
 
 export interface IRequestParams {
   url: string;
