@@ -15,7 +15,7 @@ route.post('/editSiteSettings',checkAuth,constructSite.editSiteSettings);
 //Get Site By siteId
 route.get('/getSite/:siteId',checkAuth,constructSite.getSite);
 //Get All Site
-route.get('/getAllSite',checkAuth,constructSite.getAllSite);
+route.get('/getAllSite',checkAuth,constructSite.getAllSite);//getAllSite?page=1&limit=10;
 //Edit Site Info
 route.post('/editSiteInfo',checkAuth,constructSite.editSiteInfo);
 //Create PDF of Construction Site Info.

@@ -187,11 +187,12 @@ exports.getSite = (req, res) => {
 }
 //Get All Site Function
 exports.getAllSite = (req, res) => {
+    const {page =1 , limit =10} = req.query;
     const userInfo = Authusr(req);
     const uid = userInfo.id;
     const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${uid}"},{"supervisors.supervisorId" : "${uid}"},{"userExpense.expenseUserId":"${uid}"}]}`;
     const queryfilterObj = JSON.parse(queryfilterJson);
-    SiteRules.find(queryfilterObj).select('siteId').exec()
+    SiteRules.find(queryfilterObj).limit(limit*1).skip((page-1)*limit).select('siteId').exec()
         .then(doc => {
             let siteIds = [];
             for (let i = 0; i < doc.length; i++) {
