@@ -2,6 +2,9 @@ const User = require('../model/user');
 const Token = require('../model/token');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mailer = require('nodemailer');
+const Authusr = require('../Authentication/tokenToUsr');
+const encryption = require('../Authentication/encryption');
 
 //This function create new user and save it to the database
 exports.addUser = (req, res, next) => {
@@ -253,4 +256,87 @@ exports.refrshTkn = (req, res, next) => {
                 error: "Bad Gateway"
             });
         });
+};
+
+//This function Handle e-mail verification with system and send an Verification Link to User to set a new Password
+exports.mailVerify = (req,res,next)=>{
+    const email = req.body.email;
+    User.findOne({email:email}).select('email').exec()
+    .then(doc=>{
+        if(!doc){
+            res.status(200).json({
+                message : "User Does not Exist"
+            });
+        }
+        else{
+            let transport = mailer.createTransport({
+                service : 'outlook',
+                port: 587,
+                auth: {
+                    user : 'vishalparekh130@hotmail.com',
+                    pass : 'VishalP@1306'
+                },
+                tls: {
+                    rejectUnauthorized: false
+                }
+            });
+            let encodemail = encryption.encoding(Buffer.from(email,'utf-8'));
+            let mailOption = {
+                from : 'vishalparekh130@hotmail.com',
+                to : email,
+                subject : 'Password Reset Link',
+                text : 'sfs'//Link : localhost:3000/authenticate/setNewPass?encodedmail
+            };
+            transport.sendMail(mailOption,(err,info)=>{
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    console.log(info.response);
+                    //console.log(encodemail);
+                    res.status(200).json({
+                        message : 'mail sent',
+                        key : encodemail 
+                    });
+                }
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(502).json({
+            error: "Bad Gateway"
+        });
+    });
+};
+
+//Set A New Password
+exports.passReset = (req,res,next)=>{
+    const encodedmail = req.query;
+   // console.log('en',encodedmail);
+    let a = JSON.parse(JSON.stringify(encodedmail));
+    const decoded = encryption.decoding(a);
+    console.log('decoded',decoded);
+    let mail = decoded;
+    bcrypt.hash(req.body.password,10,(err,hash)=>{
+        if(err){
+            return res.status(500).json({
+                error : err
+            });
+        }
+        else{
+            User.findOneAndUpdate({email:mail},{password:hash}).exec()
+            .then(doc=>{
+                res.status(200).json({
+                    message : "Password Successfully Changed"
+                })
+            })
+            .catch(err=>{
+                console.log(err);
+                res.status(502).json({
+                    error : err
+                });
+            });
+        }
+    });
 };
