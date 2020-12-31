@@ -5,7 +5,7 @@ const Authusr = require('../Authentication/tokenToUsr');
 const PDF = require('html-pdf');
 const pdfTemplate = require('../Documents');
 const path = require('path');
-
+const fs = require('fs');
 //This Function Used for Add New Site
 exports.addSite = (req, res) => {
     Constructsite.find({ siteName: req.body.siteName }).exec()
@@ -286,7 +286,7 @@ exports.generatePDF = (req,res)=>{
                 delete filter.siteAddress;
                 User.find({user_id:filter.createdBy}).exec()
                 .then(result=>{
-                    console.log(result);
+                   // console.log(result);
                     let userName = result[0].firstName;
                     filter.createdBy = userName;
                     //console.log(filter);
@@ -295,8 +295,15 @@ exports.generatePDF = (req,res)=>{
                             console.log(err);
                         }
                         let root=path.dirname(require.main.filename);
-                        //console.log('root',root);
-                        res.status(200).sendFile(`${root}/${filter.siteId}.pdf`);
+                        //console.log('root',root);`${root}/${filter.siteId}.pdf`
+                        res.status(200).download(`${root}/${filter.siteId}.pdf`,`${filter.siteId}.pdf`,(err)=>{
+                            if(err){console.log(err);}
+                            fs.unlink(`${root}/${filter.siteId}.pdf`,(err)=>{
+                                if(err){
+                                    console.log(err);
+                                }
+                            });
+                        });
                     });
                 })
                 .catch(err => {
