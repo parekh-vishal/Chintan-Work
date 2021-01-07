@@ -36,11 +36,7 @@ app.use(express.static(path.join(__dirname, './views/build')));
         saveUninitialized: false, 
         store:store})
             );*/
-app.get('/', (req,res) => {
-    res.sendFile(path.join(__dirname, './views/build/index.html'));
-});
-
-app.get('/signup', (req,res) => {
+app.get(['/', '/dashboard/*', '/signup', '/login'], (req,res) => {
     res.sendFile(path.join(__dirname, './views/build/index.html'));
 });
 
