@@ -11,7 +11,7 @@ const dev = {
   };
   
   const config = {
-    ...(process.env.REACT_APP_STAGE === "prod" ? prod : dev),
+    ...(process.env.NODE_ENV === "development" ? dev : prod),
   };
   
   export default config;
