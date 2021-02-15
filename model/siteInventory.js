@@ -5,6 +5,8 @@ const siteInventory = mongoose.Schema({
     siteId : String,
     supervisorName : {type : String,required: "Enter Supervisor Name"},
     materialType : {type : String,required: "Enter Mater Type"},
+    materialUnit : {type : String, required: "Enter material Unit"},
+    materialTotalQuantity : {type : String, required: "Enter Material Total Quantity"},
     pricePerUnit : {type : Number},
     invoicePrice : {type : Number, required: "Enter Invoice Price"},
     invoiceNo : String,

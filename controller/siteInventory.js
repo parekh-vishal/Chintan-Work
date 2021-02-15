@@ -25,6 +25,8 @@ exports.addmaterialToInventory = (req, res, next) => {
                 siteId: siteId,
                 supervisorName: userName,
                 materialType: req.body.materialType,
+                materialUnit : req.body.materialUnit,
+                materialTotalQuantity : req.body.materialTotalQuantity,
                 pricePerUnit: req.body.pricePerUnit,
                 invoicePrice: req.body.invoicePrice,
                 invoiceNo: req.body.invoiceNo,
