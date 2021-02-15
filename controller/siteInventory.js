@@ -1,49 +1,63 @@
 const Material = require('../model/siteInventory')
 const SiteRule = require('../model/siteRules');
+const Constructionsite = require('../model/constructionSite');
 const Authusr = require('../Authentication/tokenToUsr');
 //Add Material to the site Inventory
 exports.addmaterialToInventory = (req, res, next) => {
     const userInfo = Authusr(req);
+    const userId = userInfo.id;
     const userName = userInfo.name;
     const siteId = req.query.siteId;
-    Material.find().select('metId').exec()
+    Constructionsite.findOne(req.query).exec()
         .then(doc => {
-            let metId;
-            if (doc.length != 0) {
-                metId = doc[(doc.length - 1)].metId;
-            }
-            if (metId == null) {
-                metId = "MET0"
-            }
-            else {
-                let dum = parseInt(metId.replace('MET', ''));
-                dum += 1;
-                metId = 'MET' + dum;
-            }
-            const materialInfo = new Material({
-                metId: metId,
-                siteId: siteId,
-                supervisorName: userName,
-                materialType: req.body.materialType,
-                materialUnit : req.body.materialUnit,
-                materialTotalQuantity : req.body.materialTotalQuantity,
-                pricePerUnit: req.body.pricePerUnit,
-                invoicePrice: req.body.invoicePrice,
-                invoiceNo: req.body.invoiceNo,
-                date: req.body.date
-            });
-            materialInfo.save()
-                .then(() => {
-                    res.status(200).json({
-                        message: "Material Added"
-                    })
+            const siteName = doc.siteName;
+            Material.find().select('metId').exec()
+                .then(doc => {
+                    let metId;
+                    if (doc.length != 0) {
+                        metId = doc[(doc.length - 1)].metId;
+                    }
+                    if (metId == null) {
+                        metId = "MET0"
+                    }
+                    else {
+                        let dum = parseInt(metId.replace('MET', ''));
+                        dum += 1;
+                        metId = 'MET' + dum;
+                    }
+                    const materialInfo = new Material({
+                        metId: metId,
+                        siteId: siteId,
+                        siteName: siteName,
+                        supervisorId: userId,
+                        supervisorName: userName,
+                        materialType: req.body.materialType,
+                        materialUnit: req.body.materialUnit,
+                        materialTotalQuantity: req.body.materialTotalQuantity,
+                        pricePerUnit: req.body.pricePerUnit,
+                        invoicePrice: req.body.invoicePrice,
+                        invoiceNo: req.body.invoiceNo,
+                        date: req.body.date
+                    });
+                    materialInfo.save()
+                        .then(() => {
+                            res.status(200).json({
+                                message: "Material Added"
+                            })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(502).json({
+                                error: err
+                            });
+                        })
                 })
                 .catch(err => {
                     console.log(err);
                     res.status(502).json({
                         error: err
                     });
-                })
+                });
         })
         .catch(err => {
             console.log(err);
@@ -89,19 +103,19 @@ exports.getSiteInventory = (req, res, next) => {
                 const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorName":"${uname}"}]}`);
                 console.log(qFilter);
                 Material.find(qFilter).exec()
-                .then(doc => {
-                    res.status(200).json(doc);
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(502).json({
-                        error: err
+                    .then(doc => {
+                        res.status(200).json(doc);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(502).json({
+                            error: err
+                        });
                     });
-                });
             }
             else {
                 res.status(200).json({
-                    message : "You have not authorized to access Site Inventory!!"
+                    message: "You have not authorized to access Site Inventory!!"
                 });
             }
         })

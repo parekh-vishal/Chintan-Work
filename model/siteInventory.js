@@ -4,6 +4,7 @@ const siteInventory = mongoose.Schema({
     metId : String,
     siteId : String,
     supervisorName : {type : String,required: "Enter Supervisor Name"},
+    supervisorId : String,
     materialType : {type : String,required: "Enter Mater Type"},
     materialUnit : {type : String, required: "Enter material Unit"},
     materialTotalQuantity : {type : String, required: "Enter Material Total Quantity"},
