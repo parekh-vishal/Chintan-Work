@@ -100,7 +100,7 @@ exports.getSiteInventory = (req, res, next) => {
                     });
             }
             else if (supervisor.includes(uid)) {
-                const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorName":"${uname}"}]}`);
+                const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorId":"${uid}"}]}`);
                 console.log(qFilter);
                 Material.find(qFilter).exec()
                     .then(doc => {
