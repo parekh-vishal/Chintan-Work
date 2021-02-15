@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const siteInventory = mongoose.Schema({
-    regdId : String,
+    metId : String,
     siteId : String,
     supervisorName : {type : String,required: "Enter Supervisor Name"},
     materialType : {type : String,required: "Enter Mater Type"},
