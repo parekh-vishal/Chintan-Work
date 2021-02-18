@@ -7,10 +7,6 @@ exports.addmaterialToInventory = (req, res, next) => {
     const userInfo = Authusr(req);
     const userId = userInfo.id;
     const userName = userInfo.name;
-    const siteId = req.query.siteId;
-    Constructionsite.findOne(req.query).exec()
-        .then(doc => {
-            const siteName = doc.siteName;
             Material.find().select('metId').exec()
                 .then(doc => {
                     let metId;
@@ -27,8 +23,8 @@ exports.addmaterialToInventory = (req, res, next) => {
                     }
                     const materialInfo = new Material({
                         metId: metId,
-                        siteId: siteId,
-                        siteName: siteName,
+                        siteId: req.body.siteId,
+                        siteName: req.body.siteName,
                         supervisorId: userId,
                         supervisorName: userName,
                         materialType: req.body.materialType,
@@ -58,13 +54,6 @@ exports.addmaterialToInventory = (req, res, next) => {
                         error: err
                     });
                 });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(502).json({
-                error: err
-            });
-        });
 };
 
 //Get Inventory Details
