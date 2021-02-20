@@ -7,34 +7,23 @@ const Util = require('../Utils/util');
 exports.addWorkCategory = (req, res, next) => {
     WorkCategory.find().exec()
         .then(doc => {
-            let wrkId;
-            if (doc.length != 0) {
-                wrkId = doc[(doc.length - 1)].workId;
-            }
-            if (wrkId == null) {
-                wrkId = "WRKC0";
-            }
-            else {
-                let dum = parseInt(wrkId.replace('WRKC', ''));
-                dum += 1;
-                wrkId = 'WRKC' + dum;
-            }
-            let workCategory = new WorkCategory({
-                workId : wrkId,
-                WorkTypes : req.body.WorkTypes
+            const wrkId = Util.createIDs(doc[(doc.length - 1)].workId, "WRKC");
+            const workCategory = new WorkCategory({
+                workId: wrkId,
+                WorkTypes: req.body.WorkTypes
             });
             workCategory.save()
-            .then(result=>{
-                res.status(200).json({
-                    message : "Work Category Added."
+                .then(result => {
+                    res.status(200).json({
+                        message: "Work Category Added."
+                    })
                 })
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(502).json({
-                    error: err
+                .catch(err => {
+                    console.log(err);
+                    res.status(502).json({
+                        error: err
+                    });
                 });
-            });
         })
         .catch(err => {
             console.log(err);
@@ -44,33 +33,33 @@ exports.addWorkCategory = (req, res, next) => {
         });
 };
 //Get All Work Categories
-exports.getAllCategories = (req,res,next)=>{
+exports.getAllCategories = (req, res, next) => {
     WorkCategory.find().exec()
-    .then(doc=>{
-        res.status(200).json(doc);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(502).json({
-            error: err
+        .then(doc => {
+            res.status(200).json(doc);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(502).json({
+                error: err
+            });
         });
-    });
 };
 //Edit WorkCategorirs
-exports.editWorkCategory = (req,res,next)=>{
+exports.editWorkCategory = (req, res, next) => {
     const filter = req.query;
-    WorkCategory.findOneAndUpdate(filter,req.body).exec()
-    .then(doc=>{
-        res.status(200).json({
-            message : "Work Category Updated."
+    WorkCategory.findOneAndUpdate(filter, req.body).exec()
+        .then(doc => {
+            res.status(200).json({
+                message: "Work Category Updated."
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(502).json({
+                error: err
+            });
         });
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(502).json({
-            error: err
-        });
-    });
 }
 //Add Work to System
 exports.addWorkDes = (req, res, next) => {
@@ -79,22 +68,11 @@ exports.addWorkDes = (req, res, next) => {
     temp = temp.reverse();
     let servDate = new Date();
     servDate = date.format(servDate, temp.join('-'));
-    let workId;
     WorkDes.find().exec()
-    .then(doc=>{
-            if (doc.length != 0) {
-                workId = doc[(doc.length - 1)].workId;
-            }
-            if (workId == null) {
-                workId = "WRK0";
-            }
-            else {
-                let dum = parseInt(workId.replace('WRK', ''));
-                dum += 1;
-                workId = 'WRK' + dum;
-            }
+        .then(doc => {
+            const workId = Util.createIDs(doc[(doc.length - 1)].workId,"WRK");
             workdets = new WorkDes({
-                workId : workId,
+                workId: workId,
                 siteId: req.body.siteId,
                 siteName: req.body.siteName,
                 supervisorId: req.body.supervisorId,
@@ -108,7 +86,7 @@ exports.addWorkDes = (req, res, next) => {
                     res.status(200).json({
                         message: 'Work Details entered to system'
                     });
-                  //  console.log('res', result);
+                    //  console.log('res', result);
                 })
                 .catch(err => {
                     console.log('error', err);
@@ -116,13 +94,13 @@ exports.addWorkDes = (req, res, next) => {
                         error: err
                     });
                 });
-    })
-    .catch(err => {
-        console.log('error', err);
-        res.status(502).json({
-            error: err
+        })
+        .catch(err => {
+            console.log('error', err);
+            res.status(502).json({
+                error: err
+            });
         });
-    });
 }
 
 //Edit Work Details by Supervisor on specific date. Date could not be changed.
@@ -132,10 +110,10 @@ exports.updateWorkdetails = (req, res, next) => {
     date = date.split(saperator);
     date = date.reverse();
     date = date.join(saperator);
-    
+
     const filter = req.body._id;
     delete req.body._id;
-    WorkDes.findOneAndUpdate(filter, {...req.body}).exec()
+    WorkDes.findOneAndUpdate(filter, { ...req.body }).exec()
         .then(doc => {
             res.status(200).json({
                 message: "Work Details Updated."
@@ -151,7 +129,7 @@ exports.updateWorkdetails = (req, res, next) => {
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = async (req, res, next) => {
     let filter = req.query;
-    if(filter == undefined){
+    if (filter == undefined) {
         filter = null;
     }
     const userPermission = await Util.checkUserPermission(filter);
@@ -160,35 +138,35 @@ exports.getWorkByDate = async (req, res, next) => {
     const expneseUser = userPermission.expneseUser;
     const userInfo = UserInfo(req);
     const userId = userInfo.id;
-    if (adminUser.includes(uid)){
+    if (adminUser.includes(uid)) {
         WorkDes.find(filter).exec()
-        .then(result => {
+            .then(result => {
                 res.status(200).json(result);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(502).json({
-                error: err
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(502).json({
+                    error: err
+                });
             });
-        });
     }
-    else if(supervisor.includes(uid)){
+    else if (supervisor.includes(uid)) {
         filter.supervisorId = userId;
         WorkDes.find(filter).exec()
-        .then(result => {
+            .then(result => {
                 res.status(200).json(result);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(502).json({
-                error: err
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(502).json({
+                    error: err
+                });
             });
-        });
     }
-    else{
+    else {
         res.status(200).json({
             message: "You have not authorized to access Work Details!!"
         });
     }
-    
+
 }

@@ -1,4 +1,20 @@
 const SiteRule = require('../model/siteRules');
+
+//Create Custom Ids 
+exports.createIDs = (lId,idString)=>{
+    let id = lId;
+    if (id == null) {
+        id = idString+'0';
+    }
+    else {
+        let dum = parseInt(id.replace(idString, ''));
+        dum += 1;
+        id = idString + dum;
+
+    }
+    return id;
+}
+//Check User Permission
 exports.checkUserPermission = (filter) => {
     let adminUser = [];
     let supervisor = [];

@@ -6,6 +6,7 @@ const PDF = require('html-pdf');
 const pdfTemplate = require('../Documents');
 const path = require('path');
 const fs = require('fs');
+const Util  = require('../Utils/util');
 //This Function Used for Add New Site
 exports.addSite = (req, res) => {
     Constructsite.find({ siteName: req.body.siteName }).exec()
@@ -19,21 +20,10 @@ exports.addSite = (req, res) => {
                 });
             }
             else {
-                let siteId;
                 Constructsite.find().select('siteId').exec()
                     .then(doc => {
-                        if (doc.length != 0) {
-                            siteId = doc[(doc.length - 1)].siteId;
-                        }
-                        if (siteId == null) {
-                            siteId = "SITE0";
-                        }
-                        else {
-                            var dum = parseInt(siteId.replace('SITE', ''));
-                            dum += 1;
-                            siteId = 'SITE' + dum;
-                        }
-                        site = new Constructsite({
+                        const siteId = Util.createIDs(doc[(doc.length - 1)].siteId,"SITE");
+                        const site = new Constructsite({
                             siteId: siteId,
                             siteName: req.body.siteName,
                             ownerName: req.body.ownerName,
@@ -132,11 +122,9 @@ exports.editSiteSettings = (req, res) => {
     const reqBody = req.body;
     const userInfo = Authusr(req);
     const userId = userInfo.id;
-    const qFilter = JSON.parse(`{"$and":[{"siteId" : "${filter.siteId}"},{"adminUsers.adminUserId" : "${userId}"}]}`)
-    console.log('filer',qFilter);    
+    const qFilter = JSON.parse(`{"$and":[{"siteId" : "${filter.siteId}"},{"adminUsers.adminUserId" : "${userId}"}]}`); 
     SiteRules.findOne(qFilter).exec()
         .then(doc => {
-            console.log(doc);
             if(!doc){
                 console.log("You Does not have access to edit Site Settings");
                 res.status(200).json({

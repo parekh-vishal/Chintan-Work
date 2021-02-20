@@ -2,7 +2,7 @@ const User = require('../model/user');
 const Token = require('../model/token');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const Util = require('../Utils/util')
 //This function create new user and save it to the database
 exports.addUser = (req, res, next) => {
     User.find({ email: req.body.email }).exec().then(user => {
@@ -19,23 +19,13 @@ exports.addUser = (req, res, next) => {
                     });
                 }
                 else {
-                    var uid;
-                    var user;
                     User.find().select('user_id').exec()
                         .then(doc => {
-                            if (doc.length != 0) {
-                                uid = doc[(doc.length - 1)].user_id;
+                            if(!doc){
+                                throw "Users Not Found";
                             }
-                            if (uid == null) {
-                                uid = "USR0"
-                            }
-                            else {
-                                var dum = parseInt(uid.replace('USR', ''));
-                                dum += 1;
-                                uid = 'USR' + dum;
-
-                            }
-                            user = new User({
+                            const uid = Util.createIDs(doc[(doc.length - 1)].user_id,"USR");
+                            const user = new User({
                                 user_id: uid,
                                 firstName: req.body.firstName,
                                 lastName: req.body.lastName,

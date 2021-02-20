@@ -10,18 +10,7 @@ exports.addmaterialToInventory = (req, res, next) => {
     const userName = userInfo.name;
     Material.find().select('metId').exec()
         .then(doc => {
-            let metId;
-            if (doc.length != 0) {
-                metId = doc[(doc.length - 1)].metId;
-            }
-            if (metId == null) {
-                metId = "MET0"
-            }
-            else {
-                let dum = parseInt(metId.replace('MET', ''));
-                dum += 1;
-                metId = 'MET' + dum;
-            }
+            const metId = Util.createIDs(doc[(doc.length - 1)].metId,"MET");
             const materialInfo = new Material({
                 metId: metId,
                 siteId: req.body.siteId,
