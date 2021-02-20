@@ -2,6 +2,7 @@ const WorkDes = require('../model/workDetails');
 const WorkCategory = require('../model/workCategory');
 const UserInfo = require('../Authentication/tokenToUsr');
 const date = require('date-and-time');
+const Util = require('../Utils/util');
 //Set New Work Category
 exports.addWorkCategory = (req, res, next) => {
     WorkCategory.find().exec()
@@ -148,16 +149,19 @@ exports.updateWorkdetails = (req, res, next) => {
         });
 };
 //Retrieve Work Deails based on particular date
-exports.getWorkByDate = (req, res, next) => {
+exports.getWorkByDate = async (req, res, next) => {
     let filter = req.query;
     if(filter == undefined){
         filter = null;
     }
+    const userPermission = await Util.checkUserPermission(filter);
+    const adminUser = userPermission.adminUser;
+    const supervisor = userPermission.supervisor;
+    const expneseUser = userPermission.expneseUser;
     const userInfo = UserInfo(req);
     const userId = userInfo.id;
-    filter.supervisorId = userId;
-    //console.log('filter',filter);
-    WorkDes.find(filter).exec()
+    if (adminUser.includes(uid)){
+        WorkDes.find(filter).exec()
         .then(result => {
                 res.status(200).json(result);
         })
@@ -167,4 +171,24 @@ exports.getWorkByDate = (req, res, next) => {
                 error: err
             });
         });
+    }
+    else if(supervisor.includes(uid)){
+        filter.supervisorId = userId;
+        WorkDes.find(filter).exec()
+        .then(result => {
+                res.status(200).json(result);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(502).json({
+                error: err
+            });
+        });
+    }
+    else{
+        res.status(200).json({
+            message: "You have not authorized to access Work Details!!"
+        });
+    }
+    
 }

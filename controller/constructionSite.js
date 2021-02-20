@@ -121,17 +121,30 @@ exports.chngSiteStatus = (req, res) => {
         .catch(err => {
             console.log(err);
             res.status(502).json({
-                error: err
+                 error: err
             });
         })
 };
 //Edit Site Settings
 exports.editSiteSettings = (req, res) => {
     const filter = req.query;
+    console.log(filter);
     const reqBody = req.body;
-    SiteRules.findOne(filter).exec()
+    const userInfo = Authusr(req);
+    const userId = userInfo.id;
+    const qFilter = JSON.parse(`{"$and":[{"siteId" : "${filter.siteId}"},{"adminUsers.adminUserId" : "${userId}"}]}`)
+    console.log('filer',qFilter);    
+    SiteRules.findOne(qFilter).exec()
         .then(doc => {
+            console.log(doc);
+            if(!doc){
+                console.log("You Does not have access to edit Site Settings");
+                res.status(200).json({
+                    error_message : "You Does not have access to edit Site Settings"
+                });
+            }
             const qrykeys = Object.keys(reqBody);
+          //  console.log(reqBody);
             for (let i = 0; i < qrykeys.length; i++) {
                 let innerLoop = reqBody[qrykeys[i]];
                 let docArr = doc[qrykeys[i]];
