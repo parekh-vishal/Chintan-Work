@@ -138,7 +138,7 @@ exports.getWorkByDate = async (req, res, next) => {
     const expneseUser = userPermission.expneseUser;
     const userInfo = UserInfo(req);
     const userId = userInfo.id;
-    if (adminUser.includes(uid)) {
+    if (adminUser.includes(userId)) {
         WorkDes.find(filter).exec()
             .then(result => {
                 res.status(200).json(result);

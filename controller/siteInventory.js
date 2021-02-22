@@ -10,7 +10,7 @@ exports.addmaterialToInventory = (req, res, next) => {
     const userName = userInfo.name;
     Material.find().select('metId').exec()
         .then(doc => {
-            const metId = Util.createIDs(doc[(doc.length - 1)].metId,"MET");
+            const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null,"MET");
             const materialInfo = new Material({
                 metId: metId,
                 siteId: req.body.siteId,
@@ -53,9 +53,7 @@ exports.getSiteInventory = async (req, res, next) => {
     const uid = userInfo.id;
     const uname = userInfo.name;
     const userPermission =await Util.checkUserPermission(filter);
-    const adminUser = userPermission.adminUser;
-    const supervisor = userPermission.supervisor;
-    const expneseUser = userPermission.expneseUser;
+    const {adminUser, supervisor, expneseUser} = userPermission;
     if (adminUser.includes(uid) || expneseUser.includes(uid)) {
         Material.find(filter).exec()
             .then(doc => {
