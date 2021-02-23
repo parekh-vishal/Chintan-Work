@@ -7,7 +7,7 @@ const Util = require('../Utils/util');
 exports.addWorkCategory = (req, res, next) => {
     WorkCategory.find().exec()
         .then(doc => {
-            const wrkId = Util.createIDs(doc[(doc.length - 1)].workId, "WRKC");
+            const wrkId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null, "WRKC");
             const workCategory = new WorkCategory({
                 workId: wrkId,
                 WorkTypes: req.body.WorkTypes
@@ -70,7 +70,7 @@ exports.addWorkDes = (req, res, next) => {
     servDate = date.format(servDate, temp.join('-'));
     WorkDes.find().exec()
         .then(doc => {
-            const workId = Util.createIDs(doc[(doc.length - 1)].workId,"WRK");
+            const workId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null,"WRK");
             workdets = new WorkDes({
                 workId: workId,
                 siteId: req.body.siteId,
@@ -133,9 +133,7 @@ exports.getWorkByDate = async (req, res, next) => {
         filter = null;
     }
     const userPermission = await Util.checkUserPermission(filter);
-    const adminUser = userPermission.adminUser;
-    const supervisor = userPermission.supervisor;
-    const expneseUser = userPermission.expneseUser;
+    const {adminUser,supervisor,expneseUser} = userPermission;
     const userInfo = UserInfo(req);
     const userId = userInfo.id;
     if (adminUser.includes(userId)) {

@@ -24,7 +24,7 @@ exports.addUser = (req, res, next) => {
                             if(!doc){
                                 throw "Users Not Found";
                             }
-                            const uid = Util.createIDs(doc[(doc.length - 1)].user_id,"USR");
+                            const uid = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].user_id : null,"USR");
                             const user = new User({
                                 user_id: uid,
                                 firstName: req.body.firstName,

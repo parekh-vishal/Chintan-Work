@@ -22,7 +22,7 @@ exports.addSite = (req, res) => {
             else {
                 Constructsite.find().select('siteId').exec()
                     .then(doc => {
-                        const siteId = Util.createIDs(doc[(doc.length - 1)].siteId,"SITE");
+                        const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null,"SITE");
                         const site = new Constructsite({
                             siteId: siteId,
                             siteName: req.body.siteName,
