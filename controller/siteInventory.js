@@ -23,7 +23,9 @@ exports.addmaterialToInventory = (req, res, next) => {
                 pricePerUnit: req.body.pricePerUnit,
                 invoicePrice: req.body.invoicePrice,
                 invoiceNo: req.body.invoiceNo,
-                date: req.body.date
+                date: req.body.date,
+                supplier: req.body.supplier,
+                remarks: req.body.remarks
             });
             materialInfo.save()
                 .then(() => {
