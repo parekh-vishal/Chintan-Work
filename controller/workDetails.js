@@ -148,7 +148,7 @@ exports.getWorkByDate = async (req, res, next) => {
                 });
             });
     }
-    else if (supervisor.includes(uid)) {
+    else if (supervisor.includes(userId)) {
         filter.supervisorId = userId;
         WorkDes.find(filter).exec()
             .then(result => {
