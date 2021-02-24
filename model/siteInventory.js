@@ -12,6 +12,8 @@ const siteInventory = mongoose.Schema({
     pricePerUnit : {type : Number},
     invoicePrice : {type : Number, required: "Enter Invoice Price"},
     invoiceNo : String,
+    remarks : {type:String},
+    supplier : {type : String},
     date : {type:Date, default: Date.now()}
 });
 
