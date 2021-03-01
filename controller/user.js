@@ -65,7 +65,7 @@ exports.mailVerification = (req,res,next)=>{
 };
 //Password Reset
 exports.passReset = (req,res,next)=>{
-    var mail = req.body.email;
+    const mail = req.body.email;
     bcrypt.hash(req.body.password,10,(err,hash)=>{
         if(err){
             return res.status(500).json({
@@ -81,7 +81,7 @@ exports.passReset = (req,res,next)=>{
             })
             .catch(err=>{
                 console.log(err);
-                res.status(404).json({
+                res.status(502).json({
                     error : err
                 });
             });
