@@ -6,14 +6,16 @@ const PDF = require('html-pdf');
 const pdfTemplate = require('../Documents');
 const path = require('path');
 const fs = require('fs');
-const Util  = require('../Utils/util');
+const Util = require('../Utils/util');
+const { throws } = require('assert');
 //This Function Used for Add New Site
-exports.addSite = (req, res) => {
+exports.addSite = (req, res, next) => {
     Constructsite.find({ siteName: req.body.siteName }).exec()
-        .then(doc => {
+        .then(async (doc) => {
             const userInfo = Authusr(req);
             const userId = userInfo.id;
-           // console.log(userId);
+            const orgId = userInfo.orgId;
+            let orgName = await Util.getOrgName(orgId);
             if (doc.length >= 1) {
                 return res.status(409).json({
                     message: "Site already exist"
@@ -22,13 +24,13 @@ exports.addSite = (req, res) => {
             else {
                 Constructsite.find().select('siteId').exec()
                     .then(doc => {
-                        const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null,"SITE");
+                        const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null, "SITE");
                         const site = new Constructsite({
                             siteId: siteId,
                             siteName: req.body.siteName,
                             ownerName: req.body.ownerName,
                             ownerContactNo: req.body.ownerContactNo,
-                            createdBy : userId,
+                            createdBy: userId,
                             siteAddress: {
                                 AddressLine1: req.body.siteAddress.AddressLine1,
                                 City: req.body.siteAddress.City,
@@ -37,7 +39,11 @@ exports.addSite = (req, res) => {
                             },
                             siteInaugurationDate: req.body.siteInaugurationDate,
                             siteEstimate: req.body.siteEstimate,
-                            tentativeDeadline: req.body.tentativeDeadline
+                            tentativeDeadline: req.body.tentativeDeadline,
+                            organization: {
+                                orgId: orgId,
+                                orgName: orgName
+                            }
                         });
                         let userInfo = Authusr(req);
                         //console.log("userInfo",userInfo);
@@ -111,7 +117,7 @@ exports.chngSiteStatus = (req, res) => {
         .catch(err => {
             console.log(err);
             res.status(502).json({
-                 error: err
+                error: err
             });
         })
 };
@@ -122,17 +128,17 @@ exports.editSiteSettings = (req, res) => {
     const reqBody = req.body;
     const userInfo = Authusr(req);
     const userId = userInfo.id;
-    const qFilter = JSON.parse(`{"$and":[{"siteId" : "${filter.siteId}"},{"adminUsers.adminUserId" : "${userId}"}]}`); 
+    const qFilter = JSON.parse(`{"$and":[{"siteId" : "${filter.siteId}"},{"adminUsers.adminUserId" : "${userId}"}]}`);
     SiteRules.findOne(qFilter).exec()
         .then(doc => {
-            if(!doc){
+            if (!doc) {
                 console.log("You Does not have access to edit Site Settings");
                 res.status(200).json({
-                    error_message : "You Does not have access to edit Site Settings"
+                    error_message: "You Does not have access to edit Site Settings"
                 });
             }
             const qrykeys = Object.keys(reqBody);
-          //  console.log(reqBody);
+            //  console.log(reqBody);
             for (let i = 0; i < qrykeys.length; i++) {
                 let innerLoop = reqBody[qrykeys[i]];
                 let docArr = doc[qrykeys[i]];
@@ -190,6 +196,7 @@ exports.getSite = (req, res) => {
 exports.getAllSite = (req, res) => {
     const userInfo = Authusr(req);
     const uid = userInfo.id;
+    const orgId = userInfo.orgId;
     const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${uid}"},{"supervisors.supervisorId" : "${uid}"},{"userExpense.expenseUserId":"${uid}"}]}`;
     const queryfilterObj = JSON.parse(queryfilterJson);
     SiteRules.find(queryfilterObj).select('siteId').exec()
@@ -198,8 +205,11 @@ exports.getAllSite = (req, res) => {
             for (let i = 0; i < doc.length; i++) {
                 siteIds.push(doc[i].siteId);
             }
-            Constructsite.find({ siteId: siteIds,siteStatus : 'Active'}).exec()
+            Constructsite.find({ siteId: siteIds, siteStatus: 'Active', 'organization.orgId': orgId }).exec() //{ siteId: siteIds,siteStatus : 'Active'}
                 .then(doc => {
+                    if(!doc || doc.length==0){
+                        throw "Sites Not Found"
+                    }
                     res.status(200).json(doc);
                 })
                 .catch(err => {
@@ -219,7 +229,7 @@ exports.getAllSite = (req, res) => {
 //Get Site Settings 
 exports.getSiteSetting = (req, res) => {
     const filter = req.query; //Query Format ?siteId=site0&amp;adminUsers.adminUserId=usr0; 
-   // console.log(filter);
+    // console.log(filter);
     SiteRules.findOne(filter).exec()
         .then(doc => {
             if (doc != null) {
@@ -243,7 +253,7 @@ exports.editSiteInfo = (req, res) => {
     const filter = req.body.siteId;
     Constructsite.findOneAndUpdate({ siteId: filter }, req.body).exec()
         .then(doc => {
-         //   console.log(doc)
+            //   console.log(doc)
             res.status(200).json({
                 message: "Site Info Updated"
             })
@@ -257,22 +267,22 @@ exports.editSiteInfo = (req, res) => {
 };
 
 //Create PDF file for Construction Site.
-exports.generatePDF = (req,res)=>{
+exports.generatePDF = (req, res) => {
     const filter = req.query;
     Constructsite.find(filter)
-    .then(doc=>{
-        if(doc.length==0){
-            res.status(200).json({
-                message : "Site Details Not Found"
-            });
-        }
-        else{
-                let options = {format : 'Letter'};
+        .then(doc => {
+            if (doc.length == 0) {
+                res.status(200).json({
+                    message: "Site Details Not Found"
+                });
+            }
+            else {
+                let options = { format: 'Letter' };
                 let filter = JSON.parse(JSON.stringify(doc[0]));
                 delete filter.__v;
                 delete filter._id;
                 delete filter.siteStatus;
-                let startdate= new Date(filter.siteInaugurationDate).toLocaleDateString();
+                let startdate = new Date(filter.siteInaugurationDate).toLocaleDateString();
                 filter.siteInaugurationDate = startdate;
                 let due = new Date(filter.tentativeDeadline).toLocaleDateString();
                 filter.tentativeDeadline = due;
@@ -285,41 +295,41 @@ exports.generatePDF = (req,res)=>{
                 filter.pincode = filter.siteAddress.pincode;
                 delete filter.siteAddress.pincode;
                 delete filter.siteAddress;
-                User.find({user_id:filter.createdBy}).exec()
-                .then(result=>{
-                   // console.log(result);
-                    let userName = result[0].firstName;
-                    filter.createdBy = userName;
-                    //console.log(filter);
-                    PDF.create(pdfTemplate(filter),options).toFile(`${filter.siteId}.pdf`,(err)=>{
-                        if(err){
-                            console.log(err);
-                        }
-                        let root=path.dirname(require.main.filename);
-                        //console.log('root',root);`${root}/${filter.siteId}.pdf`
-                        res.status(200).download(`${root}/${filter.siteId}.pdf`,`${filter.siteId}.pdf`,(err)=>{
-                            if(err){console.log(err);}
-                            fs.unlink(`${root}/${filter.siteId}.pdf`,(err)=>{
-                                if(err){
-                                    console.log(err);
-                                }
+                User.find({ user_id: filter.createdBy }).exec()
+                    .then(result => {
+                        // console.log(result);
+                        let userName = result[0].firstName;
+                        filter.createdBy = userName;
+                        //console.log(filter);
+                        PDF.create(pdfTemplate(filter), options).toFile(`${filter.siteId}.pdf`, (err) => {
+                            if (err) {
+                                console.log(err);
+                            }
+                            let root = path.dirname(require.main.filename);
+                            //console.log('root',root);`${root}/${filter.siteId}.pdf`
+                            res.status(200).download(`${root}/${filter.siteId}.pdf`, `${filter.siteId}.pdf`, (err) => {
+                                if (err) { console.log(err); }
+                                fs.unlink(`${root}/${filter.siteId}.pdf`, (err) => {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                });
                             });
                         });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(502).json({
+                            error: err
+                        });
                     });
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(502).json({
-                        error: err
-                    });
-                });
-                
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(502).json({
-            error: err
+
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(502).json({
+                error: err
+            });
         });
-    });
 }

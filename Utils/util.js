@@ -1,5 +1,7 @@
 const SiteRule = require('../model/siteRules');
 
+const Organization = require('../model/organization');
+
 //Create Custom Ids 
 exports.createIDs = (lId,idString)=>{
     let id = lId;
@@ -37,3 +39,19 @@ exports.checkUserPermission = (filter) => {
         return err;
     });
 };
+
+//Return OrgName Provided OrgID
+exports.getOrgName = (orgId)=>{
+    return Organization.findOne({orgId : orgId}).select('orgName').exec()
+                        .then(doc=>{
+                            if(!doc){
+                                throw "Organization Not Found"
+                            }
+                            const orgName = doc.orgName;
+                            return orgName;
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            return err;
+                        });
+}

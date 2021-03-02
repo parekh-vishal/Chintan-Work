@@ -35,7 +35,11 @@ exports.addUser = (req, res, next) => {
                                 lastName: req.body.lastName,
                                 contactNo: req.body.contactNo,
                                 email: req.body.email,
-                                password: hash
+                                password: hash,
+                                organization : {
+                                    orgId : req.body.organization.orgId,
+                                    orgName : req.body.organization.orgName
+                                }
                             });
                             user.save().then(result => {
                                 //res.redirect('http://localhost:3000/userLogin');
@@ -80,7 +84,8 @@ exports.logUser = (req, res, next) => {
                             const token = jwt.sign({
                                 id: user.user_id,
                                 email: user.email,
-                                name: user.firstName
+                                name: user.firstName,
+                                orgId : user.organization.orgId
                             },
                                 process.env.JWT_KEY,
                                 {
@@ -214,10 +219,12 @@ exports.refrshTkn = (req, res, next) => {
         .then(doc => {
             if (!doc) { throw err }
             else {
+                console.log(doc);
                 const nwTkn = jwt.sign({
                     id: doc.user_id,
                     email: doc.email,
-                    name: doc.firstName
+                    name: doc.firstName,
+                    orgId : doc.organization.orgId
                 },
                     process.env.JWT_KEY,
                     {

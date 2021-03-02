@@ -1,7 +1,7 @@
 const User = require('../model/user');
 const bcrypt = require('bcrypt'); 
 const Supplier = require('../model/supplier');
-
+const Authusr = require('../Authentication/tokenToUsr');
 //Get User Info 
 exports.getUsr = (req,res,next)=>{
     var email = req.params.email;
@@ -19,8 +19,15 @@ exports.getUsr = (req,res,next)=>{
 }
 //Retrive All Users from system
 exports.getAllUsr = (req,res,next)=>{
-    User.find().select('-password').exec()
+    const UserInfo = Authusr(req);
+    const orgId = UserInfo.orgId;
+    const filter = JSON.parse(`{"organization.orgId" : "${orgId}"}`);
+    console.log(filter)
+    User.find(filter).select('-password').exec()
     .then(doc=>{
+        if(!doc){
+            throw "Users Not Found"
+        }
      //   console.log("Users Found");
         res.status(200).json(doc);
     })
