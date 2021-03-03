@@ -4,13 +4,20 @@ const UserInfo = require('../Authentication/tokenToUsr');
 const date = require('date-and-time');
 const Util = require('../Utils/util');
 //Set New Work Category
-exports.addWorkCategory = (req, res, next) => {
-    WorkCategory.find().exec()
+exports.addWorkCategory = async (req, res, next) => {
+    const userInfo = UserInfo(req);
+    const orgId = userInfo.orgId;
+    const orgName = await Util.getOrgName(orgId);
+    WorkCategory.find({'organization.orgId': orgId}).exec()
         .then(doc => {
             const wrkId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null, "WRKC");
             const workCategory = new WorkCategory({
                 workId: wrkId,
-                WorkTypes: req.body.WorkTypes
+                WorkTypes: req.body.WorkTypes,
+                organization : {
+                    orgId : orgId,
+                    orgName : orgName
+                }
             });
             workCategory.save()
                 .then(result => {
