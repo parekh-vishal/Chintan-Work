@@ -16,6 +16,7 @@ const mongoose = require("mongoose");
 const user = require('./routes/user');
 const authentication = require('./routes/authentication');
 const constructionSite = require('./routes/constructionSite');
+const organization = require('./routes/organization');
 var db = mongoose.connection;
 mongoose.connect(process.env.MONGO_SERVER,{
     useNewUrlParser: true, useUnifiedTopology: true,useFindAndModify: false
@@ -44,6 +45,7 @@ app.get(['/', '/dashboard/*', '/signup', '/login'], (req,res) => {
 app.use('/authenticate',authentication);
 app.use('/user',user);
 app.use('/constructionSite',constructionSite);
+app.use('/organization',organization);
 app.use((req,res,next)=>{
     res.header("Acess-Control-Allow-Origin",'*');
     res.header('Access-Control-Allow-Heaaders','Origin,X-Requested-With,Content-Type,Accept,Authorization');
