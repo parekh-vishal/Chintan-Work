@@ -13,7 +13,11 @@ const constructionSite = mongoose.Schema({
     siteInaugurationDate : {type :Date, required : 'Please enter InaugurationDate'},
     siteEstimate : {type :String, required : 'Please enter Estimate of Site'},
     tentativeDeadline : {type :Date, required : 'Please enter Deadline Date'},
-    siteStatus : {type : String, default : 'Active'}
+    siteStatus : {type : String, default : 'Active'},
+    organization : {
+        orgId : String,
+        orgName : String
+    }
 });
 
 module.exports = mongoose.model('Construction_Site' , constructionSite);
