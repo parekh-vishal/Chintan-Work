@@ -207,7 +207,7 @@ exports.getAllSite = (req, res) => {
             }
             Constructsite.find({ siteId: siteIds, siteStatus: 'Active', 'organization.orgId': orgId }).exec() //{ siteId: siteIds,siteStatus : 'Active'}
                 .then(doc => {
-                    if(!doc || doc.length==0){
+                    if(!doc){
                         throw "Sites Not Found"
                     }
                     res.status(200).json(doc);

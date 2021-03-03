@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 let workDetail = {
-    workId : String,
+    workCategoryId : String,
     workType : String,
     totalworker : {
         mason : Number,
