@@ -37,7 +37,7 @@ class WorkReportForms extends Component<IProps, any> {
       },
       workDescription: "",
       workType: "",
-      workId: "",
+      workCategoryId: "",
       workTypeObject: {
         label: "",
         value: ""
@@ -63,11 +63,12 @@ class WorkReportForms extends Component<IProps, any> {
         const element = allExistingWorks[index];
         element.workTypeObject = {
           label: element.workType,
-          value: element.workId,
+          value: element.workCategoryId,
         }
         
       }
       return {
+        workId : this.props.currentWorkReport.workId,
         Works: allExistingWorks,
         cementAmount: this.props.currentWorkReport.cementAmount,
         date: moment(this.props.currentWorkReport.date).toDate(),
@@ -155,6 +156,7 @@ class WorkReportForms extends Component<IProps, any> {
 
   submitEvent = async (values: FormikValues) => {
     const { 
+      workId,
       Works,
       cementAmount,
       date,
@@ -171,7 +173,7 @@ class WorkReportForms extends Component<IProps, any> {
       siteName: siteObject.label
     };
 
-    const workReportCreated = await ((this.props.currentWorkReport && this.props.currentWorkReport._id) ? editWorkReport({...newWorkReportData, _id: this.props.currentWorkReport._id }) : addNewWorkReport(newWorkReportData));
+    const workReportCreated = await ((this.props.currentWorkReport && this.props.currentWorkReport._id) ? editWorkReport({...newWorkReportData, _id: this.props.currentWorkReport._id, workId: this.props.currentWorkReport.workId }) : addNewWorkReport(newWorkReportData));
 
     if (workReportCreated && workReportCreated.data) {
       this.props.handleClose();
@@ -264,7 +266,7 @@ class WorkReportForms extends Component<IProps, any> {
                             <tr key={idx}>
                               <td>{idx+1}</td>
                               <td>
-                                <Select value={workDetails.workTypeObject} name={`Works[${idx}].workTypeObject`} onChange={(val)=>{setFieldValue(`Works[${idx}].workTypeObject`, val);setFieldValue(`Works[${idx}].workId`, val.value);setFieldValue(`Works[${idx}].workType`, val.label);}} options={this.state.allWorkTypeOption} isDisabled={isReadOnly}/>
+                                <Select value={workDetails.workTypeObject} name={`Works[${idx}].workTypeObject`} onChange={(val)=>{setFieldValue(`Works[${idx}].workTypeObject`, val);setFieldValue(`Works[${idx}].workCategoryId`, val.value);setFieldValue(`Works[${idx}].workType`, val.label);}} options={this.state.allWorkTypeOption} isDisabled={isReadOnly}/>
                               </td>
                               <td>
                                 <Form.Control type="number" placeholder="Enter Total Mason" onChange={handleChange} name={`Works[${idx}].totalworker.mason`} onBlur={handleBlur} value={workDetails.totalworker.mason} readOnly={isReadOnly}/>

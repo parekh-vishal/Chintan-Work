@@ -8,7 +8,7 @@ export interface IWorkDetailTypes {
   };
   workDescription : string;
   workTypeObject?: IDropdownObject;
-  workId: string;
+  workCategoryId: string;
 }
 
 
