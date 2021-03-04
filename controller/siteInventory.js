@@ -91,7 +91,8 @@ exports.getSiteInventory = async (req, res, next) => {
 //Edit Site Inventory
 exports.editSiteInventory = (req, res, next) => {
     const filter = req.query; //It should regdId
-    Material.findOneAndUpdate(filter, req.body).exec()
+    const {metId} = req.body;
+    Material.findOneAndUpdate({metId}, req.body).exec()
         .then(doc => {
             res.status(200).json({
                 message: "Inventory Details Updated"
