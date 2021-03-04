@@ -4,7 +4,7 @@ const checkAuth = require('../Authentication/check_auth');
 const route = express.Router();
 
 //Add New Organization
-route.post('/insertOrg',checkAuth,organization.addOrg);
+route.post('/insertOrg',organization.addOrg);
 
 //Edit Organization Info
 route.post('/editOrg',checkAuth,organization.editOrgInfo);
