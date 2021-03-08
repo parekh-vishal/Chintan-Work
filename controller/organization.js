@@ -1,5 +1,5 @@
 const Organization = require('../model/organization');
-
+const Utils = require('../Utils/util');
 //Add Organization Function
 exports.addOrg = (req, res, next) => {
     Organization.find({ orgName: req.body.orgName }).exec()
@@ -10,20 +10,13 @@ exports.addOrg = (req, res, next) => {
                 });
             }
             else {
-                let orgId;
-                Organization.find().select('orgName').exec()
+                let orgId ;
+                Organization.find().select('orgId').exec()
                     .then(doc => {
-                        if (doc.length != 0) {
-                            orgId = doc[(doc.length - 1)].orgName;
+                        if(!doc){
+                            throw "Users Not Found";
                         }
-                        if (orgId == null) {
-                            orgId = "ORG0";
-                        }
-                        else {
-                            var dum = parseInt(orgId.replace('ORG', ''));
-                            dum += 1;
-                            orgId = 'ORG' + dum;
-                        }
+                        orgId = Utils.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].orgId : null,"ORG")
                         let org = new Organization({
                             orgId: orgId,
                             orgName: req.body.orgName,
