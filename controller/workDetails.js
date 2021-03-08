@@ -85,6 +85,7 @@ exports.addWorkDes = (req, res, next) => {
             const workId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null,"WRK");
             workdets = new WorkDes({
                 workId: workId,
+                orgId : orgId,
                 siteId: req.body.siteId,
                 siteName: req.body.siteName,
                 supervisorId: req.body.supervisorId,

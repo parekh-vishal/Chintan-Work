@@ -14,6 +14,7 @@ exports.addmaterialToInventory = (req, res, next) => {
             const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null,"MET");
             const materialInfo = new Material({
                 metId: metId,
+                orgId : orgId,
                 siteId: req.body.siteId,
                 siteName: req.body.siteName,
                 supervisorId: userId,
