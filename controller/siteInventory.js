@@ -59,7 +59,6 @@ exports.getSiteInventory = async (req, res, next) => {
     filter.orgId = orgId;
     const userPermission =await Util.checkUserPermission(filter);
     const {adminUser, supervisor, expneseUser} = userPermission;
-    delete filter.orgId;
     if (adminUser.includes(uid) || expneseUser.includes(uid)) {
         Material.find(filter).exec()
             .then(doc => {
