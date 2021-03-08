@@ -54,6 +54,7 @@ exports.addSite = (req, res, next) => {
                         //  console.log(adminUsrArr);
                         let siteRule = new SiteRules({
                             siteId: siteId,
+                            orgId : orgId,
                             adminUsers: adminUsrArr
                         });
                         siteRule.save()
@@ -230,6 +231,9 @@ exports.getAllSite = (req, res) => {
 exports.getSiteSetting = (req, res) => {
     const filter = req.query; //Query Format ?siteId=site0&amp;adminUsers.adminUserId=usr0; 
     // console.log(filter);
+    const userInfo = Authusr(req);
+    const orgId = userInfo.orgId;
+    filter.orgId = orgId;
     SiteRules.findOne(filter).exec()
         .then(doc => {
             if (doc != null) {

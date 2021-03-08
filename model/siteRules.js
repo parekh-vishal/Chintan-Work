@@ -18,6 +18,7 @@ let workCategory = {
 }
 let siteSettings = mongoose.Schema({
     siteId : String,
+    orgId : String,
     supervisors : [siteSupervisor],
     userExpense : [userExpense],
     adminUsers : [adminUser],
