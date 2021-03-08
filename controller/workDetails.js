@@ -3,6 +3,7 @@ const WorkCategory = require('../model/workCategory');
 const UserInfo = require('../Authentication/tokenToUsr');
 const date = require('date-and-time');
 const Util = require('../Utils/util');
+const Authusr = require('../Authentication/tokenToUsr');
 //Set New Work Category
 exports.addWorkCategory = async (req, res, next) => {
     const userInfo = UserInfo(req);
@@ -41,7 +42,9 @@ exports.addWorkCategory = async (req, res, next) => {
 };
 //Get All Work Categories
 exports.getAllCategories = (req, res, next) => {
-    WorkCategory.find().exec()
+    const userInfo = Authusr(req);
+    const filter = JSON.parse(`{"organization.orgId" : "${userInfo.orgId}"}`);
+    WorkCategory.find(filter).exec()
         .then(doc => {
             res.status(200).json(doc);
         })
