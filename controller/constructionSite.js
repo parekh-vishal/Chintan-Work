@@ -10,11 +10,11 @@ const Util = require('../Utils/util');
 const { throws } = require('assert');
 //This Function Used for Add New Site
 exports.addSite = (req, res, next) => {
-    Constructsite.find({ siteName: req.body.siteName }).exec()
-        .then(async (doc) => {
-            const userInfo = Authusr(req);
-            const userId = userInfo.id;
-            const orgId = userInfo.orgId;
+    const userInfo = Authusr(req);
+    const userId = userInfo.id;
+    const orgId = userInfo.orgId;
+    Constructsite.find({ siteName: req.body.siteName, "organization.orgId" : orgId }).exec()
+        .then(async (doc) => { 
             let orgName = await Util.getOrgName(orgId);
             if (doc.length >= 1) {
                 return res.status(409).json({
@@ -22,7 +22,7 @@ exports.addSite = (req, res, next) => {
                 });
             }
             else {
-                Constructsite.find().select('siteId').exec()
+                Constructsite.find({'organization.orgId': orgId}).select('siteId').exec()
                     .then(doc => {
                         const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null, "SITE");
                         const site = new Constructsite({
