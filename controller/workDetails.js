@@ -78,7 +78,9 @@ exports.addWorkDes = (req, res, next) => {
     temp = temp.reverse();
     let servDate = new Date();
     servDate = date.format(servDate, temp.join('-'));
-    WorkDes.find().exec()
+    const userInfo = Authusr(req);
+    const orgId = userInfo.orgId;
+    WorkDes.find({orgId : orgId}).exec()
         .then(doc => {
             const workId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null,"WRK");
             workdets = new WorkDes({

@@ -8,7 +8,8 @@ exports.addmaterialToInventory = (req, res, next) => {
     const userInfo = Authusr(req);
     const userId = userInfo.id;
     const userName = userInfo.name;
-    Material.find().select('metId').exec()
+    const orgId = userInfo.orgId;
+    Material.find({orgId : orgId}).select('metId').exec()
         .then(doc => {
             const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null,"MET");
             const materialInfo = new Material({
