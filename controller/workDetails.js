@@ -142,10 +142,12 @@ exports.getWorkByDate = async (req, res, next) => {
     if (filter == undefined) {
         filter = null;
     }
-    const userPermission = await Util.checkUserPermission(filter);
-    const {adminUser,supervisor,expneseUser} = userPermission;
     const userInfo = UserInfo(req);
     const userId = userInfo.id;
+    const orgId = userInfo.orgId;
+    filter.orgId = orgId;
+    const userPermission = await Util.checkUserPermission(filter);
+    const {adminUser,supervisor,expneseUser} = userPermission;
     if (adminUser.includes(userId)) {
         WorkDes.find(filter).exec()
             .then(result => {

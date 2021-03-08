@@ -54,6 +54,8 @@ exports.getSiteInventory = async (req, res, next) => {
     const userInfo = Authusr(req);
     const uid = userInfo.id;
     const uname = userInfo.name;
+    const orgId  = userInfo.orgId;
+    filter.orgId = orgId;
     const userPermission =await Util.checkUserPermission(filter);
     const {adminUser, supervisor, expneseUser} = userPermission;
     if (adminUser.includes(uid) || expneseUser.includes(uid)) {
