@@ -53,6 +53,7 @@ exports.addmaterialToInventory = (req, res, next) => {
 //Get Inventory Details
 exports.getSiteInventory = async (req, res, next) => {
     const filter = req.query; //It should be Site Id and Supervisor
+    const {page =1 , limit =10} = req.query;
     const userInfo = Authusr(req);
     const uid = userInfo.id;
     const uname = userInfo.name;
@@ -61,7 +62,7 @@ exports.getSiteInventory = async (req, res, next) => {
     const userPermission =await Util.checkUserPermission(filter);
     const {adminUser, supervisor, expneseUser} = userPermission;
     if (adminUser.includes(uid) || expneseUser.includes(uid)) {
-        Material.find(filter).exec()
+        Material.find(filter).limit(limit*1).skip((page-1)*limit).exec()
             .then(doc => {
                 res.status(200).json(doc);
             })
@@ -74,7 +75,7 @@ exports.getSiteInventory = async (req, res, next) => {
     }
     else if (supervisor.includes(uid)) {
         const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorId":"${uid}"}]}`);
-        Material.find(qFilter).exec()
+        Material.find(qFilter).limit(limit*1).skip((page-1)*limit).exec()
             .then(doc => {
                 res.status(200).json(doc);
             })

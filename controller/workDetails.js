@@ -142,6 +142,7 @@ exports.updateWorkdetails = (req, res, next) => {
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = async (req, res, next) => {
     let filter = req.query;
+    const {page =1 , limit =10} = req.query;
     if (filter == undefined) {
         filter = null;
     }
@@ -152,7 +153,7 @@ exports.getWorkByDate = async (req, res, next) => {
     const userPermission = await Util.checkUserPermission(filter);
     const {adminUser,supervisor,expneseUser} = userPermission;
     if (adminUser.includes(userId)) {
-        WorkDes.find(filter).exec()
+        WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
             .then(result => {
                 res.status(200).json(result);
             })
@@ -165,7 +166,7 @@ exports.getWorkByDate = async (req, res, next) => {
     }
     else if (supervisor.includes(userId)) {
         filter.supervisorId = userId;
-        WorkDes.find(filter).exec()
+        WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
             .then(result => {
                 res.status(200).json(result);
             })
