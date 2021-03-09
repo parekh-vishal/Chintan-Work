@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 let workDetail = {
-    workId : String,
+    workCategoryId : String,
     workType : String,
     totalworker : {
         mason : Number,
@@ -10,6 +10,7 @@ let workDetail = {
 }
 const workDesSchema = mongoose.Schema({
     workId : String,
+    orgId : String,
     siteId : String,
     siteName : {type : String, required : 'Please enter your Site Name'},
     supervisorId : String,

@@ -3,7 +3,7 @@ const route = express.Router();
 const constructSite = require('../controller/constructionSite');
 const checkAuth = require('../Authentication/check_auth');
 const work = require('../controller/workDetails');
-const constructionSite = require('../model/constructionSite');
+const inventory = require('../controller/siteInventory');
 //Add a new Site in System
 route.post('/addNewSite',checkAuth,constructSite.addSite);
 //Change Site Status to Deactive
@@ -27,12 +27,19 @@ route.get('/getAllCategories',checkAuth,work.getAllCategories);
 //Edit Work Category
 route.post('/editWorkCategory',checkAuth,work.editWorkCategory)
 //Push WorkDetails in system
-route.post('/addWorkDetails',work.addWorkDes);
+route.post('/addWorkDetails',checkAuth,work.addWorkDes);
 //Edit WorkDetails on specific date.
-route.post('/editWorkDetails',work.updateWorkdetails);
+route.post('/editWorkDetails',checkAuth,work.updateWorkdetails);
 //Get WorkDetails by date
-route.get('/getWorkDetail',work.getWorkByDate);
+route.get('/getWorkDetail',checkAuth,work.getWorkByDate);
 
-//Add Payment Info in site
+//Site Inventory Details
+route.post('/addMaterialToInventory',checkAuth,inventory.addmaterialToInventory);
+
+//Get Site Inventory by siteId
+route.get('/getSiteInventory',checkAuth,inventory.getSiteInventory);
+
+//Edit Site Inventory Details
+route.post('/editSiteInventory',checkAuth,inventory.editSiteInventory);
 
 module.exports = route;
