@@ -55,3 +55,15 @@ exports.getOrgName = (orgId)=>{
                             return err;
                         });
 }
+
+//Count Total Documents or records in Database.
+// exports.getDocCount = (filter,collection)=>{
+//     return collection.countDocuments(filter).exec()
+//     .then(docCount=>{
+//         return docCount;
+//     })
+//     .catch(err => {
+//         console.log(err);
+//         return err;
+//     });
+// };

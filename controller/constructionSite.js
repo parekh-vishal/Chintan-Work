@@ -13,8 +13,8 @@ exports.addSite = (req, res, next) => {
     const userInfo = Authusr(req);
     const userId = userInfo.id;
     const orgId = userInfo.orgId;
-    Constructsite.find({ siteName: req.body.siteName, "organization.orgId" : orgId }).exec()
-        .then(async (doc) => { 
+    Constructsite.find({ siteName: req.body.siteName, "organization.orgId": orgId }).exec()
+        .then(async (doc) => {
             let orgName = await Util.getOrgName(orgId);
             if (doc.length >= 1) {
                 return res.status(409).json({
@@ -22,7 +22,7 @@ exports.addSite = (req, res, next) => {
                 });
             }
             else {
-                Constructsite.find({'organization.orgId': orgId}).select('siteId').exec()
+                Constructsite.find({ 'organization.orgId': orgId }).select('siteId').exec()
                     .then(doc => {
                         const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null, "SITE");
                         const site = new Constructsite({
@@ -54,7 +54,7 @@ exports.addSite = (req, res, next) => {
                         //  console.log(adminUsrArr);
                         let siteRule = new SiteRules({
                             siteId: siteId,
-                            orgId : orgId,
+                            orgId: orgId,
                             adminUsers: adminUsrArr
                         });
                         siteRule.save()
@@ -195,24 +195,41 @@ exports.getSite = (req, res) => {
 }
 //Get All Site Function
 exports.getAllSite = (req, res) => {
-    const {page =1 , limit =10} = req.query;
+    let { page = 1, limit = 10 } = req.query;
+    page = (page!=0)?page:1;
+    limit = (limit!=0)?limit:10;
     const userInfo = Authusr(req);
-    const uid = userInfo.id;
-    const orgId = userInfo.orgId;
+    const {uid,orgId} = userInfo;
     const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${uid}"},{"supervisors.supervisorId" : "${uid}"},{"userExpense.expenseUserId":"${uid}"}]}`;
     const queryfilterObj = JSON.parse(queryfilterJson);
-    SiteRules.find(queryfilterObj).limit(limit*1).skip((page-1)*limit).select('siteId').exec()
-        .then(doc => {
+    SiteRules.find(queryfilterObj).select('siteId').exec()
+        .then(async doc => {
             let siteIds = [];
             for (let i = 0; i < doc.length; i++) {
                 siteIds.push(doc[i].siteId);
             }
-            Constructsite.find({ siteId: siteIds, siteStatus: 'Active', 'organization.orgId': orgId }).exec() //{ siteId: siteIds,siteStatus : 'Active'}
+            const siteFilter = { siteId: { $in: siteIds }, siteStatus: 'Active', 'organization.orgId': orgId };
+            Constructsite.aggregate([
+                { $match: siteFilter },
+                {
+                    $facet: {
+                        "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
+                        "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
+                    }
+                },
+                { $unwind: "$stage1" },
+                {
+                    $project: {
+                        count: "$stage1.count",
+                        data: "$stage2"
+                    }
+                }
+            ]).exec()
                 .then(doc => {
-                    if(!doc){
+                    if (!doc) {
                         throw "Sites Not Found"
                     }
-                    res.status(200).json(doc);
+                    res.status(200).send(doc);
                 })
                 .catch(err => {
                     console.log(err);
@@ -220,6 +237,23 @@ exports.getAllSite = (req, res) => {
                         error: "Bad Gateway"
                     });
                 });
+            // const docCount = await Util.getDocCount(siteFilter,Constructsite);
+            // Constructsite.find(siteFilter).limit(limit*1).skip((page-1)*limit).exec() //{ siteId: siteIds,siteStatus : 'Active'}
+            //     .then(doc => {
+            //         if(!doc){
+            //             throw "Sites Not Found"
+            //         }
+            //         res.status(200).json({
+            //             doc : doc,
+            //             TotalDocCount : docCount
+            //         });
+            //     })
+            //     .catch(err => {
+            //         console.log(err);
+            //         res.status(502).json({
+            //             error: "Bad Gateway"
+            //         });
+            //     });
         })
         .catch(err => {
             console.log(err);

@@ -142,40 +142,101 @@ exports.updateWorkdetails = (req, res, next) => {
 //Retrieve Work Deails based on particular date
 exports.getWorkByDate = async (req, res, next) => {
     let filter = req.query;
-    const {page =1 , limit =10} = req.query;
     if (filter == undefined) {
         filter = null;
     }
-    const userInfo = UserInfo(req);
-    const userId = userInfo.id;
-    const orgId = userInfo.orgId;
+    let { page = 1, limit = 10 } = req.query;
+    page = (page != 0) ? page : 1;
+    limit = (limit != 0) ? limit : 10;
+    const userInfo = Authusr(req);
+    const {id,orgId} = userInfo;
     filter.orgId = orgId;
+    delete filter.page;
+    delete filter.limit;
     const userPermission = await Util.checkUserPermission(filter);
     const {adminUser,supervisor,expneseUser} = userPermission;
-    if (adminUser.includes(userId)) {
-        WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
-            .then(result => {
-                res.status(200).json(result);
+    if (adminUser.includes(id)) {
+        WorkDes.aggregate([
+            { $match: filter },
+            {
+                $facet: {
+                    "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
+                    "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
+                }
+            },
+            { $unwind: "$stage1" },
+            {
+                $project: {
+                    count: "$stage1.count",
+                    data: "$stage2"
+                }
+            }
+        ])
+            .exec()
+            .then(doc=>{
+                if (!doc) {
+                    throw "Works Not Found"
+                }
+                res.status(200).send(doc);
             })
             .catch(err => {
-                console.log(err);
-                res.status(502).json({
-                    error: err
-                });
-            });
+                        console.log(err);
+                        res.status(502).json({
+                            error: err
+                        });
+                    });
+        // WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
+        //     .then(result => {
+        //         res.status(200).json(result);
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //         res.status(502).json({
+        //             error: err
+        //         });
+        //     });
     }
-    else if (supervisor.includes(userId)) {
-        filter.supervisorId = userId;
-        WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
-            .then(result => {
-                res.status(200).json(result);
+    else if (supervisor.includes(id)) {
+        filter.supervisorId = id;
+        WorkDes.aggregate([
+            { $match: filter },
+            {
+                $facet: {
+                    "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
+                    "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
+                }
+            },
+            { $unwind: "$stage1" },
+            {
+                $project: {
+                    count: "$stage1.count",
+                    data: "$stage2"
+                }
+            }
+        ])
+            .exec()
+            .then(doc=>{
+                if (!doc) {
+                    throw "Works Not Found"
+                }
+                res.status(200).send(doc);
             })
             .catch(err => {
-                console.log(err);
-                res.status(502).json({
-                    error: err
-                });
-            });
+                        console.log(err);
+                        res.status(502).json({
+                            error: err
+                        });
+                    });
+        // WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
+        //     .then(result => {
+        //         res.status(200).json(result);
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //         res.status(502).json({
+        //             error: err
+        //         });
+        //     });
     }
     else {
         res.status(200).json({

@@ -9,12 +9,12 @@ exports.addmaterialToInventory = (req, res, next) => {
     const userId = userInfo.id;
     const userName = userInfo.name;
     const orgId = userInfo.orgId;
-    Material.find({orgId : orgId}).select('metId').exec()
+    Material.find({ orgId: orgId }).select('metId').exec()
         .then(doc => {
-            const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null,"MET");
+            const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null, "MET");
             const materialInfo = new Material({
                 metId: metId,
-                orgId : orgId,
+                orgId: orgId,
                 siteId: req.body.siteId,
                 siteName: req.body.siteName,
                 supervisorId: userId,
@@ -53,38 +53,98 @@ exports.addmaterialToInventory = (req, res, next) => {
 //Get Inventory Details
 exports.getSiteInventory = async (req, res, next) => {
     const filter = req.query; //It should be Site Id and Supervisor
-    const {page =1 , limit =10} = req.query;
+    let { page = 1, limit = 10 } = req.query;
+    page = (page != 0) ? page : 1;
+    limit = (limit != 0) ? limit : 10;
     const userInfo = Authusr(req);
-    const uid = userInfo.id;
-    const uname = userInfo.name;
-    const orgId  = userInfo.orgId;
+    const {id,orgId} = userInfo;
     filter.orgId = orgId;
-    const userPermission =await Util.checkUserPermission(filter);
-    const {adminUser, supervisor, expneseUser} = userPermission;
-    if (adminUser.includes(uid) || expneseUser.includes(uid)) {
-        Material.find(filter).limit(limit*1).skip((page-1)*limit).exec()
-            .then(doc => {
-                res.status(200).json(doc);
+    delete filter.page;
+    delete filter.limit;
+    const userPermission = await Util.checkUserPermission(filter);
+    const { adminUser, supervisor, expneseUser } = userPermission;
+    if (adminUser.includes(id) || expneseUser.includes(id)) {
+        Material.aggregate([
+            { $match: filter },
+            {
+                $facet: {
+                    "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
+                    "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
+                }
+            },
+            { $unwind: "$stage1" },
+            {
+                $project: {
+                    count: "$stage1.count",
+                    data: "$stage2"
+                }
+            }
+        ])
+            .exec()
+            .then(doc=>{
+                if (!doc) {
+                    throw "Materials  Not Found"
+                }
+                res.status(200).send(doc);
             })
             .catch(err => {
-                console.log(err);
-                res.status(502).json({
-                    error: err
-                });
-            });
+                        console.log(err);
+                        res.status(502).json({
+                            error: err
+                        });
+                    });
+        // Material.find(filter).limit(limit*1).skip((page-1)*limit).exec()
+        //     .then(doc => {
+        //         res.status(200).json(doc);
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //         res.status(502).json({
+        //             error: err
+        //         });
+        //     });
     }
-    else if (supervisor.includes(uid)) {
-        const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorId":"${uid}"}]}`);
-        Material.find(qFilter).limit(limit*1).skip((page-1)*limit).exec()
-            .then(doc => {
-                res.status(200).json(doc);
+    else if (supervisor.includes(id)) {
+        const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorId":"${id}"},{"orgId":"${orgId}"}]}`);
+        Material.aggregate([
+            { $match: qFilter },
+            {
+                $facet: {
+                    "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
+                    "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
+                }
+            },
+            { $unwind: "$stage1" },
+            {
+                $project: {
+                    count: "$stage1.count",
+                    data: "$stage2"
+                }
+            }
+        ])
+            .exec()
+            .then(doc=>{
+                if (!doc) {
+                    throw "Materials  Not Found"
+                }
+                res.status(200).send(doc);
             })
             .catch(err => {
-                console.log(err);
-                res.status(502).json({
-                    error: err
-                });
-            });
+                        console.log(err);
+                        res.status(502).json({
+                            error: err
+                        });
+                    });
+        // Material.find(qFilter).limit(limit * 1).skip((page - 1) * limit).exec()
+        //     .then(doc => {
+        //         res.status(200).json(doc);
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //         res.status(502).json({
+        //             error: err
+        //         });
+        //     });
     }
     else {
         res.status(200).json({
@@ -96,8 +156,8 @@ exports.getSiteInventory = async (req, res, next) => {
 //Edit Site Inventory
 exports.editSiteInventory = (req, res, next) => {
     const filter = req.query; //It should regdId
-    const {metId} = req.body;
-    Material.findOneAndUpdate({metId}, req.body).exec()
+    const { metId } = req.body;
+    Material.findOneAndUpdate({ metId }, req.body).exec()
         .then(doc => {
             res.status(200).json({
                 message: "Inventory Details Updated"
