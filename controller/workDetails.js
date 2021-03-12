@@ -42,18 +42,51 @@ exports.addWorkCategory = async (req, res, next) => {
 };
 //Get All Work Categories
 exports.getAllCategories = (req, res, next) => {
+    let { page = 1, limit = 10 } = req.query;
+    page = (page!=0)?page:1;
+    limit = (limit!=0)?limit:10;
     const userInfo = Authusr(req);
-    const filter = JSON.parse(`{"organization.orgId" : "${userInfo.orgId}"}`);
-    WorkCategory.find(filter).exec()
-        .then(doc => {
-            res.status(200).json(doc);
+    const {uid,orgId} = userInfo;
+    const filter = JSON.parse(`{"organization.orgId" : "${orgId}"}`);
+    WorkCategory.aggregate([
+        { $match: filter },
+        {
+            $facet: {
+                "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
+                "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
+            }
+        },
+        { $unwind: "$stage1" },
+        {
+            $project: {
+                count: "$stage1.count",
+                data: "$stage2"
+            }
+        }
+    ])
+        .exec()
+        .then(doc=>{
+            if (!doc) {
+                throw "WorkCategories  Not Found"
+            }
+            res.status(200).send(doc);
         })
         .catch(err => {
-            console.log(err);
-            res.status(502).json({
-                error: err
-            });
-        });
+                    console.log(err);
+                    res.status(502).json({
+                        error: err
+                    });
+                });
+    // WorkCategory.find(filter).exec()
+    //     .then(doc => {
+    //         res.status(200).json(doc);
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //         res.status(502).json({
+    //             error: err
+    //         });
+    //     });
 };
 //Edit WorkCategorirs
 exports.editWorkCategory = (req, res, next) => {

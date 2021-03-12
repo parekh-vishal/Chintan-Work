@@ -199,8 +199,8 @@ exports.getAllSite = (req, res) => {
     page = (page!=0)?page:1;
     limit = (limit!=0)?limit:10;
     const userInfo = Authusr(req);
-    const {uid,orgId} = userInfo;
-    const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${uid}"},{"supervisors.supervisorId" : "${uid}"},{"userExpense.expenseUserId":"${uid}"}]}`;
+    const {id,orgId} = userInfo;
+    const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${id}"},{"supervisors.supervisorId" : "${id}"},{"userExpense.expenseUserId":"${id}"}]}`;
     const queryfilterObj = JSON.parse(queryfilterJson);
     SiteRules.find(queryfilterObj).select('siteId').exec()
         .then(async doc => {
