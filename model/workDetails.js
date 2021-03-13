@@ -17,7 +17,7 @@ const workDesSchema = mongoose.Schema({
     supervisorName : String,
     Works : [workDetail],
     cementAmount : {type : Number, required : 'Please enter Cement Amout'},
-    date : Date
+    date : String
 });
 module.exports = mongoose.model('Work',workDesSchema);
                                                         

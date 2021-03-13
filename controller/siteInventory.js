@@ -12,6 +12,8 @@ exports.addmaterialToInventory = (req, res, next) => {
     Material.find({ orgId: orgId }).select('metId').exec()
         .then(doc => {
             const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null, "MET");
+            const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null,"MET");
+            const date = Util.isoDateToString(req.body.date);
             const materialInfo = new Material({
                 metId: metId,
                 orgId: orgId,
@@ -25,7 +27,7 @@ exports.addmaterialToInventory = (req, res, next) => {
                 pricePerUnit: req.body.pricePerUnit,
                 invoicePrice: req.body.invoicePrice,
                 invoiceNo: req.body.invoiceNo,
-                date: req.body.date,
+                date: date,
                 supplier: req.body.supplier,
                 remarks: req.body.remarks
             });
@@ -53,6 +55,11 @@ exports.addmaterialToInventory = (req, res, next) => {
 //Get Inventory Details
 exports.getSiteInventory = async (req, res, next) => {
     const filter = req.query; //It should be Site Id and Supervisor
+    if(Object.keys(filter).length === 0){
+        return res.status(200).json({
+            message : "PLease select Site"
+        });
+    } 
     let { page = 1, limit = 10 } = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;

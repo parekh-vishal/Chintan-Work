@@ -12,8 +12,8 @@ route.get('/chngStatus',checkAuth,constructSite.chngSiteStatus)
 route.get('/getSiteSettings',checkAuth,constructSite.getSiteSetting); 
 //Edit Site Settings
 route.post('/editSiteSettings',checkAuth,constructSite.editSiteSettings);
-//Get Site By siteId
-route.get('/getSite/:siteId',checkAuth,constructSite.getSite);
+//Get Site By siteId by particular parameters
+route.get('/getSite',checkAuth,constructSite.getSite);
 //Get All Site
 route.get('/getAllSite',checkAuth,constructSite.getAllSite);//getAllSite?page=1&limit=10;
 //Edit Site Info
@@ -31,7 +31,7 @@ route.post('/addWorkDetails',checkAuth,work.addWorkDes);
 //Edit WorkDetails on specific date.
 route.post('/editWorkDetails',checkAuth,work.updateWorkdetails);
 //Get WorkDetails by date
-route.get('/getWorkDetail',checkAuth,work.getWorkByDate);
+route.get('/getWorkDetail',checkAuth,work.getWork);
 
 //Site Inventory Details
 route.post('/addMaterialToInventory',checkAuth,inventory.addmaterialToInventory);

@@ -7,7 +7,6 @@ const pdfTemplate = require('../Documents');
 const path = require('path');
 const fs = require('fs');
 const Util = require('../Utils/util');
-const { throws } = require('assert');
 //This Function Used for Add New Site
 exports.addSite = (req, res, next) => {
     const userInfo = Authusr(req);
@@ -25,6 +24,8 @@ exports.addSite = (req, res, next) => {
                 Constructsite.find({ 'organization.orgId': orgId }).select('siteId').exec()
                     .then(doc => {
                         const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null, "SITE");
+                        const inaugurationDate = Util.isoDateToString(req.body.siteInaugurationDate);
+                        const deadline = Util.dateConverter(req.body.tentativeDeadline);
                         const site = new Constructsite({
                             siteId: siteId,
                             siteName: req.body.siteName,
@@ -37,7 +38,7 @@ exports.addSite = (req, res, next) => {
                                 State: req.body.siteAddress.State,
                                 pincode: req.body.siteAddress.pincode
                             },
-                            siteInaugurationDate: req.body.siteInaugurationDate,
+                            siteInaugurationDate: inaugurationDate,
                             siteEstimate: req.body.siteEstimate,
                             tentativeDeadline: req.body.tentativeDeadline,
                             organization: {
@@ -173,13 +174,29 @@ exports.editSiteSettings = (req, res) => {
         })
 };
 
-//Get Site by SiteID
+//Get Sites by particular filter and filter could be Owner Name, StartDate, Deadline, Site Name, and Site Status
 exports.getSite = (req, res) => {
-    const siteId = req.params.siteId;
-    Constructsite.findOne({ siteId: siteId }).exec()
+    const filter = req.query;
+    const userInfo = Authusr(req);
+    const userId = userInfo.id;
+    if (Object.keys(filter).length == 0) {
+        return res.redirect('getAllSite');
+    }
+    if(filter.siteName || filter.ownerName){
+        if(filter.siteName){
+            filter.siteName = {$regex:filter.siteName,$options : 'i'};
+        }
+        if(filter.ownerName){
+            filter.ownerName = {$regex:filter.ownerName,$options : 'i'};
+        }
+    }
+   // const userPermission = await Util.checkUserPermission()
+    Constructsite.find(filter).exec()
         .then(doc => {
-            if (!doc) {
-                throw err;
+            if (!doc || doc.length==0) {
+                res.status(404).json({
+                    message : "Site Not Found"
+                })
             }
             else {
                 res.status(200).json(doc);
@@ -187,12 +204,12 @@ exports.getSite = (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(404).json({
+            res.status(502).json({
                 message: "Site Not Found",
                 error: err
             });
         })
-}
+};
 //Get All Site Function
 exports.getAllSite = (req, res) => {
     let { page = 1, limit = 10 } = req.query;

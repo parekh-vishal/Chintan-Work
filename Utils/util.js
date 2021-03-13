@@ -1,6 +1,7 @@
 const SiteRule = require('../model/siteRules');
 
 const Organization = require('../model/organization');
+const date = require('date-and-time');
 
 //Create Custom Ids 
 exports.createIDs = (lId,idString)=>{
@@ -67,3 +68,21 @@ exports.getOrgName = (orgId)=>{
 //         return err;
 //     });
 // };
+// Convert User date into DB format i.e convert DD-MM-YYYY into ISO YYYY-MM-DD format
+exports.isoDateToString = (userDate)=>{
+    let temp = new Date(userDate);
+    temp = temp.getDate() + '-' + parseInt(temp.getMonth()+1) + '-' + temp.getFullYear();
+    //let temp = (userDate[2]=='-')?userDate.split('-'):userDate.split('/');
+    //temp = temp.reverse();
+    //temp = temp.toLocaleDateString();
+    // temp = temp.split('/');
+    // temp = temp.reverse();
+    // temp = temp.join('-');
+    // temp = `${temp}`;
+    // console.log('t1',temp);
+    //let servDate = new Date();
+   // servDate = date.format(servDate, temp.join('-'));
+    //servDate = new Date(servDate.toString());
+    //console.log("serv",servDate.toLocaleDateString());
+    return temp;
+};

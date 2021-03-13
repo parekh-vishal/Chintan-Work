@@ -172,9 +172,15 @@ exports.updateWorkdetails = (req, res, next) => {
             });
         });
 };
-//Retrieve Work Deails based on particular date
-exports.getWorkByDate = async (req, res, next) => {
+//Retrieve Work Details
+exports.getWork = async (req, res, next) => {
     let filter = req.query;
+    console.log('fil',filter)
+    if(Object.keys(filter).length === 0){
+        return res.status(200).json({
+            message : "Please select Site"
+        });
+    }
     if (filter == undefined) {
         filter = null;
     }
