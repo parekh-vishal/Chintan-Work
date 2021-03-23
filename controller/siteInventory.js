@@ -12,8 +12,7 @@ exports.addmaterialToInventory = (req, res, next) => {
     Material.find({ orgId: orgId }).select('metId').exec()
         .then(doc => {
             const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null, "MET");
-            const metId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].metId : null,"MET");
-            const date = Util.isoDateToString(req.body.date);
+            //const date = Util.isoDateToString(req.body.date);
             const materialInfo = new Material({
                 metId: metId,
                 orgId: orgId,
@@ -27,7 +26,7 @@ exports.addmaterialToInventory = (req, res, next) => {
                 pricePerUnit: req.body.pricePerUnit,
                 invoicePrice: req.body.invoicePrice,
                 invoiceNo: req.body.invoiceNo,
-                date: date,
+                date: req.body.date,
                 supplier: req.body.supplier,
                 remarks: req.body.remarks
             });
@@ -54,25 +53,38 @@ exports.addmaterialToInventory = (req, res, next) => {
 
 //Get Inventory Details
 exports.getSiteInventory = async (req, res, next) => {
-    const filter = req.query; //It should be Site Id and Supervisor
-    if(Object.keys(filter).length === 0){
+    let filter = { siteId: req.query.siteId }; //It should be Site Id and Supervisor
+    if (Object.keys(filter).length === 0) {
         return res.status(200).json({
-            message : "PLease select Site"
+            message: "Please select Site"
         });
-    } 
-    let { page = 1, limit = 10 } = req.query;
+    }
+    let { page = 1, limit = 10, date = null } = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
+    let cDate = null, nxtdate = null
+    console.log(date);
+    if (date != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(date);
+        cDate = qDate;
+        nxtdate = nxtQdate;
+    }
     const userInfo = Authusr(req);
-    const {id,orgId} = userInfo;
+    const { id, orgId } = userInfo;
     filter.orgId = orgId;
-    delete filter.page;
-    delete filter.limit;
     const userPermission = await Util.checkUserPermission(filter);
     const { adminUser, supervisor, expneseUser } = userPermission;
     if (adminUser.includes(id) || expneseUser.includes(id)) {
+        //const qFilter = {siteId:req.query.siteId,orgId: orgId,$or : [{siteName:siteName},{supervisorName:supervisorName},{materialType:materialType},{invoiceNo:invoiceNo}]}
+        const qFilter = req.query;
+        delete qFilter.page;
+        delete qFilter.limit;
+        if (date != null) {
+            delete qFilter.date;
+            qFilter.date = { '$gte': cDate, "$lte": nxtdate };
+        }
         Material.aggregate([
-            { $match: filter },
+            { $match: qFilter },
             {
                 $facet: {
                     "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
@@ -87,19 +99,19 @@ exports.getSiteInventory = async (req, res, next) => {
                 }
             }
         ])
-            .exec()
-            .then(doc=>{
+            .collation({ locale: "en", strength: 2 }).exec()
+            .then(doc => {
                 if (!doc) {
                     throw "Materials  Not Found"
                 }
                 res.status(200).send(doc);
             })
             .catch(err => {
-                        console.log(err);
-                        res.status(502).json({
-                            error: err
-                        });
-                    });
+                console.log(err);
+                res.status(502).json({
+                    error: err
+                });
+            });
         // Material.find(filter).limit(limit*1).skip((page-1)*limit).exec()
         //     .then(doc => {
         //         res.status(200).json(doc);
@@ -130,18 +142,18 @@ exports.getSiteInventory = async (req, res, next) => {
             }
         ])
             .exec()
-            .then(doc=>{
+            .then(doc => {
                 if (!doc) {
                     throw "Materials  Not Found"
                 }
                 res.status(200).send(doc);
             })
             .catch(err => {
-                        console.log(err);
-                        res.status(502).json({
-                            error: err
-                        });
-                    });
+                console.log(err);
+                res.status(502).json({
+                    error: err
+                });
+            });
         // Material.find(qFilter).limit(limit * 1).skip((page - 1) * limit).exec()
         //     .then(doc => {
         //         res.status(200).json(doc);

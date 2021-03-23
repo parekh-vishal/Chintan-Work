@@ -57,6 +57,28 @@ exports.getOrgName = (orgId)=>{
                         });
 }
 
+//Return Current Date and Next Day Date in ISO format
+
+exports.returnQueryDates = (date)=>{
+    date = date.split('-').reverse().join('-');
+    let qDate = new Date(date);
+        let nDate = (qDate.getDate()+1).toString();
+        if(nDate.length==1){
+            nDate = '0'+nDate;
+        }
+        let nxtQdate = date.split('-');
+        nxtQdate[2] = nDate;
+        nxtQdate = nxtQdate.join('-');
+        nxtQdate = new Date(nxtQdate);
+        return {qDate,nxtQdate};
+};
+
+
+
+
+
+
+
 //Count Total Documents or records in Database.
 // exports.getDocCount = (filter,collection)=>{
 //     return collection.countDocuments(filter).exec()

@@ -7,6 +7,7 @@ const pdfTemplate = require('../Documents');
 const path = require('path');
 const fs = require('fs');
 const Util = require('../Utils/util');
+const date = require('date-and-time');
 //This Function Used for Add New Site
 exports.addSite = (req, res, next) => {
     const userInfo = Authusr(req);
@@ -24,8 +25,8 @@ exports.addSite = (req, res, next) => {
                 Constructsite.find({ 'organization.orgId': orgId }).select('siteId').exec()
                     .then(doc => {
                         const siteId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].siteId : null, "SITE");
-                        const inaugurationDate = Util.isoDateToString(req.body.siteInaugurationDate);
-                        const deadline = Util.dateConverter(req.body.tentativeDeadline);
+                        //const inaugurationDate = Util.isoDateToString(req.body.siteInaugurationDate);
+                        // const deadline = Util.dateConverter(req.body.tentativeDeadline);
                         const site = new Constructsite({
                             siteId: siteId,
                             siteName: req.body.siteName,
@@ -38,7 +39,7 @@ exports.addSite = (req, res, next) => {
                                 State: req.body.siteAddress.State,
                                 pincode: req.body.siteAddress.pincode
                             },
-                            siteInaugurationDate: inaugurationDate,
+                            siteInaugurationDate: req.body.siteInaugurationDate,
                             siteEstimate: req.body.siteEstimate,
                             tentativeDeadline: req.body.tentativeDeadline,
                             organization: {
@@ -182,20 +183,20 @@ exports.getSite = (req, res) => {
     if (Object.keys(filter).length == 0) {
         return res.redirect('getAllSite');
     }
-    if(filter.siteName || filter.ownerName){
-        if(filter.siteName){
-            filter.siteName = {$regex:filter.siteName,$options : 'i'};
+    if (filter.siteName || filter.ownerName) {
+        if (filter.siteName) {
+            filter.siteName = { $regex: filter.siteName, $options: 'i' };
         }
-        if(filter.ownerName){
-            filter.ownerName = {$regex:filter.ownerName,$options : 'i'};
+        if (filter.ownerName) {
+            filter.ownerName = { $regex: filter.ownerName, $options: 'i' };
         }
     }
-   // const userPermission = await Util.checkUserPermission()
+    // const userPermission = await Util.checkUserPermission()
     Constructsite.find(filter).exec()
         .then(doc => {
-            if (!doc || doc.length==0) {
+            if (!doc || doc.length == 0) {
                 res.status(404).json({
-                    message : "Site Not Found"
+                    message: "Site Not Found"
                 })
             }
             else {
@@ -212,11 +213,22 @@ exports.getSite = (req, res) => {
 };
 //Get All Site Function
 exports.getAllSite = (req, res) => {
-    let { page = 1, limit = 10 } = req.query;
-    page = (page!=0)?page:1;
-    limit = (limit!=0)?limit:10;
+    let { page = 1, limit = 10, ownerName = null, siteName = null, siteInaugurationDate = null, tentativeDeadline = null } = req.query;
+    page = (page != 0) ? page : 1;
+    limit = (limit != 0) ? limit : 10;
     const userInfo = Authusr(req);
-    const {id,orgId} = userInfo;
+    const { id, orgId } = userInfo;
+    let IqDate = null, tqDate = null, nxtIqdate = null, nxtTqDate = null;
+    if (siteInaugurationDate != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(siteInaugurationDate);
+        IqDate = qDate;
+        nxtIqdate = nxtQdate;
+    }
+    if (tentativeDeadline != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(tentativeDeadline);
+        tqDate = qDate;
+        nxtTqDate = nxtQdate;
+    }
     const queryfilterJson = `{"$or" : [{"adminUsers.adminUserId":"${id}"},{"supervisors.supervisorId" : "${id}"},{"userExpense.expenseUserId":"${id}"}]}`;
     const queryfilterObj = JSON.parse(queryfilterJson);
     SiteRules.find(queryfilterObj).select('siteId').exec()
@@ -225,7 +237,21 @@ exports.getAllSite = (req, res) => {
             for (let i = 0; i < doc.length; i++) {
                 siteIds.push(doc[i].siteId);
             }
-            const siteFilter = { siteId: { $in: siteIds }, siteStatus: 'Active', 'organization.orgId': orgId };
+            //  const siteFilter = { siteId: { $in: siteIds }, siteStatus: 'Active', 'organization.orgId': orgId,$or:[{'siteName' : siteName},{'ownerName' : ownerName},{'siteInaugurationDate':{"$gte": IqDate,"$lte" : nxtIqdate }},{'tentativeDeadline':{$lte:nxtTqDate,$gte:tqDate}}] };
+            let siteFilter = req.query;
+            delete siteFilter.page;
+            delete siteFilter.limit;
+            siteFilter['organization.orgId'] = orgId;
+            siteFilter.siteId = { '$in': siteIds };
+            siteFilter.siteStatus = 'Active';
+            if (siteInaugurationDate != null) {
+                delete siteFilter.siteInaugurationDate;
+                siteFilter.siteInaugurationDate = { '$gte': IqDate, '$let': nxtIqdate };
+            }
+            if (tentativeDeadline != null) {
+                delete siteFilter.tentativeDeadline;
+                siteFilter.tentativeDeadline = { '$gte': tqDate, '$lte': nxtTqDate };
+            }
             Constructsite.aggregate([
                 { $match: siteFilter },
                 {
@@ -241,7 +267,7 @@ exports.getAllSite = (req, res) => {
                         data: "$stage2"
                     }
                 }
-            ]).exec()
+            ]).collation({ locale: "en", strength: 2 }).exec()
                 .then(doc => {
                     if (!doc) {
                         throw "Sites Not Found"
