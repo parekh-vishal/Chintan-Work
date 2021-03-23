@@ -9,15 +9,15 @@ exports.addWorkCategory = async (req, res, next) => {
     const userInfo = UserInfo(req);
     const orgId = userInfo.orgId;
     const orgName = await Util.getOrgName(orgId);
-    WorkCategory.find({'organization.orgId': orgId}).exec()
+    WorkCategory.find({ 'organization.orgId': orgId }).exec()
         .then(doc => {
             const wrkId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null, "WRKC");
             const workCategory = new WorkCategory({
                 workId: wrkId,
                 WorkTypes: req.body.WorkTypes,
-                organization : {
-                    orgId : orgId,
-                    orgName : orgName
+                organization: {
+                    orgId: orgId,
+                    orgName: orgName
                 }
             });
             workCategory.save()
@@ -43,10 +43,10 @@ exports.addWorkCategory = async (req, res, next) => {
 //Get All Work Categories
 exports.getAllCategories = (req, res, next) => {
     let { page = 1, limit = 10 } = req.query;
-    page = (page!=0)?page:1;
-    limit = (limit!=0)?limit:10;
+    page = (page != 0) ? page : 1;
+    limit = (limit != 0) ? limit : 10;
     const userInfo = Authusr(req);
-    const {uid,orgId} = userInfo;
+    const { uid, orgId } = userInfo;
     const filter = JSON.parse(`{"organization.orgId" : "${orgId}"}`);
     WorkCategory.aggregate([
         { $match: filter },
@@ -65,18 +65,18 @@ exports.getAllCategories = (req, res, next) => {
         }
     ])
         .exec()
-        .then(doc=>{
+        .then(doc => {
             if (!doc) {
                 throw "WorkCategories  Not Found"
             }
             res.status(200).send(doc);
         })
         .catch(err => {
-                    console.log(err);
-                    res.status(502).json({
-                        error: err
-                    });
-                });
+            console.log(err);
+            res.status(502).json({
+                error: err
+            });
+        });
     // WorkCategory.find(filter).exec()
     //     .then(doc => {
     //         res.status(200).json(doc);
@@ -113,19 +113,19 @@ exports.addWorkDes = (req, res, next) => {
     servDate = date.format(servDate, temp.join('-'));
     const userInfo = Authusr(req);
     const orgId = userInfo.orgId;
-    WorkDes.find({orgId : orgId}).exec()
+    WorkDes.find({ orgId: orgId }).exec()
         .then(doc => {
-            const workId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null,"WRK");
+            const workId = Util.createIDs(doc[(doc.length - 1)] ? doc[(doc.length - 1)].workId : null, "WRK");
             workdets = new WorkDes({
                 workId: workId,
-                orgId : orgId,
+                orgId: orgId,
                 siteId: req.body.siteId,
                 siteName: req.body.siteName,
                 supervisorId: req.body.supervisorId,
                 supervisorName: req.body.supervisorName,
                 Works: req.body.Works,
                 cementAmount: req.body.cementAmount,
-                date: new Date(servDate.toString())
+                date: req.body.date
             });
             workdets.save()
                 .then(result => {
@@ -157,10 +157,10 @@ exports.updateWorkdetails = (req, res, next) => {
     date = date.reverse();
     date = date.join(saperator);
     const filter = req.body.workId;
-    console.log("filrer",req.body);
-    WorkDes.findOneAndUpdate({workId : filter}, req.body).exec()
+    console.log("filrer", req.body);
+    WorkDes.findOneAndUpdate({ workId: filter }, req.body).exec()
         .then(doc => {
-            console.log('doc',doc);
+            console.log('doc', doc);
             res.status(200).json({
                 message: "Work Details Updated."
             });
@@ -174,29 +174,47 @@ exports.updateWorkdetails = (req, res, next) => {
 };
 //Retrieve Work Details
 exports.getWork = async (req, res, next) => {
-    let filter = req.query;
-    console.log('fil',filter)
-    if(Object.keys(filter).length === 0){
+    let filter = { siteId: req.query.siteId };
+    if (Object.keys(filter).length === 0) {
         return res.status(200).json({
-            message : "Please select Site"
+            message: "Please select Site"
         });
     }
-    if (filter == undefined) {
-        filter = null;
-    }
-    let { page = 1, limit = 10 } = req.query;
+    let { page = 1, limit = 10, siteName = null, supervisorName = null, date = null, } = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
+    let cDate = null, nxtdate = null
+    if (date != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(date);
+        cDate = qDate;
+        nxtdate = nxtQdate;
+    }
     const userInfo = Authusr(req);
-    const {id,orgId} = userInfo;
+    const { id, orgId } = userInfo;
     filter.orgId = orgId;
     delete filter.page;
     delete filter.limit;
     const userPermission = await Util.checkUserPermission(filter);
-    const {adminUser,supervisor,expneseUser} = userPermission;
+    const { adminUser, supervisor, expneseUser } = userPermission;
     if (adminUser.includes(id)) {
+        const qFilter = req.query;
+        delete qFilter.page;
+        delete qFilter.limit;
+        if (date != null) {
+            delete qFilter.date;
+            qFilter.date = { '$gte': cDate, "$lte": nxtdate };
+        }
+        if (qFilter.supervisorName != null) {
+            delete qFilter.supervisorName;
+            qFilter.supervisorName = { '$regex': supervisorName, '$options': 'i' }
+        }
+        if (qFilter.siteName != null) {
+            delete qFilter.siteName;
+            qFilter.siteName = { '$regex': siteName, '$options': 'i' }
+        }
+        console.log('qfil', qFilter);
         WorkDes.aggregate([
-            { $match: filter },
+            { $match: qFilter },
             {
                 $facet: {
                     "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
@@ -211,19 +229,20 @@ exports.getWork = async (req, res, next) => {
                 }
             }
         ])
-            .exec()
-            .then(doc=>{
+            .collation({ locale: "en", strength: 2 }).exec()
+            .then(doc => {
                 if (!doc) {
                     throw "Works Not Found"
                 }
+                console.log(doc);
                 res.status(200).send(doc);
             })
             .catch(err => {
-                        console.log(err);
-                        res.status(502).json({
-                            error: err
-                        });
-                    });
+                console.log(err);
+                res.status(502).json({
+                    error: err
+                });
+            });
         // WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
         //     .then(result => {
         //         res.status(200).json(result);
@@ -236,7 +255,22 @@ exports.getWork = async (req, res, next) => {
         //     });
     }
     else if (supervisor.includes(id)) {
-        filter.supervisorId = id;
+        const qFilter = req.query;
+        delete qFilter.page;
+        delete qFilter.limit;
+        qFilter.supervisorId = id;
+        if (date != null) {
+            delete qFilter.date;
+            qFilter.date = { '$gte': cDate, "$lte": nxtdate };
+        }
+        if (qFilter.supervisorName != null) {
+            delete qFilter.supervisorName;
+            qFilter.supervisorName = { '$regex': supervisorName, '$options': 'i' }
+        }
+        if (qFilter.siteName != null) {
+            delete qFilter.siteName;
+            qFilter.siteName = { '$regex': siteName, '$options': 'i' }
+        }
         WorkDes.aggregate([
             { $match: filter },
             {
@@ -253,19 +287,19 @@ exports.getWork = async (req, res, next) => {
                 }
             }
         ])
-            .exec()
-            .then(doc=>{
+            .collation({ locale: "en", strength: 2 }).exec()
+            .then(doc => {
                 if (!doc) {
                     throw "Works Not Found"
                 }
                 res.status(200).send(doc);
             })
             .catch(err => {
-                        console.log(err);
-                        res.status(502).json({
-                            error: err
-                        });
-                    });
+                console.log(err);
+                res.status(502).json({
+                    error: err
+                });
+            });
         // WorkDes.find(filter).limit(limit*1).skip((page-1)*limit).exec()
         //     .then(result => {
         //         res.status(200).json(result);

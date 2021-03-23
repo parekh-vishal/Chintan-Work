@@ -59,11 +59,10 @@ exports.getSiteInventory = async (req, res, next) => {
             message: "Please select Site"
         });
     }
-    let { page = 1, limit = 10, date = null } = req.query;
+    let { page = 1, limit = 10, siteName = null, supervisorName = null, materialType = null, invoiceNo = null, date = null } = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
     let cDate = null, nxtdate = null
-    console.log(date);
     if (date != null) {
         let { qDate, nxtQdate } = Util.returnQueryDates(date);
         cDate = qDate;
@@ -82,6 +81,22 @@ exports.getSiteInventory = async (req, res, next) => {
         if (date != null) {
             delete qFilter.date;
             qFilter.date = { '$gte': cDate, "$lte": nxtdate };
+        }
+        if (qFilter.siteName != null) {
+            delete qFilter.siteName;
+            qFilter.siteName = { '$regex': siteName, '$options': 'i' }
+        }
+        if (qFilter.supervisorName != null) {
+            delete qFilter.supervisorName;
+            qFilter.supervisorName = { '$regex': supervisorName, '$options': 'i' }
+        }
+        if (qFilter.materialType != null) {
+            delete qFilter.materialType;
+            qFilter.materialType = { '$regex': materialType, '$options': 'i' }
+        }
+        if (qFilter.invoiceNo != null) {
+            delete qFilter.invoiceNo;
+            qFilter.invoiceNo = { '$regex': invoiceNo, '$options': 'i' }
         }
         Material.aggregate([
             { $match: qFilter },
@@ -124,7 +139,31 @@ exports.getSiteInventory = async (req, res, next) => {
         //     });
     }
     else if (supervisor.includes(id)) {
-        const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorId":"${id}"},{"orgId":"${orgId}"}]}`);
+        //const qFilter = JSON.parse(`{"$and": [{"siteId" :"${req.query.siteId}"},{"supervisorId":"${id}"},{"orgId":"${orgId}"}]}`);
+        const qFilter = req.query;
+        qFilter.supervisorId = id;
+        delete qFilter.page;
+        delete qFilter.limit;
+        if (date != null) {
+            delete qFilter.date;
+            qFilter.date = { '$gte': cDate, "$lte": nxtdate };
+        }
+        if (qFilter.siteName != null) {
+            delete qFilter.siteName;
+            qFilter.siteName = { '$regex': siteName, '$options': 'i' }
+        }
+        if (qFilter.supervisorName != null) {
+            delete qFilter.supervisorName;
+            qFilter.supervisorName = { '$regex': supervisorName, '$options': 'i' }
+        }
+        if (qFilter.materialType != null) {
+            delete qFilter.materialType;
+            qFilter.materialType = { '$regex': materialType, '$options': 'i' }
+        }
+        if (qFilter.invoiceNo != null) {
+            delete qFilter.invoiceNo;
+            qFilter.invoiceNo = { '$regex': invoiceNo, '$options': 'i' }
+        }
         Material.aggregate([
             { $match: qFilter },
             {
@@ -141,7 +180,7 @@ exports.getSiteInventory = async (req, res, next) => {
                 }
             }
         ])
-            .exec()
+            .collation({ locale: "en", strength: 2 }).exec()
             .then(doc => {
                 if (!doc) {
                     throw "Materials  Not Found"

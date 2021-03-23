@@ -252,6 +252,14 @@ exports.getAllSite = (req, res) => {
                 delete siteFilter.tentativeDeadline;
                 siteFilter.tentativeDeadline = { '$gte': tqDate, '$lte': nxtTqDate };
             }
+            if (siteFilter.siteName != null) {
+                delete siteFilter.siteName;
+                siteFilter.siteName = { '$regex': siteName, '$options': 'i' }
+            }
+            if (siteFilter.ownerName != null) {
+                delete siteFilter.ownerName;
+                siteFilter.ownerName = { '$regex': ownerName, '$options': 'i' }
+            }
             Constructsite.aggregate([
                 { $match: siteFilter },
                 {
