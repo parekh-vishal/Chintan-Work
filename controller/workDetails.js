@@ -180,7 +180,7 @@ exports.getWork = async (req, res, next) => {
             message: "Please select Site"
         });
     }
-    let { page = 1, limit = 10, siteName = null, supervisorName = null, date = null, } = req.query;
+    let { page = 1, limit = 10, siteName = null, supervisorName = null, WorkType = null, date = null, } = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
     let cDate = null, nxtdate = null
@@ -212,7 +212,6 @@ exports.getWork = async (req, res, next) => {
             delete qFilter.siteName;
             qFilter.siteName = { '$regex': siteName, '$options': 'i' }
         }
-        console.log('qfil', qFilter);
         WorkDes.aggregate([
             { $match: qFilter },
             {
@@ -234,7 +233,6 @@ exports.getWork = async (req, res, next) => {
                 if (!doc) {
                     throw "Works Not Found"
                 }
-                console.log(doc);
                 res.status(200).send(doc);
             })
             .catch(err => {
