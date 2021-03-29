@@ -59,9 +59,9 @@ exports.addSite = (req, res, next) => {
                             orgId: orgId,
                             adminUsers: adminUsrArr
                         });
-                        siteRule.save()
+                        site.save()
                             .then(() => {
-                                site.save()
+                                siteRule.save()
                                     .then(() => {
                                         res.status(200).json({
                                             message: "Site Added"
@@ -246,7 +246,7 @@ exports.getAllSite = (req, res) => {
             siteFilter.siteStatus = 'Active';
             if (siteInaugurationDate != null) {
                 delete siteFilter.siteInaugurationDate;
-                siteFilter.siteInaugurationDate = { '$gte': IqDate, '$let': nxtIqdate };
+                siteFilter.siteInaugurationDate = { '$gte': IqDate, '$lte': nxtIqdate };
             }
             if (tentativeDeadline != null) {
                 delete siteFilter.tentativeDeadline;
