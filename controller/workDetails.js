@@ -50,25 +50,13 @@ exports.getAllCategories = (req, res, next) => {
     const filter = JSON.parse(`{"organization.orgId" : "${orgId}"}`);
     WorkCategory.aggregate([
         { $match: filter },
-        {
-            $facet: {
-                "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
-                "stage2": [{ "$skip": (parseInt(page) - 1) * parseInt(limit) }, { "$limit": parseInt(limit) }]
-            }
-        },
-        { $unwind: "$stage1" },
-        {
-            $project: {
-                count: "$stage1.count",
-                data: "$stage2"
-            }
-        }
     ])
         .exec()
         .then(doc => {
             if (!doc) {
                 throw "WorkCategories  Not Found"
             }
+            console.log(doc);
             res.status(200).send(doc);
         })
         .catch(err => {

@@ -101,7 +101,7 @@ class WorkReportForms extends Component<IProps, any> {
 
 
   allSites = async () => {
-    const respond = await getAllSites();
+    const respond = await getAllSites({page:1});
     if (respond.data) {
       const sitesOptions: Array<{}> = [];
       for (let index = 0; index < respond.data.length; index++) {

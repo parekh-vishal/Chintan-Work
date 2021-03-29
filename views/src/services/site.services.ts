@@ -9,8 +9,8 @@ export const editSite = (siteParam: SiteType) => {
     return post({ url: 'constructionSite/editSiteInfo', body: siteParam })
 };
 
-export const getAllSites = () => {
-    return get({ url: 'constructionSite/getAllSite'})
+export const getAllSites = ({page}:{page:number}) => {
+    return get({ url: `constructionSite/getAllSite?page=${page}`})
 };
 
 export const getSiteSettings = ({userId, siteId}:{userId: string, siteId: string}) => {

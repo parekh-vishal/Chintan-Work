@@ -13,6 +13,8 @@ import { SiteType } from "../../../typings";
 import SitesSettings from "../../Forms/sites-settings/sites-settings.component"
 import { useSelector } from "react-redux";
 import { COMMON } from "../../../constants";
+import { PaginationComponent } from "../../pagination/pagination.component";
+import { ReactComponent } from "*.svg";
 
 interface TableObject {
   columnName: string;
@@ -23,7 +25,7 @@ interface TableObject {
 
 export const SitesListing = (props: any) => {
 
-  const user = useSelector((state:any) => state.user)
+  const user = useSelector((state: any) => state.user)
   const MODAL_NAMES = {
     CREATE_SITE: "CREATE_SITE",
     SITE_SETTINGS: "SITE_SETTINGS",
@@ -31,18 +33,21 @@ export const SitesListing = (props: any) => {
   }
 
   const [listData, setListData] = useState([] as Array<SiteType>);
+  const [totalPage, setTotalPage] = useState(0);
   const [show, setShow] = useState(false);
   const [isReadOnly, setReadOnlyFlag] = useState(false);
   const [modalName, setModalName] = useState("");
   const [currentSite, setCurrentSite] = useState({} as SiteType);
 
-  const allSites = async () => {
-    const allSitesRespond = await getAllSites();
+  const allSites = async (page: number = 1) => {
+    const allSitesRespond = await getAllSites({ page });
     if (allSitesRespond.data) {
-      setListData(allSitesRespond.data);
+      const totalPage = Math.ceil((allSitesRespond.data[0].count) / 10);
+      const currentPage = 1;
+      setListData(allSitesRespond.data[0].data);
+      setTotalPage(totalPage);
     }
   }
-
   useEffect(() => {
     allSites();
   }, []);
@@ -51,25 +56,25 @@ export const SitesListing = (props: any) => {
     columnName: "Site Name",
     key: "siteName",
     type: "text",
-    view: (rowObj:any, text: any) => (<Button variant="link" onClick={() => viewSite(rowObj)}>{text}</Button>),
+    view: (rowObj: any, text: any) => (<Button variant="link" onClick={() => viewSite(rowObj)}>{text}</Button>),
   },
   {
     columnName: "Owner Name",
     key: "ownerName",
     type: "text",
-    view: (rowObj:any, text: any) => (<h6>{text}</h6>),
+    view: (rowObj: any, text: any) => (<h6>{text}</h6>),
   },
   {
     columnName: "Start Date",
     key: "siteInaugurationDate",
     type: "date",
-    view: (rowObj:any, text: any) => (moment(text).format('DD/MM/YYYY')),
+    view: (rowObj: any, text: any) => (moment(text).format('DD/MM/YYYY')),
   },
   {
     columnName: "Complete Date",
     key: "tentativeDeadline",
     type: "date",
-    view: (rowObj:any, text: any) => (moment(text).format('DD/MM/YYYY')),
+    view: (rowObj: any, text: any) => (moment(text).format('DD/MM/YYYY')),
   }];
 
   const handleShow = () => setShow(true);
@@ -106,7 +111,7 @@ export const SitesListing = (props: any) => {
         <Row className="add-buttton-row">
           <Col>
             <h3 className="float-left">Sites</h3>
-            {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button> }
+            {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>}
             {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={() => { setCurrentSite({} as SiteType); openModal(MODAL_NAMES.CREATE_SITE) }}>Add Site</Button>}
           </Col>
         </Row>
@@ -126,23 +131,24 @@ export const SitesListing = (props: any) => {
                 {listData.map((rowObj: any) => (
                   <tr key={rowObj.siteId}>
                     {tableObject.map((columnObj: any, index: number) =>
-                      (<td key={columnObj.columnName}>
-                        {columnObj.view(rowObj, rowObj[columnObj.key])}
-                        {tableObject.length - 1 === index &&
-                          <Fragment>
-                            <Button variant="outline-primary" size="sm" className="float-right" onClick={() => openSiteSetting(rowObj)}>
-                              <FontAwesomeIcon icon={faCog} />
-                            </Button>
-                            <Button variant="link" className="float-right" onClick={() => editSite(rowObj)}>Edit</Button>
-                          </Fragment>
-                        }
-                      </td>)
+                    (<td key={columnObj.columnName}>
+                      {columnObj.view(rowObj, rowObj[columnObj.key])}
+                      {tableObject.length - 1 === index &&
+                        <Fragment>
+                          <Button variant="outline-primary" size="sm" className="float-right" onClick={() => openSiteSetting(rowObj)}>
+                            <FontAwesomeIcon icon={faCog} />
+                          </Button>
+                          <Button variant="link" className="float-right" onClick={() => editSite(rowObj)}>Edit</Button>
+                        </Fragment>
+                      }
+                    </td>)
                     )}
                   </tr>
                 ))
                 }
               </tbody>
             </Table>
+            <PaginationComponent totalPages={totalPage} changePage={allSites}></PaginationComponent>
           </Col>
         </Row>
       </Container>
