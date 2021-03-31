@@ -37,19 +37,25 @@ export const SitesListing = (props: any) => {
   const [show, setShow] = useState(false);
   const [isReadOnly, setReadOnlyFlag] = useState(false);
   const [modalName, setModalName] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [currentSite, setCurrentSite] = useState({} as SiteType);
 
-  const allSites = async (page: number = 1) => {
+  const allSites = async (page: number) => {
+    if(page){
+    setCurrentPage(page);
+  }
+  else{
+    page = currentPage;
+  }
     const allSitesRespond = await getAllSites({ page });
     if (allSitesRespond.data) {
       const totalPage = Math.ceil((allSitesRespond.data[0].count) / 10);
-      const currentPage = 1;
       setListData(allSitesRespond.data[0].data);
       setTotalPage(totalPage);
     }
   }
   useEffect(() => {
-    allSites();
+    allSites(0);
   }, []);
 
   const tableObject: Array<TableObject> = [{
@@ -81,7 +87,7 @@ export const SitesListing = (props: any) => {
   const handleClose = () => {
     setShow(false);
     setReadOnlyFlag(false);
-    allSites();
+    allSites(0);
   };
 
   const openModal = (modalString: any) => {
