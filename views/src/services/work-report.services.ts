@@ -10,5 +10,5 @@ export const editWorkReport = (siteParam: IWorkReportTypes) => {
 };
 
 export const getAllWorkReport = () => {
-    return get({ url: 'constructionSite/getWorkDetail'})
+    return get({ url: `constructionSite/getWorkDetail`});
 };

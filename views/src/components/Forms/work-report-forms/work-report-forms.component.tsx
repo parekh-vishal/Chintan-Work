@@ -102,10 +102,11 @@ class WorkReportForms extends Component<IProps, any> {
 
   allSites = async () => {
     const respond = await getAllSites({page:1});
+    console.log('res',respond.data[0].data);
     if (respond.data) {
       const sitesOptions: Array<{}> = [];
-      for (let index = 0; index < respond.data.length; index++) {
-        const element = respond.data[index];
+      for (let index = 0; index < respond.data[0].data.length; index++) {
+        const element = respond.data[0].data[index];
         sitesOptions.push({
           value: element.siteId,
           label: element.siteName

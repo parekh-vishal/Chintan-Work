@@ -8,6 +8,7 @@ interface IPaginationProps {
 export const PaginationComponent = (props: IPaginationProps) => {
 
     const listData: Array<number> = Array.from({ length: props.totalPages }, (v, k) => k + 1);
+    const totalPage = listData.length;
     const [currentPage, setCurrentPage] = useState(1 as number);
     const [oldCurrentPage, setOldCurrentPage] = useState(0 as number);
     const [scrollRef, setScrollRef] = useState(null as any);
@@ -42,14 +43,14 @@ export const PaginationComponent = (props: IPaginationProps) => {
     const nextPageChange = () => {
         if (currentPage < listData.length) {
             const newPageNumber = currentPage + 1;
-            setCurrentPage(newPageNumber);
+            changePage(newPageNumber);
         }
     }
 
     const prePageChange = () => {
         if (1 < currentPage) {
             const newPageNumber = currentPage - 1;
-            setCurrentPage(newPageNumber);
+            changePage(newPageNumber);
         }
     }
 
@@ -65,8 +66,13 @@ export const PaginationComponent = (props: IPaginationProps) => {
 
     return (
         <ul className="pagination">
+            <li className="page-item" >
+                <a className="page-link" href="javascript:void(0)" onClick = {()=>{changePage(1)}} aria-label="First">
+                <span>First</span>
+                </a>
+            </li>
             <li className="page-item">
-                <a className="page-link" href="javascript:void(0)" aria-label="Previous">
+                <a className="page-link" href="javascript:void(0)" onClick={() => prePageChange() } aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                     <span className="sr-only">Previous</span>
                 </a>
@@ -75,9 +81,14 @@ export const PaginationComponent = (props: IPaginationProps) => {
                 <li className={`page-item ${currentPage == page && 'active'}`} key={page}><a className="page-link" href='javascript:void(0)' onClick={() => changePage(page)}>{page}</a></li>
             ))}
             <li className="page-item">
-                <a className="page-link" href="javascript:void(0)" aria-label="Next">
+                <a className="page-link" href="javascript:void(0)" onClick={() => nextPageChange()} aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                     <span className="sr-only">Next</span>
+                </a>
+            </li>
+            <li className="page-item" >
+                <a className="page-link" href="javascript:void(0)" onClick = {()=>{changePage(parseInt(`${totalPage}`))}} aria-label="First">
+                <span>Last</span>
                 </a>
             </li>
         </ul>
