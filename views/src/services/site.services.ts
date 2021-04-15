@@ -1,4 +1,4 @@
-import { get, post } from "../utils/axios.util";
+import { get, post, getQueryBasedOnParam } from "../utils/axios.util";
 import {SiteType} from "../typings"
 
 export const addNewSite = (siteParam: SiteType) => {
@@ -9,8 +9,10 @@ export const editSite = (siteParam: SiteType) => {
     return post({ url: 'constructionSite/editSiteInfo', body: siteParam })
 };
 
-export const getAllSites = ({page}:{page:number}) => {
-    return get({ url: `constructionSite/getAllSite?page=${page}`})
+export const getAllSites = ({page,siteName}:{page?:number,siteName?:String}) => {
+    let query = '?'+getQueryBasedOnParam({ page, siteName });
+    query = (query=='?')?' ':query;
+    return get({ url: `constructionSite/getAllSite${query}`})
 };
 
 export const getSiteSettings = ({userId, siteId}:{userId: string, siteId: string}) => {

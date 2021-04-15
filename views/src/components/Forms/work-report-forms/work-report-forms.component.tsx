@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Button, Col, Form, Modal, Table } from "react-bootstrap";
 
 import Select from "react-select";
+import AsyncSelect from "react-select/async";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -100,10 +101,9 @@ class WorkReportForms extends Component<IProps, any> {
   }
 
 
-  allSites = async () => {
-    const respond = await getAllSites({page:1});
-    console.log('res',respond.data[0].data);
-    if (respond.data) {
+  allSites = async (siteName?:String) => {
+    const respond = await getAllSites({siteName});
+    if (respond.data && respond.data.length!=0) {
       const sitesOptions: Array<{}> = [];
       for (let index = 0; index < respond.data[0].data.length; index++) {
         const element = respond.data[0].data[index];
@@ -112,18 +112,18 @@ class WorkReportForms extends Component<IProps, any> {
           label: element.siteName
         });
       }
-
       this.setState({
         allSitesAsOption: sitesOptions,
         siteRespond: respond.data
       });
-
       if(this.props.currentWorkReport && this.props.currentWorkReport._id){
         this.fetchSiteSetting({value: this.props.currentWorkReport.siteId});
       }
     }
   }
-
+loadOptions = (siteName?:String, callback?:any)=>{
+  callback(this.state.allSitesAsOption);
+};
   fetchSiteSetting = async (siteObj: any) => {
     var respond = await getSiteSettings({siteId: siteObj.value, userId: this.props.user.user_id});
     if (respond.data && respond.data.workCategories) {
@@ -170,7 +170,7 @@ class WorkReportForms extends Component<IProps, any> {
       date,
       siteId: siteObject.value,
       supervisorId: this.props.user.user_id,
-      supervisorName: `${this.props.user.firstName} ${this.props.user.lastName}`,
+      supervisorName: `${this.props.user.firstName}${this.props.user.lastName}`,
       siteName: siteObject.label
     };
 
@@ -214,7 +214,8 @@ class WorkReportForms extends Component<IProps, any> {
                   <Form.Row>
                     <Form.Label column lg={1}>Site</Form.Label>
                     <Col>
-                      <Select value={values.siteObject} onChange={(val)=>{setFieldValue('siteObject', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} isDisabled={isReadOnly}/>
+                      {/* <Select value={values.siteObject} onChange={(val)=>{setFieldValue('siteObject', val);this.fetchSiteSetting(val);}} options={this.state.allSitesAsOption} isDisabled={isReadOnly}/> */}
+                      <AsyncSelect cacheOptions onInputChange={this.allSites} defaultOptions = {this.state.allSitesAsOption} loadOptions = {this.loadOptions} value={values.siteObject} onChange={(val)=>{setFieldValue('siteObject', val);this.fetchSiteSetting(val);} } isDisabled={isReadOnly}></AsyncSelect>
                       <Form.Text className="text-danger">{errors.siteName}</Form.Text>
                     </Col>
                   </Form.Row>

@@ -105,3 +105,20 @@ export const del = (
       return res;
     });
 };
+
+
+/**
+ * Function used to create query string which used to pass in api based on query object
+ * @param param : param is object i.e {page: 1, name: 'Test'} etx
+ * @returns {string}: return value should be based on param i.e. page='1'&name='Test'
+ */
+ export const getQueryBasedOnParam = (param: any): string => {
+  let newQuery = "";
+  for (const key in param) {
+      if (Object.prototype.hasOwnProperty.call(param, key)) {
+          const element = param[key];
+          newQuery += element ? `${newQuery ? '&' : ''}${key}=${element}` : "";
+      }
+  }
+  return newQuery;
+}
