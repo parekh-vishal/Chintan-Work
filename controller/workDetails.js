@@ -56,7 +56,6 @@ exports.getAllCategories = (req, res, next) => {
             if (!doc) {
                 throw "WorkCategories  Not Found"
             }
-            console.log(doc);
             res.status(200).send(doc);
         })
         .catch(err => {
@@ -145,10 +144,8 @@ exports.updateWorkdetails = (req, res, next) => {
     date = date.reverse();
     date = date.join(saperator);
     const filter = req.body.workId;
-    console.log("filrer", req.body);
     WorkDes.findOneAndUpdate({ workId: filter }, req.body).exec()
         .then(doc => {
-            console.log('doc', doc);
             res.status(200).json({
                 message: "Work Details Updated."
             });
@@ -258,7 +255,7 @@ exports.getWork = async (req, res, next) => {
             qFilter.siteName = { '$regex': siteName, '$options': 'i' }
         }
         WorkDes.aggregate([
-            { $match: filter },
+            { $match: qFilter },
             {
                 $facet: {
                     "stage1": [{ "$group": { _id: null, count: { $sum: 1 } } }],
