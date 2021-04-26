@@ -8,7 +8,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import Sidebar from "../../components/sidebar/sidebar.component";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { ROUTES } from "../../constants";
-import { SitesListing, WorkReportListing } from "../../components/listings";
+import { SitesListing, WorkReportListing, SiteInventoryListing } from "../../components/listings";
 
 import './dashboard.scss'
 import { logout } from "../../services";
@@ -62,10 +62,14 @@ class DashboardPage extends React.PureComponent<IProps, {}> {
               <Col sm={2} id="sidebar-wrapper">      
                 <Sidebar />
               </Col>
-              <Col  sm={10} id="page-content-wrapper">
+              <Col sm={10} id="page-content-wrapper">
                 <Switch>
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.SITES}`} component={SitesListing} />
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.WORK_REPORT}`} component={WorkReportListing} />
+                  
+                  <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.SITE_INVENTORY}`} component={SiteInventoryListing} />
+                  
+
                   <Route exact path={`${ROUTES.DASHBOARD}${ROUTES.EXPENSE}`}>
                     <h1>Expense</h1>
                   </Route>
