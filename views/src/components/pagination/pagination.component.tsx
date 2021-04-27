@@ -63,31 +63,30 @@ export const PaginationComponent = (props: IPaginationProps) => {
             }
         }, 500);
     }
-
     return (
         <ul className="pagination">
             <li className="page-item" >
-                <a className="page-link" href="javascript:void(0)" onClick = {()=>{changePage(1)}} aria-label="First">
+                <a className="page-link" href="#javascript" onClick = {()=>{changePage(1)}} aria-label="First">
                 <span>First</span>
                 </a>
             </li>
             <li className="page-item">
-                <a className="page-link" href="javascript:void(0)" onClick={() => prePageChange() } aria-label="Previous">
+                <a className="page-link" href="#javascript" onClick={() => prePageChange() } aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                     <span className="sr-only">Previous</span>
                 </a>
             </li>
             {listData.map((page: any) => (
-                <li className={`page-item ${currentPage == page && 'active'}`} key={page}><a className="page-link" href='javascript:void(0)' onClick={() => changePage(page)}>{page}</a></li>
+                <li className={`page-item ${currentPage == page && 'active'}`} style={{zIndex:0}} key={page}><a className="page-link" href='#javascript' onClick={() => changePage(page)}>{page}</a></li>
             ))}
             <li className="page-item">
-                <a className="page-link" href="javascript:void(0)" onClick={() => nextPageChange()} aria-label="Next">
+                <a className="page-link" href="#javascrip   t" onClick={() => nextPageChange()} aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                     <span className="sr-only">Next</span>
                 </a>
             </li>
             <li className="page-item" >
-                <a className="page-link" href="javascript:void(0)" onClick = {()=>{changePage(parseInt(`${totalPage}`))}} aria-label="First">
+                <a className="page-link" href="#javascript" onClick = {()=>{changePage(parseInt(`${totalPage}`))}} aria-label="First">
                 <span>Last</span>
                 </a>
             </li>
