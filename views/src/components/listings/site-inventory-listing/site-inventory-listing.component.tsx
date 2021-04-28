@@ -122,7 +122,10 @@ export const SiteInventoryListing = (props: any) => {
                     </Col>
                 </Row>
                 <Row>
-                    <Col><h5 className="float-left">Select Site:</h5>
+                    <Col md lg="8"></Col>
+                    <Col></Col>
+                    <Col md={'auto'}><h5 className="float-left" style={{ paddingTop: "5px" }}>Select Site</h5></Col>
+                    <Col md={2} style={{paddingBottom:"5px"}}>
                         <AsyncSelect value={selectedSite} onInputChange={allSites} defaultOptions={allSite} loadOptions={loadOptions} onChange={(val) => { setsiteId(val) }}></AsyncSelect>
                     </Col>
                 </Row>
