@@ -213,19 +213,19 @@ exports.getSite = (req, res) => {
 };
 //Get All Site Function
 exports.getAllSite = (req, res) => {
-    let { page = 1, limit = 10, ownerName = null, siteName = null, siteInaugurationDate = null, tentativeDeadline = null } = req.query;
+    let { page = 1, limit = 10, ownerName = null, siteName = null, siteInaugurationDateFrom = null, siteInaugurationDateTo = null, tentativeDeadlineFrom = null, tentativeDeadlineTo = null} = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
     const userInfo = Authusr(req);
     const { id, orgId } = userInfo;
     let IqDate = null, tqDate = null, nxtIqdate = null, nxtTqDate = null;
-    if (siteInaugurationDate != null) {
-        let { qDate, nxtQdate } = Util.returnQueryDates(siteInaugurationDate);
+    if (siteInaugurationDateFrom != null && siteInaugurationDateTo != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(siteInaugurationDateFrom,siteInaugurationDateTo);
         IqDate = qDate;
         nxtIqdate = nxtQdate;
     }
-    if (tentativeDeadline != null) {
-        let { qDate, nxtQdate } = Util.returnQueryDates(tentativeDeadline);
+    if (tentativeDeadlineFrom != null && tentativeDeadlineTo != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(tentativeDeadlineFrom,tentativeDeadlineTo);
         tqDate = qDate;
         nxtTqDate = nxtQdate;
     }
@@ -244,12 +244,14 @@ exports.getAllSite = (req, res) => {
             siteFilter['organization.orgId'] = orgId;
             siteFilter.siteId = { '$in': siteIds };
             siteFilter.siteStatus = 'Active';
-            if (siteInaugurationDate != null) {
-                delete siteFilter.siteInaugurationDate;
+            if (siteInaugurationDateFrom != null && siteInaugurationDateTo != null) {
+                delete siteFilter.siteInaugurationDateFrom;
+                delete siteFilter.siteInaugurationDateTo;
                 siteFilter.siteInaugurationDate = { '$gte': IqDate, '$lte': nxtIqdate };
             }
-            if (tentativeDeadline != null) {
-                delete siteFilter.tentativeDeadline;
+            if (tentativeDeadlineFrom != null && tentativeDeadlineTo != null) {
+                delete siteFilter.tentativeDeadlineFrom;
+                delete siteFilter.tentativeDeadlineTo;
                 siteFilter.tentativeDeadline = { '$gte': tqDate, '$lte': nxtTqDate };
             }
             if (siteFilter.siteName != null) {

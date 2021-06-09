@@ -1,0 +1,25 @@
+Filters API
+
+Site Filters : 
+Note : It is not madatory to mention page and limit in all cases.
+1. Get site by ownerName: localhost:3000/constructionSite/getAllSite?OwnerName=anyString
+2. Get Site by SiteName : localhost:3000/constructionSite/getAllSite?siteName=anyString
+3. Get Site by Start Date :  localhost:3000/constructionSite/getAllSite?siteInagurationDate=3-4-2021
+4. Get Site By Tentative Deadline : localhost:3000/constructionSite/getAllSite?tentativeDeadline=3-4-2021
+5. And Combination of any four of these using and/or operator
+
+WorkReport : 
+Note : It is not madatory to mention page and limit in all cases. 
+1. BY siteName and SiteId : localhost:3000/constructionSite/getWorkDetail?siteId=SITE11 & localhost:3000/constructionSite/getWorkDetail?siteName=naroda
+2. By supervisorName : localhost:3000/constructionSite/getWorkDetail?supervisorName=vishal
+3. date : localhost:3000/constructionSite/getWorkDetail?date=04-03-2021
+4. And Combination of any Three of these using and/or operator : localhost:3000/constructionSite/getWorkDetail?siteId=SITE11&page=1&limit=2&siteName=naroda&supervisorName=vishal&date=04-03-2021
+
+Site Inventory:
+Note : It is not madatory to mention page and limit in all cases. 
+1. By Site Name : 
+2. By supervisorName : 
+3. material type : 
+4.invoiceNo : 
+5. Date : 
+6. And Combination of any five of these using and/or operator :localhost:3000/constructionSite/getSiteInventory?siteId=SITE11&siteName=naroda&date=22-03-2021&page=1&limit=10&materialType=cement

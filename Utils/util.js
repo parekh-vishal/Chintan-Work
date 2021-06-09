@@ -4,10 +4,10 @@ const Organization = require('../model/organization');
 const date = require('date-and-time');
 
 //Create Custom Ids 
-exports.createIDs = (lId,idString)=>{
+exports.createIDs = (lId, idString) => {
     let id = lId;
     if (id == null) {
-        id = idString+'0';
+        id = idString + '0';
     }
     else {
         let dum = parseInt(id.replace(idString, ''));
@@ -23,54 +23,57 @@ exports.checkUserPermission = (filter) => {
     let supervisor = [];
     let expneseUser = [];
     return SiteRule.find(filter).exec()
-    .then(doc=>{
-        for (let i = 0; i < doc[0].adminUsers.length; i++) {
-            adminUser.push(doc[0].adminUsers[i].adminUserId);
-        }
-        for (let i = 0; i < doc[0].supervisors.length; i++) {
-            supervisor.push(doc[0].supervisors[i].supervisorId);
-        }
-        for (let i = 0; i < doc[0].userExpense.length; i++) {
-            expneseUser.push(doc[0].supervisors[i].expenseUserId);
-        }
-        return {adminUser:adminUser,supervisor:supervisor,expneseUser:expneseUser};
-    })
-    .catch(err => {
-        console.log(err);
-        return err;
-    });
+        .then(doc => {
+            for (let i = 0; i < doc[0].adminUsers.length; i++) {
+                adminUser.push(doc[0].adminUsers[i].adminUserId);
+            }
+            for (let i = 0; i < doc[0].supervisors.length; i++) {
+                supervisor.push(doc[0].supervisors[i].supervisorId);
+            }
+            for (let i = 0; i < doc[0].userExpense.length; i++) {
+                expneseUser.push(doc[0].supervisors[i].expenseUserId);
+            }
+            return { adminUser: adminUser, supervisor: supervisor, expneseUser: expneseUser };
+        })
+        .catch(err => {
+            console.log(err);
+            return err;
+        });
 };
 
 //Return OrgName Provided OrgID
-exports.getOrgName = (orgId)=>{
-    return Organization.findOne({orgId : orgId}).select('orgName').exec()
-                        .then(doc=>{
-                            if(!doc){
-                                throw "Organization Not Found"
-                            }
-                            const orgName = doc.orgName;
-                            return orgName;
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            return err;
-                        });
+exports.getOrgName = (orgId) => {
+    return Organization.findOne({ orgId: orgId }).select('orgName').exec()
+        .then(doc => {
+            if (!doc) {
+                throw "Organization Not Found"
+            }
+            const orgName = doc.orgName;
+            return orgName;
+        })
+        .catch(err => {
+            console.log(err);
+            return err;
+        });
 }
 
 //Return Current Date and Next Day Date in ISO format
 
-exports.returnQueryDates = (date)=>{
-    date = date.split('-').reverse().join('-');
-    let qDate = new Date(date);
-        let nDate = (qDate.getDate()+1).toString();
-        if(nDate.length==1){
-            nDate = '0'+nDate;
-        }
-        let nxtQdate = date.split('-');
-        nxtQdate[2] = nDate;
-        nxtQdate = nxtQdate.join('-');
-        nxtQdate = new Date(nxtQdate);
-        return {qDate,nxtQdate};
+exports.returnQueryDates = (dateFrom, dateTo) => {
+    dateTo = dateTo.split('-').reverse().join('-');
+    dateFrom = dateFrom.split('-').reverse().join('-');
+    let nxQdate = new Date(dateTo);
+    let qDate = new Date(dateFrom);
+    let nDate = (nxQdate.getDate() + 1).toString();
+    if (nDate.length == 1) {
+        nDate = '0' + nDate;
+    }
+    let nxtQdate = dateTo.split('-');
+
+    nxtQdate[2] = nDate;
+    nxtQdate = nxtQdate.join('-');
+    nxtQdate = new Date(nxtQdate);
+    return { qDate, nxtQdate };
 };
 
 
@@ -91,9 +94,9 @@ exports.returnQueryDates = (date)=>{
 //     });
 // };
 // Convert User date into DB format i.e convert DD-MM-YYYY into ISO YYYY-MM-DD format
-exports.isoDateToString = (userDate)=>{
+exports.isoDateToString = (userDate) => {
     let temp = new Date(userDate);
-    temp = temp.getDate() + '-' + parseInt(temp.getMonth()+1) + '-' + temp.getFullYear();
+    temp = temp.getDate() + '-' + parseInt(temp.getMonth() + 1) + '-' + temp.getFullYear();
     //let temp = (userDate[2]=='-')?userDate.split('-'):userDate.split('/');
     //temp = temp.reverse();
     //temp = temp.toLocaleDateString();
@@ -103,7 +106,7 @@ exports.isoDateToString = (userDate)=>{
     // temp = `${temp}`;
     // console.log('t1',temp);
     //let servDate = new Date();
-   // servDate = date.format(servDate, temp.join('-'));
+    // servDate = date.format(servDate, temp.join('-'));
     //servDate = new Date(servDate.toString());
     //console.log("serv",servDate.toLocaleDateString());
     return temp;

@@ -59,12 +59,12 @@ exports.getSiteInventory = async (req, res, next) => {
             message: "Please select Site"
         });
     }
-    let { page = 1, limit = 10, siteName = null, supervisorName = null, materialType = null, invoiceNo = null, date = null } = req.query;
+    let { page = 1, limit = 10, siteName = null, supervisorName = null, materialType = null, invoiceNo = null, dateFrom = null, dateTo  = null } = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
     let cDate = null, nxtdate = null
-    if (date != null) {
-        let { qDate, nxtQdate } = Util.returnQueryDates(date);
+    if (dateTo != null && dateFrom != null) {
+        let { qDate, nxtQdate } = Util.returnQueryDates(dateFrom,dateTo);
         cDate = qDate;
         nxtdate = nxtQdate;
     }
@@ -78,8 +78,14 @@ exports.getSiteInventory = async (req, res, next) => {
         const qFilter = req.query;
         delete qFilter.page;
         delete qFilter.limit;
-        if (date != null) {
-            delete qFilter.date;
+        if(typeof qFilter.siteId != 'string'){
+            let sId = qFilter.siteId;
+            delete qFilter.siteId;
+            qFilter.siteId = {'$in': sId};
+        }
+        if (dateTo != null && dateFrom != null) {
+            delete qFilter.dateTo;
+            delete qFilter.dateFrom;
             qFilter.date = { '$gte': cDate, "$lte": nxtdate };
         }
         if (qFilter.siteName != null) {
@@ -144,8 +150,14 @@ exports.getSiteInventory = async (req, res, next) => {
         qFilter.supervisorId = id;
         delete qFilter.page;
         delete qFilter.limit;
-        if (date != null) {
-            delete qFilter.date;
+        if(typeof qFilter.siteId != 'string'){
+            let sId = qFilter.siteId;
+            delete qFilter.siteId;
+            qFilter.siteId = {'$in': sId};
+        }
+        if (dateTo != null && dateFrom != null) {
+            delete qFilter.dateTo;
+            delete qFilter.dateFrom;
             qFilter.date = { '$gte': cDate, "$lte": nxtdate };
         }
         if (qFilter.siteName != null) {
