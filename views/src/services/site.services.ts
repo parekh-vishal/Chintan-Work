@@ -9,8 +9,8 @@ export const editSite = (siteParam: SiteType) => {
     return post({ url: 'constructionSite/editSiteInfo', body: siteParam })
 };
 
-export const getAllSites = ({page,siteName}:{page?:number,siteName?:String}) => {
-    let query = '?'+getQueryBasedOnParam({ page, siteName });
+export const getAllSites = ({page, siteName, ownerName, siteInaugurationDateFrom,siteInaugurationDateTo,tentativeDeadlineFrom,tentativeDeadlineTo}:{page?:number,siteName?:String,ownerName?:String,siteInaugurationDateFrom?:Date,siteInaugurationDateTo?:Date,tentativeDeadlineFrom?:Date,tentativeDeadlineTo?:Date}) => {
+    let query = '?'+getQueryBasedOnParam({ page, siteName, ownerName, siteInaugurationDateFrom,siteInaugurationDateTo,tentativeDeadlineFrom,tentativeDeadlineTo});
     query = (query=='?')?' ':query;
     return get({ url: `constructionSite/getAllSite${query}`})
 };

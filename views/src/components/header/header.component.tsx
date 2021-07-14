@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 
-import './header.component.scss'
-
+import './header.component.scss';
 export class HeaderComponent extends React.PureComponent<any, {}> {
   public constructor(props: any) {
     super(props);
@@ -14,7 +13,7 @@ export class HeaderComponent extends React.PureComponent<any, {}> {
 
   public render() {
     return <Navbar bg="light" expand="lg">
-    <Navbar.Brand href="/">Digital 1</Navbar.Brand>
+    <Navbar.Brand href="/"><a href="/"><img src="../logo.jpg" style={{height:"55px"}}/></a></Navbar.Brand>
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
     <Navbar.Collapse id="basic-navbar-nav" className="justify-content-md-end">
       <Nav>

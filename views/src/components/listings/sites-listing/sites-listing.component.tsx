@@ -14,6 +14,7 @@ import SitesSettings from "../../Forms/sites-settings/sites-settings.component"
 import { useSelector } from "react-redux";
 import { COMMON } from "../../../constants";
 import { PaginationComponent } from "../../pagination/pagination.component";
+import {Site_Filter} from "../../Filter/site-filter.components";
 import { ReactComponent } from "*.svg";
 
 interface TableObject {
@@ -40,14 +41,14 @@ export const SitesListing = (props: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSite, setCurrentSite] = useState({} as SiteType);
 
-  const allSites = async (page: number) => {
+  const allSites = async (page: number,siteName?:string,ownerName?:string,siteInaugurationDateFrom?:Date,siteInaugurationDateTo?:Date,tentativeDeadlineFrom?:Date,tentativeDeadlineTo?:Date) => {
     if(page){
     setCurrentPage(page);
   }
   else{
     page = currentPage;
   }
-    const allSitesRespond = await getAllSites({ page });
+    const allSitesRespond = await getAllSites({ page, siteName, ownerName, siteInaugurationDateFrom, siteInaugurationDateTo, tentativeDeadlineFrom, tentativeDeadlineTo });
     if (allSitesRespond.data) {
       const totalPage = Math.ceil((allSitesRespond.data[0].count) / 10);
       setListData(allSitesRespond.data[0].data);
@@ -119,6 +120,11 @@ export const SitesListing = (props: any) => {
             <h3 className="float-left">Sites</h3>
             {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right" onClick={openModal.bind(null, MODAL_NAMES.WORK_CATEGORY)}>Manage Category</Button>}
             {user.userType == COMMON.SUPER_USER && <Button variant="outline-primary" size="sm" className="float-right add-site-btn" onClick={() => { setCurrentSite({} as SiteType); openModal(MODAL_NAMES.CREATE_SITE) }}>Add Site</Button>}
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Site_Filter/>
           </Col>
         </Row>
         <Row>

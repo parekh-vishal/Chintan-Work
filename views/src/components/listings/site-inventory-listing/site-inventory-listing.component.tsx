@@ -43,7 +43,7 @@ export const SiteInventoryListing = (props: any) => {
     };
     const setsiteId = (siteid: any) => {
         setSiteId(siteid.value);
-        //allWorkReport(1,siteid.value);
+        allSiteInventory(1,siteid.value);
         setSelectedSite(siteid)
     };
     const allSiteInventory = async (page: number, siteId: String) => {

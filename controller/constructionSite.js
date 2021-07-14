@@ -213,7 +213,7 @@ exports.getSite = (req, res) => {
 };
 //Get All Site Function
 exports.getAllSite = (req, res) => {
-    let { page = 1, limit = 10, ownerName = null, siteName = null, siteInaugurationDateFrom = null, siteInaugurationDateTo = null, tentativeDeadlineFrom = null, tentativeDeadlineTo = null} = req.query;
+    let { page = 1, limit = 10, ownerName = null, siteId = null, siteName = null, siteInaugurationDateFrom = null, siteInaugurationDateTo = null, tentativeDeadlineFrom = null, tentativeDeadlineTo = null} = req.query;
     page = (page != 0) ? page : 1;
     limit = (limit != 0) ? limit : 10;
     const userInfo = Authusr(req);
@@ -242,7 +242,19 @@ exports.getAllSite = (req, res) => {
             delete siteFilter.page;
             delete siteFilter.limit;
             siteFilter['organization.orgId'] = orgId;
-            siteFilter.siteId = { '$in': siteIds };
+            console.log(typeof siteId)
+            if(siteId !=null && typeof siteId == "string"){
+                console.log('hi')
+                siteFilter.siteId = siteId;
+            }
+            else if(siteId != null && typeof siteId != 'string'){
+                console.log('here')
+                siteFilter.siteId = {'$in' : siteId}                
+            }
+            else{
+                siteFilter.siteId = { '$in': siteIds };
+            }
+            //siteFilter.siteId = { '$in': siteIds };
             siteFilter.siteStatus = 'Active';
             if (siteInaugurationDateFrom != null && siteInaugurationDateTo != null) {
                 delete siteFilter.siteInaugurationDateFrom;
