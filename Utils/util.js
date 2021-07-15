@@ -2,6 +2,7 @@ const SiteRule = require('../model/siteRules');
 
 const Organization = require('../model/organization');
 const date = require('date-and-time');
+const moment = require('moment');
 
 //Create Custom Ids 
 exports.createIDs = (lId, idString) => {
@@ -64,15 +65,17 @@ exports.returnQueryDates = (dateFrom, dateTo) => {
     dateFrom = dateFrom.split('-').reverse().join('-');
     let nxQdate = new Date(dateTo);
     let qDate = new Date(dateFrom);
-    let nDate = (nxQdate.getDate() + 1).toString();
-    if (nDate.length == 1) {
-        nDate = '0' + nDate;
-    }
-    let nxtQdate = dateTo.split('-');
+    const momentDate = new Date(moment(nxQdate).add(1,'days'));
+    console.log("moment Date",momentDate);
+    //let nDate = new Date(moment(nxQdate).add(1,'days'));
+    // if (nDate.length == 1) {
+    //     nDate = '0' + nDate;
+    // }
+    let nxtQdate = new Date(moment(nxQdate).add(1,'days'));;
 
-    nxtQdate[2] = nDate;
-    nxtQdate = nxtQdate.join('-');
-    nxtQdate = new Date(nxtQdate);
+    // nxtQdate[2] = nDate;
+    // nxtQdate = nxtQdate.join('-');
+    // nxtQdate = new Date(nxtQdate);
     return { qDate, nxtQdate };
 };
 
