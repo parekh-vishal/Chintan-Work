@@ -203,7 +203,6 @@ exports.getWork = async (req, res, next) => {
             delete qFilter.siteName;
             qFilter.siteName = { '$regex': siteName, '$options': 'i' }
         }
-        console.log(qFilter);
         WorkDes.aggregate([
             { $match: qFilter },
             {

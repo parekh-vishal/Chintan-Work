@@ -127,7 +127,6 @@ exports.chngSiteStatus = (req, res) => {
 //Edit Site Settings
 exports.editSiteSettings = (req, res) => {
     const filter = req.query;
-    console.log(filter);
     const reqBody = req.body;
     const userInfo = Authusr(req);
     const userId = userInfo.id;
@@ -242,13 +241,10 @@ exports.getAllSite = (req, res) => {
             delete siteFilter.page;
             delete siteFilter.limit;
             siteFilter['organization.orgId'] = orgId;
-            console.log(typeof siteId)
             if(siteId !=null && typeof siteId == "string"){
-                console.log('hi')
                 siteFilter.siteId = siteId;
             }
             else if(siteId != null && typeof siteId != 'string'){
-                console.log('here')
                 siteFilter.siteId = {'$in' : siteId}                
             }
             else{

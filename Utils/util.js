@@ -66,7 +66,6 @@ exports.returnQueryDates = (dateFrom, dateTo) => {
     let nxQdate = new Date(dateTo);
     let qDate = new Date(dateFrom);
     const momentDate = new Date(moment(nxQdate).add(1,'days'));
-    console.log("moment Date",momentDate);
     //let nDate = new Date(moment(nxQdate).add(1,'days'));
     // if (nDate.length == 1) {
     //     nDate = '0' + nDate;
